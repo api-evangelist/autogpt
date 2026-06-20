@@ -3,7 +3,7 @@ name: AutoGPT
 description: >-
   AutoGPT is an autonomous AI agent framework that chains LLM calls to accomplish complex tasks independently.
 type: Index
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
   - AI Agents
   - AI Automation
