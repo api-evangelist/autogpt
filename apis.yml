@@ -24,6 +24,10 @@ apis:
       - type: Documentation
         url: https://docs.agpt.co
 common:
+  - type: DomainSecurity
+    url: security/autogpt-domain-security.yml
+  - url: https://agpt.co/blog
+    type: Blog
   - type: GitHubOrganization
     url: https://github.com/significant-gravitas
   - type: Website
