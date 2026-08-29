@@ -1,0 +1,92 @@
+generated: '2026-08-29'
+method: searched
+source: >-
+  PyPI + npm registry metadata endpoints (pypi.org/pypi/<pkg>/json,
+  registry.npmjs.org/<pkg>) queried 2026-08-29, cross-checked against
+  https://github.com/Significant-Gravitas and https://agpt.co/docs/llms.txt.
+description: >-
+  First-party AutoGPT client libraries. FINDING: AutoGPT ships NO current
+  first-party SDK for the AutoGPT Platform External API (backend.agpt.co
+  /external-api). The only packages published under the Significant-Gravitas
+  name on any registry are AutoGPT Classic artifacts whose last release predates
+  the Platform API by more than two years. The API guide at
+  https://agpt.co/docs/platform/api-and-integrations/api-guide.md documents raw
+  curl with an X-API-Key header and links no client library.
+packages:
+  - language: python
+    registry: pypi
+    name: agpt
+    url: https://pypi.org/project/agpt/
+    source: https://github.com/Significant-Gravitas/Auto-GPT
+    install: pip install agpt
+    official: true
+    version: 0.2.2
+    published: '2023-04-21'
+    status: abandoned
+    note: >-
+      AutoGPT Classic ("An open-source attempt to make GPT-4 autonomous").
+      Publisher e-mail is support@agpt.co and both project URLs point at the
+      Significant-Gravitas org, so first-party is not in doubt. Last release
+      2023-04-21 — 2 years 4 months before this probe, and before the AutoGPT
+      Platform (backend.agpt.co) existed. It does not wrap the current API.
+  - language: python
+    registry: pypi
+    name: autogpt-forge
+    url: https://pypi.org/project/autogpt-forge/
+    source: https://github.com/Significant-Gravitas/AutoGPT
+    install: pip install autogpt-forge
+    official: unverified
+    version: 0.1.4
+    published: '2024-02-26'
+    status: abandoned
+    note: >-
+      The Forge agent-building toolkit from the AutoGPT Classic era. PyPI carries
+      no project_urls and no organisation e-mail, so first-party attribution
+      could not be confirmed from registry metadata alone — recorded as
+      unverified rather than claimed as official. Last release 2024-02-26.
+not_first_party:
+  - language: python
+    registry: pypi
+    name: autogpt
+    url: https://pypi.org/project/autogpt/
+    version: 0.0.1.dev0
+    published: '2023-04-02'
+    reason: >-
+      Published by "Shadow Walker" with no link to Significant-Gravitas. A
+      name-squat on the AutoGPT brand, not an AutoGPT release.
+  - language: javascript
+    registry: npm
+    name: autogpt
+    url: https://www.npmjs.com/package/autogpt
+    version: 0.0.1
+    published: '2023-04-15'
+    reason: >-
+      "TypeScript port of AutoGPT" by a third party; no repository field and no
+      Significant-Gravitas ownership. Not an AutoGPT-published SDK.
+gaps:
+  - >-
+    No JavaScript/TypeScript, Go, Ruby, Java, PHP or Rust client exists for the
+    External API on any registry.
+  - >-
+    No maintained Python client either — the External API's 20 operations
+    (backend.agpt.co/external-api) have no published wrapper at all.
+  - >-
+    npm scope @autogpt is unclaimed (registry.npmjs.org/@autogpt/sdk -> 404).
+probes:
+  - url: https://pypi.org/pypi/agpt/json
+    status: 200
+  - url: https://pypi.org/pypi/autogpt-forge/json
+    status: 200
+  - url: https://pypi.org/pypi/autogpt/json
+    status: 200
+  - url: https://registry.npmjs.org/autogpt
+    status: 200
+  - url: https://registry.npmjs.org/@autogpt/sdk
+    status: 404
+  - url: https://pypi.org/pypi/autogpt-libs/json
+    status: 404
+  - url: https://pypi.org/pypi/autogpt-platform/json
+    status: 404
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

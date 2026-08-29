@@ -4,138 +4,121 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: AutoGPT
 providerId: autogpt
 created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-04'
+modified: '2026-08-29'
+generated: '2026-08-29'
+method: searched
+source: https://agpt.co/pricing
+supporting_source: https://agpt.co/docs/platform/using-the-platform/credits-and-billing.md
 tags:
   - AI Agents
   - AI Automation
-description: Machine-readable plans and pricing scaffold for this API provider. Conforms to the API Commons
-  Plans schema. Tier limits and prices are scaffold defaults; replace with provider-published values.
+  - Pricing
+  - Credits
+description: >-
+  AutoGPT's published plans, read from https://agpt.co/pricing on 2026-08-29.
+  This replaces a 2026-05-04 scaffold whose Free / Professional / Enterprise
+  tiers and request quotas were invented and bear no relation to what AutoGPT
+  sells. The real model is HYBRID: a monthly subscription gates AutoPilot chat
+  allowance and features, while the work agents actually do is billed separately
+  from a pay-as-you-go automation-credit wallet. Prices below are the
+  billed-annually figures shown on the pricing page.
+plan_count: 4
+billing_model:
+  subscription: Monthly plan, priced per month when billed annually.
+  metered: >-
+    Automation credits, purchased into a wallet and consumed when blocks run.
+    Auto-refill is configurable. Charges may be estimated before execution and
+    reconciled against actual usage afterwards.
+  currency: USD
+  free_trial: false
+  free_trial_note: >-
+    No free cloud tier and no trial. An instant demo is available without
+    signup, and the platform is free to self-host.
 plans:
-  - id: autogpt-free
-    name: Free
-    type: freemium
-    description: Free entry tier for the AutoGPT API surface. Intended for evaluation, prototyping, and
-      low-volume integrations. Real limits and pricing must be reconciled with the provider's published
-      plan documentation.
-    entries:
-      - label: API Requests
-        description: Monthly API request quota across all included endpoints
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: 1000
-        timeFrame: month
-        geo: global
-        domains: []
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-      - label: Rate Limit
-        description: Maximum requests per minute on the free tier
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 10
-        timeFrame: minute
-        geo: global
-        domains: []
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
+  - id: autogpt-self-host
+    name: Self-Host (Open Source)
+    type: open-source
+    price: '0.00'
+    currency: USD
+    billing_period: none
+    description: >-
+      Run the whole platform yourself from
+      https://github.com/Significant-Gravitas/AutoGPT on your own
+      infrastructure. Free; you supply the compute and the model API keys.
     elements:
-      - name: Public Documentation
-      - name: Community Support
-      - name: Sandbox Access
-      - name: AutoGPT
+      - name: Full platform source
+      - name: Bring your own infrastructure
+      - name: Bring your own model keys
+    docs: https://agpt.co/docs/platform/self-hosting/getting-started.md
   - id: autogpt-pro
-    name: Professional
+    name: Pro
     type: paid
-    description: Production tier for AutoGPT. Provides higher quotas, priority support, and access to
-      the broader API portfolio. Pricing placeholder; align with the provider's pricing page.
-    entries:
-      - label: API Requests
-        description: Monthly API request quota
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: 100000
-        timeFrame: month
-        geo: global
-        domains: []
-        unit: 1
-        price: TBD
-        userMultiplied: false
-      - label: Rate Limit
-        description: Maximum requests per minute on the professional tier
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 100
-        timeFrame: minute
-        geo: global
-        domains: []
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-      - label: Overage
-        description: Per-request price after monthly quota is exceeded
-        name: overage
-        type: metered
-        metric: requests
-        limit: -1
-        timeFrame: month
-        geo: global
-        domains: []
-        unit: 1000
-        price: TBD
-        userMultiplied: false
+    price: '42.50'
+    currency: USD
+    billing_period: month
+    billing_note: billed annually
+    usage_multiplier: 1x
+    description: For individuals getting started with dependable everyday automation.
     elements:
-      - name: All Production Endpoints
-      - name: Email Support
-      - name: SLA Targets
-      - name: Webhook Subscriptions
-      - name: AutoGPT
-  - id: autogpt-enterprise
-    name: Enterprise
+      - name: Access to leading AI models
+      - name: Background agent operation
+      - name: Visual builder
+      - name: File-aware agents
+      - name: Scheduling
+  - id: autogpt-max
+    name: Max
+    type: paid
+    price: '272.00'
+    currency: USD
+    billing_period: month
+    billing_note: billed annually
+    usage_multiplier: 8.5x
+    description: For users who are serious about getting more work done.
+    elements:
+      - name: Everything in Pro
+      - name: 8.5x usage capacity
+      - name: 5x file storage
+      - name: Early feature access
+      - name: Priority support
+  - id: autogpt-team
+    name: Team
     type: enterprise
-    description: Custom-negotiated tier for AutoGPT. Includes dedicated capacity, contractual SLAs, security
-      review, data residency options, and named technical account management.
-    entries:
-      - label: API Requests
-        description: Negotiated request volume; -1 indicates uncapped subject to fair use
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: -1
-        timeFrame: month
-        geo: configurable
-        domains: []
-        unit: 1
-        price: custom
-        userMultiplied: false
-      - label: Rate Limit
-        description: Negotiated burst and steady-state rate
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 1000
-        timeFrame: minute
-        geo: configurable
-        domains: []
-        unit: 1
-        price: custom
-        userMultiplied: false
+    price: custom
+    currency: USD
+    billing_period: month
+    availability: coming-soon
+    description: >-
+      For teams that need collaboration, controls, and custom usage. Listed as
+      coming soon; contact sales.
     elements:
-      - name: Unlimited / Negotiated Volume
-      - name: 24/7 Dedicated Support
-      - name: Contractual SLA
-      - name: Security & Compliance Review
-      - name: Dedicated Account Manager
-      - name: Custom Data Residency
-      - name: AutoGPT
+      - name: Multi-user workspaces
+      - name: Admin controls
+      - name: Centralized billing
+      - name: Collaboration features
+      - name: Security options
+credit_wallet:
+  name: Automation credits
+  purchase: Billing settings -> Automation Credits -> Add credits
+  auto_refill: true
+  balance_ui: https://platform.agpt.co/settings/billing?tab=automation-credits
+  charge_basis: >-
+    Per block execution. Fixed for some blocks; usage-based for others (tokens,
+    provider cost, elapsed time, data size, number of items).
+  can_go_negative: true
+  negative_note: >-
+    "Final reconciliation for a usage-based block that already ran can leave the
+    balance below zero."
+  exhaustion: Paid blocks cannot start; scheduled tasks may fail; API returns 402.
+  docs: https://agpt.co/docs/platform/using-the-platform/credits-and-billing.md
+api_access_note: >-
+  The pricing page does not price API access separately. API keys and OAuth
+  applications are features of the account; what the API consumes is the same
+  automation-credit wallet the UI consumes. There is no API-only plan and no
+  published per-call price.
+gaps:
+  - Credit-per-block prices are not published; cost is only visible after the fact in Billing settings.
+  - Included credit allowance per plan is not stated numerically on the pricing page.
+  - No monthly (non-annual) price is shown alongside the annual figures.
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com

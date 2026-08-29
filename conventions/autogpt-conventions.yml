@@ -1,0 +1,180 @@
+generated: '2026-08-29'
+method: derived
+source: >-
+  Derived from openapi/autogpt-agent-server-openapi.json and
+  openapi/autogpt-external-api-openapi.json, plus
+  https://agpt.co/docs/platform/api-and-integrations/api-guide.md and live
+  responses from https://backend.agpt.co observed 2026-08-29.
+description: >-
+  How the AutoGPT Platform API behaves across every operation — the runtime
+  semantics OpenAPI does not express. AutoGPT is an AGENT EXECUTION API: the
+  central write is "run this agent", which is long-running, credit-metered and
+  asynchronous. That shapes every convention below.
+base_urls:
+  external_api: https://backend.agpt.co/external-api
+  agent_server: https://backend.agpt.co
+api_style: REST over HTTPS, JSON request and response bodies, FastAPI-generated OpenAPI 3.1.0
+authentication:
+  scheme: X-API-Key header, or Authorization Bearer with an agpt_xt_ OAuth token
+  detail: authentication/autogpt-authentication.yml
+  docs: https://agpt.co/docs/platform/api-and-integrations/api-guide.md
+idempotency:
+  supported: false
+  mechanism: null
+  evidence: >-
+    No Idempotency-Key parameter, header or component appears anywhere in either
+    published OpenAPI document (grepped 2026-08-29), and no docs page mentions
+    idempotency. POST /external-api/v1/graphs/{graph_id}/execute/{graph_version}
+    and POST /external-api/v1/blocks/{block_id}/execute both spend automation
+    credits, so a retried request after a timeout can charge twice and start a
+    second agent run.
+  agent_risk: high
+  sole_exception:
+    operation: POST /api/onboarding/brain-dump/finalize (operationId finalize_brain_dump)
+    description_quote: >-
+      "Idempotent per recording_id — a client that retries after a timeout gets
+      the stored result rather than a second transcription."
+    note: >-
+      The only occurrence of the word "idempotent" in 613KB of contract. It is a
+      natural key on one internal onboarding operation, not a client-supplied
+      Idempotency-Key mechanism, and it does not apply to the execute
+      operations that spend credits. No apis.yml Idempotency pointer is emitted
+      on the strength of it.
+  recommendation: >-
+    Accept a client-supplied Idempotency-Key on the two execute operations and
+    replay the original graph_exec_id. This is the single highest-value
+    agent-readiness gap in the contract.
+pagination:
+  style: page-number (offset also present)
+  request_params:
+    page: 1-based page number (16 operations)
+    page_size: results per page (16 operations)
+    limit: cap on returned rows (23 operations)
+    offset: skip count (9 operations)
+  consistency: >-
+    Not uniform. Three different pagination idioms coexist across the Agent
+    Server API — page/page_size, limit/offset, and bare limit — and which one
+    applies is per-operation. There is no cursor pagination and no Link header.
+  response_fields: >-
+    List responses wrap results in a named array (e.g. {"agents":[...]}) with a
+    sibling pagination object where present; the shape is per-endpoint, not a
+    shared envelope.
+field_expansion:
+  supported: false
+metadata:
+  supported: false
+request_tracing:
+  request_id_header: null
+  evidence: >-
+    No X-Request-Id, correlation or trace header is declared in either spec, and
+    none was returned on live 200/401/422 responses observed 2026-08-29. The one
+    response header the contract declares anywhere is X-AutoGPT-User-Created on
+    POST /api/auth/user.
+  note: A client that hits a 500 has no identifier to quote in a support issue.
+versioning:
+  detail: lifecycle/autogpt-lifecycle.yml
+  summary: /external-api/v1/ path prefix; no version header, no date pinning.
+error_envelope:
+  detail: errors/autogpt-problem-types.yml
+  summary: >-
+    Two envelopes — FastAPI {"detail":...} for most failures, and
+    {"message","detail[]","hint"} for 422 schema validation. Not RFC 9457. No
+    stable error codes.
+rate_limit_signaling:
+  detail: rate-limits/autogpt-rate-limits.yml
+  summary: >-
+    No X-RateLimit-* or RateLimit-* headers on any observed response. 429 is
+    declared on 3 chat operations; the spec text instructs clients to honour
+    Retry-After on 503 from the chat surface.
+async_execution:
+  model: >-
+    Agent runs are asynchronous. POST .../execute/{graph_version} returns a
+    graph execution handle; results are polled from GET
+    /external-api/v1/graphs/{graph_id}/executions/{graph_exec_id}/results. There
+    is no callback or webhook delivered to the API caller for run completion.
+  stop: POST /api/graphs/{graph_id}/executions/{graph_exec_id}/stop
+  streaming: >-
+    The first-party chat surface streams over POST
+    /api/chat/sessions/{session_id}/stream, and the platform uses websockets
+    internally. Neither is part of the documented External API.
+metering:
+  unit: automation credits
+  behaviour: >-
+    Credits are charged when blocks run. For usage-based blocks the platform may
+    estimate a charge before execution and reconcile it against actual usage
+    afterwards, which can leave a balance below zero.
+  docs: https://agpt.co/docs/platform/using-the-platform/credits-and-billing.md
+  exhaustion: 402 Payment Required (see errors/autogpt-problem-types.yml)
+dry_run_mode:
+  supported: partial
+  evidence: >-
+    The docs changelog for March 20-25 2026 lists "dry-run mode" as a shipped
+    AutoPilot feature. It is a product feature in the builder UI; no dry-run
+    parameter, header or operation is exposed in either published OpenAPI, so
+    an API client cannot rehearse a run.
+  source: https://agpt.co/docs/platform/changelog/changelog/march-20-march-25-2026.md
+reversibility:
+  grade: documented
+  applicable: true
+  summary: >-
+    Real reversal paths exist for the money, the running work and the access —
+    but AutoGPT states no window for any of them, so this grades `documented`
+    rather than `verified`. No docs page and no spec description names a refund
+    period, a cancellation deadline, or a restore window after deletion.
+  write_surfaces:
+    - action: Run an agent (spend credits)
+      operation: POST /external-api/v1/graphs/{graph_id}/execute/{graph_version}
+      reversal: POST /api/graphs/{graph_id}/executions/{graph_exec_id}/stop
+      reversal_name: stop
+      window: >-
+        Not stated. A run can be stopped while it is executing; credits already
+        consumed by blocks that have run are not described as recoverable.
+      window_source: null
+    - action: Credit transaction
+      operation: POST /api/credits/{transaction_key}/refund
+      reversal: POST /api/credits/{transaction_key}/refund
+      reversal_name: refund
+      window: >-
+        Not stated. A refund request surface exists (GET /api/credits/refunds
+        lists requests), so refunds are reviewed rather than automatic, but no
+        eligibility period is published.
+      window_source: null
+    - action: Start a copilot chat task
+      operation: POST /api/chat/sessions/{session_id}/messages
+      reversal: POST /api/chat/sessions/{session_id}/cancel
+      reversal_name: cancel
+      window: Not stated — cancellable while the turn is active.
+      window_source: null
+    - action: Grant an OAuth application access
+      operation: POST /api/oauth/authorize
+      reversal: POST /api/oauth/revoke
+      reversal_name: revoke
+      window: >-
+        Not stated. RFC 7009-style revocation is available at any time; the docs
+        say users should be able to revoke access to an app.
+      window_source: https://agpt.co/docs/platform/api-and-integrations/oauth-guide.md
+    - action: Issue an API key
+      operation: POST /api/api-keys
+      reversal: DELETE /api/api-keys/{key_id} (revoke) or POST /api/api-keys/{key_id}/suspend
+      reversal_name: revoke / suspend
+      window: >-
+        Not stated. Suspend is the soft, reversible form; revoke is permanent.
+      window_source: null
+  irreversible:
+    - DELETE /api/graphs/{graph_id} — summary says "Delete graph permanently"; no restore operation exists.
+    - DELETE /api/executions/{graph_exec_id} — no restore operation exists.
+    - DELETE /api/orgs/{org_id} — no restore operation exists.
+    - DELETE /api/workspace/files/{file_id} — no trash, undelete or restore operation exists anywhere in the spec.
+  recommendation: >-
+    Publish the refund eligibility period and whether a stopped run is billed
+    for partial execution. An agent deciding whether to fire
+    /execute cannot currently learn what it can take back.
+cross_references:
+  errors: errors/autogpt-problem-types.yml
+  lifecycle: lifecycle/autogpt-lifecycle.yml
+  authentication: authentication/autogpt-authentication.yml
+  scopes: scopes/autogpt-scopes.yml
+  rate_limits: rate-limits/autogpt-rate-limits.yml
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

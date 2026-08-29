@@ -1,0 +1,130 @@
+generated: '2026-08-29'
+method: derived
+source: >-
+  Derived from the 4xx/5xx responses declared in
+  openapi/autogpt-agent-server-openapi.json (347 operations) and
+  openapi/autogpt-external-api-openapi.json (20 operations), plus live 401/422
+  responses observed against https://backend.agpt.co on 2026-08-29.
+description: >-
+  AutoGPT's error surface. The API does NOT use RFC 9457 problem+json. Two
+  distinct envelopes are in use: FastAPI's default {"detail": ...} for auth and
+  simple failures, and a richer AutoGPT-specific {"message", "detail",
+  "hint"} envelope for schema-validation failures. There is no stable
+  machine-readable error CODE anywhere — clients must branch on HTTP status and
+  parse English prose.
+format: custom
+media_type: application/json
+rfc9457: false
+envelopes:
+  - name: fastapi-detail
+    shape:
+      detail: string | array
+    example: '{"detail":"Authorization header is missing"}'
+    used_for: 401, 403, 404, 409, 402, 429, 503
+  - name: autogpt-validation
+    shape:
+      message: Human-readable statement naming the method and path that failed.
+      detail: Array of Pydantic validation errors — each with type, loc[], msg, input.
+      hint: Remediation sentence.
+    example: >-
+      {"message":"Invalid data for GET /api/store/agents","detail":[{"type":"int_parsing","loc":["query","page"],"msg":"Input
+      should be a valid integer, unable to parse string as an
+      integer","input":"abc"}],"hint":"Ensure the request matches the API
+      schema."}
+    used_for: 422
+    observed: '2026-08-29 against GET https://backend.agpt.co/api/store/agents?page=abc'
+status_inventory:
+  agent_server_api:
+    '401': 311
+    '422': 268
+    '404': 31
+    '409': 10
+    '500': 10
+    '503': 7
+    '400': 7
+    '402': 5
+    '429': 3
+    '403': 2
+  external_api:
+    '422': 15
+problem_types:
+  - status: 401
+    title: Unauthorized
+    meaning: No credential presented, or the credential is not valid for this surface.
+    remediation: >-
+      Send X-API-Key (External API) or Authorization: Bearer (both surfaces).
+      Re-issue an expired agpt_xt_ token at POST /api/oauth/token.
+    envelope: fastapi-detail
+  - status: 402
+    title: Payment Required
+    meaning: >-
+      Insufficient automation credits, or the account is on NO_TIER and hits the
+      paywall. AutoGPT is one of the few APIs that returns a real 402 in normal
+      operation.
+    remediation: >-
+      Add automation credits or upgrade the subscription. See
+      https://agpt.co/docs/platform/using-the-platform/credits-and-billing.md
+    envelope: fastapi-detail
+    examples:
+      - POST /api/graphs/{graph_id}/execute/{graph_version} — "Payment required: NO_TIER paywall, or insufficient credit balance"
+      - POST /api/blocks/{block_id}/execute — "Subscription required (NO_TIER user, paywall on)"
+      - POST /api/chat/usage/reset — "Payment Required (insufficient credits)"
+  - status: 403
+    title: Forbidden
+    meaning: Authenticated, but the feature is not enabled for this user or the token lacks the required scope.
+    remediation: Request the needed OAuth scope; see scopes/autogpt-scopes.yml.
+    envelope: fastapi-detail
+    examples:
+      - POST /api/chat/sessions/{session_id}/share — "Chat sharing is not enabled for this user"
+      - POST /api/auth/email/send — "Service token is missing the required scope"
+  - status: 404
+    title: Not Found
+    meaning: The named resource does not exist or is not visible to the caller.
+    remediation: Verify the id. Note that shared-file downloads return a deliberately uniform 404 for every failure mode to prevent enumeration.
+    envelope: fastapi-detail
+  - status: 409
+    title: Conflict
+    meaning: >-
+      A uniqueness or quota constraint was violated — duplicate folder/pod name,
+      per-user skill limit, active-expert limit, or a session with no active
+      turn.
+    remediation: Rename, or delete an existing resource to free quota. These are LIMITS expressed as 409, not 429.
+    envelope: fastapi-detail
+  - status: 422
+    title: Unprocessable Entity
+    meaning: Request did not match the schema. The single most common error class in the contract (268 operations declare it).
+    remediation: Read detail[].loc to find the offending field and detail[].msg for the reason.
+    envelope: autogpt-validation
+  - status: 429
+    title: Too Many Requests
+    meaning: >-
+      Cost rate-limit, call-frequency cap, per-user concurrent-turn limit, or
+      max daily resets exceeded. Only 3 operations declare it, all on the chat
+      surface.
+    remediation: Back off. Honour Retry-After when present. See rate-limits/autogpt-rate-limits.yml.
+    envelope: fastapi-detail
+  - status: 500
+    title: Internal Server Error
+    meaning: Unhandled server-side failure.
+    remediation: Retry with backoff; report at https://github.com/Significant-Gravitas/AutoGPT/issues
+    envelope: fastapi-detail
+  - status: 503
+    title: Service Unavailable
+    meaning: >-
+      A dependency is degraded — Redis unavailable for rate limiting or the
+      stream registry, expert workspace unavailable, subscription state
+      temporarily unreadable.
+    remediation: >-
+      The spec explicitly instructs clients to honour the Retry-After header
+      before retrying on the chat surface. Credits are refunded when a reset
+      fails at POST /api/chat/usage/reset.
+    envelope: fastapi-detail
+gaps:
+  - No RFC 9457 application/problem+json.
+  - No stable error code vocabulary — no `code` or `type` field in any envelope.
+  - >-
+    No error is documented in the public docs; every entry above was derived
+    from the spec or observed live.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

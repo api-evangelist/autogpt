@@ -1,0 +1,206 @@
+generated: '2026-08-29'
+method: derived
+source: >-
+  Derived from the 458 component schemas and 293 paths of
+  openapi/autogpt-agent-server-openapi.json, plus the 36 schemas of
+  openapi/autogpt-external-api-openapi.json. Relationships were read from
+  $ref links and from id-reference field names (user_id 57 occurrences,
+  graph_id 37, session_id 36, expert_id 20, organization_id 11, and so on).
+description: >-
+  The AutoGPT Platform entity graph. The spine is short and worth stating
+  plainly: a BLOCK is a unit of capability, a GRAPH wires blocks together and is
+  what AutoGPT calls an agent, a GRAPH EXECUTION is one run of a graph version,
+  and every run spends CREDITS. Everything else — the library, the marketplace
+  store, schedules, presets, experts, organizations — hangs off that spine.
+identifier_style:
+  format: opaque string ids (UUID-shaped), no type prefixes
+  note: >-
+    Unlike Stripe-style prefixed ids, AutoGPT ids carry no type marker, so an id
+    alone does not tell an agent what it points at. Type is only recoverable
+    from the field name (graph_id, session_id, expert_id...).
+entities:
+  - name: Block
+    schemas: [BlockInfo, BlockDetails, BlockCost, BlockInputFieldInfo]
+    description: >-
+      A single capability an agent can invoke — an LLM call, an HTTP request, a
+      Slack post, an MCP tool call. Carries its own cost model (BlockCostType).
+    relationships:
+      - has_many: GraphNode
+        via: block_id
+  - name: Graph
+    schemas: [Graph, GraphModel, GraphMeta, GraphSettings]
+    description: The agent itself — a versioned directed graph of nodes and edges.
+    relationships:
+      - belongs_to: User
+        via: user_id
+      - has_many: GraphNode
+        via: nodes
+      - has_many: GraphEdge
+        via: links
+      - has_many: GraphExecution
+        via: graph_id
+      - has_many: Schedule
+        via: graph_id
+      - has_one: GraphSettings
+      - belongs_to: Graph
+        via: forked_from_id
+        note: Self-reference — a graph can be forked from another graph.
+  - name: GraphNode
+    schemas: [GraphNode]
+    relationships:
+      - belongs_to: Graph
+      - belongs_to: Block
+        via: block_id
+  - name: GraphEdge
+    schemas: [GraphEdge]
+    relationships:
+      - belongs_to: Graph
+      - references: GraphNode
+        via: source_id / sink_id
+  - name: GraphExecution
+    schemas: [GraphExecution, GraphExecutionMeta, GraphExecutionWithNodes, ExecutionStartedResponse]
+    description: One run of one graph version. The central write of the API.
+    relationships:
+      - belongs_to: Graph
+        via: graph_id
+      - belongs_to: User
+        via: user_id
+      - has_many: NodeExecutionResult
+        via: node_exec_id
+      - has_many: CreditTransaction
+        via: execution spend
+  - name: NodeExecutionResult
+    schemas: [NodeExecutionResult, ExecutionOutputInfo, ExecutionFailureReason]
+    relationships:
+      - belongs_to: GraphExecution
+        via: graph_exec_id
+      - belongs_to: GraphNode
+        via: node_id
+  - name: LibraryAgent
+    schemas: [LibraryAgent, LibraryAgentResponse, LibraryAgentStatus]
+    description: A graph as it appears in a user's own library, foldered and presettable.
+    relationships:
+      - belongs_to: User
+      - references: Graph
+        via: graph_id
+      - belongs_to: LibraryFolder
+        via: folder_id
+      - has_many: LibraryAgentPreset
+        via: preset_id
+      - has_many: GraphTriggerInfo
+  - name: LibraryAgentPreset
+    schemas: [LibraryAgentPreset, PresetSummary, LibraryAgentPresetCreatableFromGraphExecution]
+    relationships:
+      - belongs_to: LibraryAgent
+      - derived_from: GraphExecution
+  - name: StoreAgent
+    schemas: [StoreAgent, StoreAgentDetails]
+    description: A graph published to the AutoGPT marketplace, addressed by username/agent_name.
+    relationships:
+      - belongs_to: StoreCreator
+        via: username
+      - has_many: StoreListingVersion
+        via: store_listing_version_id
+      - has_many: StoreReview
+  - name: StoreListingVersion
+    description: An immutable submitted version of a store listing, reviewed before publication.
+    relationships:
+      - belongs_to: StoreAgent
+      - references: Graph
+        via: graph download
+  - name: Schedule
+    schemas: [ScheduleDetail, ScheduleSummary, ScheduleCreationRequest]
+    description: A cron-like trigger that starts a graph execution.
+    relationships:
+      - belongs_to: Graph
+        via: graph_id
+      - belongs_to: User
+        via: user_id
+      - has_many: GraphExecution
+  - name: User
+    description: The account. Root of almost every ownership edge (user_id appears in 57 schemas).
+    relationships:
+      - has_many: Graph
+      - has_many: LibraryAgent
+      - has_many: APIKey
+      - has_many: Credential
+      - has_many: CreditTransaction
+      - has_many: ChatSession
+      - has_many: Expert
+      - belongs_to: Organization
+        via: organization_id
+  - name: APIKey
+    schemas: [APIKeyInfo, APIKeyPermission, APIKeyStatus, APIKeyCredentials]
+    description: A user-scoped X-API-Key credential with a permission set and a suspendable status.
+    relationships:
+      - belongs_to: User
+  - name: OAuthApplication
+    schemas: [OAuthApplicationInfo, OAuthApplicationPublicInfo]
+    description: A third-party app registered to call the API on a user's behalf.
+    relationships:
+      - belongs_to: User
+        via: owner
+      - identified_by: client_id
+  - name: Credential
+    description: A stored third-party integration credential (GitHub, Google, Slack...) used by blocks.
+    relationships:
+      - belongs_to: User
+      - belongs_to: Provider
+        via: provider
+      - has_many: Webhook
+        via: webhook_id
+  - name: CreditTransaction
+    schemas: [CreditTransactionItem, CreditTransactionType]
+    description: One movement in the automation-credit wallet — top-up, spend, or refund.
+    relationships:
+      - belongs_to: User
+      - references: GraphExecution
+  - name: ChatSession
+    schemas: [ChatSessionMetadata]
+    description: An AutoPilot conversation. session_id appears in 36 schemas.
+    relationships:
+      - belongs_to: User
+      - has_many: ChatMessage
+      - has_many: WorkspaceFile
+  - name: Expert
+    schemas: [Expert, ExpertPod, ExpertRun, ExpertIdentity, ExpertWorkflowRef]
+    description: A persistent named agent persona with its own memory graph and spend tracking.
+    relationships:
+      - belongs_to: User
+      - belongs_to: ExpertPod
+        via: pod
+      - has_many: ExpertRun
+      - has_many: MemoryEntity
+      - has_many: MemoryFact
+  - name: Organization
+    description: Multi-user container. Owns workspaces and invitations.
+    relationships:
+      - has_many: User
+      - has_many: Workspace
+        via: ws_id
+      - has_many: Invitation
+  - name: Workspace
+    description: File storage scoped to an org or a chat session (folders + files).
+    relationships:
+      - belongs_to: Organization
+      - has_many: WorkspaceFile
+        via: file_id
+      - has_many: WorkspaceFolder
+        via: folder_id
+  - name: Skill
+    description: A user-distilled copilot skill stored as a SKILL.md body, addressed by name.
+    relationships:
+      - belongs_to: User
+core_flow:
+  - Pick or create a Graph (the agent).
+  - Execute a specific graph_version, producing a GraphExecution.
+  - Poll the GraphExecution for NodeExecutionResults.
+  - Each executed Block debits the wallet as a CreditTransaction.
+counts:
+  agent_server_schemas: 458
+  external_api_schemas: 36
+  agent_server_paths: 293
+  agent_server_operations: 347
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

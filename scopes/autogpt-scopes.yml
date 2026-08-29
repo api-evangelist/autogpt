@@ -1,0 +1,64 @@
+generated: '2026-08-29'
+method: searched
+source: https://agpt.co/docs/platform/api-and-integrations/api-guide.md
+docs: https://agpt.co/docs/platform/api-and-integrations/api-guide.md
+oauth_guide: https://agpt.co/docs/platform/api-and-integrations/oauth-guide.md
+description: >-
+  The ten OAuth 2.0 scopes AutoGPT Platform publishes for third-party
+  applications. NOTE ON PROVENANCE: these are read from the AutoGPT docs, NOT
+  from the OpenAPI. The authorization server at
+  https://backend.agpt.co/api/oauth/* declares no oauth2 securityScheme and no
+  scopes[] in either published spec — every protected operation is documented as
+  plain HTTP bearer — so derive-oauth-scopes.py found nothing and this file is
+  entirely docs-sourced. That gap is the finding: an agent reading the contract
+  cannot discover the permission model.
+authorization_endpoint: https://platform.agpt.co/auth/authorize
+token_endpoint: https://backend.agpt.co/api/oauth/token
+introspection_endpoint: https://backend.agpt.co/api/oauth/introspect
+revocation_endpoint: https://backend.agpt.co/api/oauth/revoke
+flow: authorization_code
+pkce:
+  required: true
+  method: S256
+scope_delimiter: space
+token_prefix: agpt_xt_
+registration: >-
+  No self-service OAuth app registration. The docs say to "contact the platform
+  administrator" to obtain a client_id, client_secret and registered redirect
+  URIs. There is a /api/oauth/apps/mine surface in the platform API, but app
+  creation is not documented as public.
+scopes:
+  - name: IDENTITY
+    description: Read user ID, e-mail, and timezone.
+    use: "Sign in with AutoGPT / SSO."
+  - name: EXECUTE_GRAPH
+    description: Run agents.
+  - name: READ_GRAPH
+    description: Read agent run results.
+  - name: EXECUTE_BLOCK
+    description: Run individual blocks.
+  - name: READ_BLOCK
+    description: Read block definitions.
+  - name: READ_STORE
+    description: Access the agent store.
+  - name: USE_TOOLS
+    description: Use platform tools.
+  - name: MANAGE_INTEGRATIONS
+    description: Create and update user integrations.
+  - name: READ_INTEGRATIONS
+    description: Read user integration status.
+  - name: DELETE_INTEGRATIONS
+    description: Remove user integrations.
+scope_count: 10
+gaps:
+  - >-
+    No securitySchemes.oauth2 block in either OpenAPI, so no per-operation scope
+    requirement is machine-readable. A client cannot compute which scopes an
+    operation needs.
+  - >-
+    No RFC 8414 metadata document at
+    https://backend.agpt.co/.well-known/oauth-authorization-server (404 probed
+    2026-08-29).
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

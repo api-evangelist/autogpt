@@ -1,0 +1,89 @@
+generated: '2026-08-29'
+method: derived
+source: >-
+  Derived from the webhook and trigger routes in
+  openapi/autogpt-agent-server-openapi.json, plus
+  https://agpt.co/docs/integrations/block-integrations/webhook_blocks.md,
+  .../triggers-2.md and .../webhook.md.
+description: >-
+  AutoGPT publishes NO AsyncAPI document, and the event surface it does have
+  points INWARD, not outward. AutoGPT receives webhooks from third parties to
+  trigger agent runs; it does not deliver webhooks to a consumer when an agent
+  run finishes. An API client that starts an execution must poll for the result.
+  Recorded as a webhook catalog rather than an event contract, because that is
+  what exists.
+asyncapi_published: false
+asyncapi_probes:
+  - url: https://backend.agpt.co/asyncapi.json
+    status: 404
+  - url: https://backend.agpt.co/asyncapi.yaml
+    status: 404
+direction: inbound
+outbound_delivery:
+  supported: false
+  note: >-
+    There is no subscription endpoint, no callback URL parameter, no
+    OpenAPI 3.1 `webhooks` block, and no signing-secret surface for outbound
+    delivery in either published spec. Completion is discovered by polling GET
+    /external-api/v1/graphs/{graph_id}/executions/{graph_exec_id}/results.
+inbound_webhooks:
+  - name: Generic provider webhook ingress
+    path: POST /api/integrations/{provider}/webhooks/{webhook_id}/ingress
+    purpose: >-
+      The single entry point third-party providers post to. A registered webhook
+      is bound to a user credential and a library-agent trigger, so an inbound
+      event starts a graph execution.
+    auth: per-webhook id, provider-scoped
+  - name: Webhook ping
+    path: POST /api/integrations/webhooks/{webhook_id}/ping
+    purpose: Verify a registered webhook is reachable and correctly wired.
+  - name: Slack events
+    path: POST /api/copilot-webhooks/slack/events
+    purpose: AutoPilot's Slack bot event stream.
+  - name: Slack slash commands
+    path: POST /api/copilot-webhooks/slack/commands
+  - name: Slack install / OAuth callback
+    path: GET /api/copilot-webhooks/slack/install, GET /api/copilot-webhooks/slack/oauth/callback
+  - name: Microsoft Teams messages
+    path: POST /api/copilot-webhooks/teams/messages
+  - name: Telegram updates
+    path: POST /api/copilot-webhooks/telegram/updates
+  - name: Stripe billing webhook
+    path: POST /api/credits/stripe_webhook
+    purpose: Credit-wallet top-ups and subscription state from Stripe.
+  - name: Postmark inbound e-mail
+    path: (guarded by the X-Postmark-Webhook-Token apiKey scheme)
+    purpose: Inbound transactional e-mail handling.
+    auth: X-Postmark-Webhook-Token shared secret
+trigger_surface:
+  - path: GET /api/library/agents/{library_agent_id}/triggers
+    purpose: List the triggers wired to a library agent.
+  - path: POST /api/library/presets/setup-trigger
+    purpose: Create a preset bound to an incoming trigger.
+  - docs: https://agpt.co/docs/integrations/block-integrations/triggers-2.md
+    name: Generic Webhook Triggers
+    purpose: >-
+      Documented block family that lets any external system start an AutoGPT
+      agent by posting to a generated ingress URL.
+  - docs: https://agpt.co/docs/integrations/block-integrations/webhook_blocks.md
+    name: Exa Webhook Blocks
+  - docs: https://agpt.co/docs/integrations/block-integrations/webhook.md
+    name: Slant3D Webhook
+streaming:
+  - path: POST /api/chat/sessions/{session_id}/stream
+    protocol: HTTP streaming
+    scope: First-party AutoPilot chat only; not part of the External API.
+  - protocol: websocket
+    scope: >-
+      The platform backend uses websockets for real-time execution updates
+      between its own frontend and backend. No public websocket contract is
+      published.
+gaps:
+  - No AsyncAPI document for any of the above.
+  - >-
+    No outbound event delivery for agent-run completion — the single event an
+    API consumer most needs.
+  - No published signature-verification scheme for the inbound ingress endpoint.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

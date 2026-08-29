@@ -1,0 +1,124 @@
+generated: '2026-08-29'
+method: derived
+source: >-
+  Derived from openapi/autogpt-external-api-openapi.json after searching for a
+  published AutoGPT MCP server. Direction confirmed from
+  https://agpt.co/docs/integrations/block-integrations/block.md (the MCP Block)
+  and the /api/mcp/* routes in
+  openapi/autogpt-agent-server-openapi.json.
+description: >-
+  AutoGPT publishes NO MCP server. The relationship is the other way round:
+  AutoGPT is an MCP CLIENT. Its "MCP Tool" block connects an AutoGPT agent to
+  any third-party MCP server over Streamable HTTP JSON-RPC 2.0 — sending
+  initialize, then tools/list to discover tools and their input schemas, then
+  tools/call — with optional OAuth 2.0 + PKCE and automatic token refresh. The
+  platform backend backs that block with POST /api/mcp/discover-tools,
+  /api/mcp/oauth/login, /api/mcp/oauth/callback and /api/mcp/token. None of
+  those is an MCP endpoint an agent can call; they are the client's own control
+  plane. The tools[] below are a DERIVED CANDIDATE mapping of what an AutoGPT
+  MCP server would expose if one existed, taken from the 20 real operations of
+  the AutoGPT External API. Nothing here is live.
+status: candidate
+deployment:
+  mode: none
+  auth: unknown
+  verified: derived
+  note: >-
+    Searched for a hosted endpoint (mcp.agpt.co, backend.agpt.co/mcp) and for an
+    installable package (@autogpt/* on npm is unclaimed; no MCP package on PyPI
+    under the Significant-Gravitas name). Neither exists. No endpoint URL is
+    guessed here on purpose.
+mcp_client_capability:
+  role: client
+  docs: https://agpt.co/docs/integrations/block-integrations/block.md
+  block: MCP Tool
+  transport: Streamable HTTP, JSON-RPC 2.0
+  methods_used:
+    - initialize
+    - tools/list
+    - tools/call
+  auth: >-
+    Optional credentials. Public MCP servers work anonymously; protected servers
+    trigger a standard OAuth 2.0 flow with PKCE, and tokens are refreshed
+    automatically.
+  backing_operations:
+    - POST /api/mcp/discover-tools
+    - POST /api/mcp/oauth/login
+    - POST /api/mcp/oauth/callback
+    - POST /api/mcp/token
+tools:
+  - name: run_agent
+    description: Run a published AutoGPT agent by name or id and return its output.
+    rest: [run_agent_v1_tools_run_agent_post]
+    method: POST
+    path: /external-api/v1/tools/run-agent
+  - name: find_agent
+    description: Search the caller's library and the marketplace for an agent that fits a described task.
+    rest: [find_agent_v1_tools_find_agent_post]
+    method: POST
+    path: /external-api/v1/tools/find-agent
+  - name: execute_graph
+    description: Execute a specific version of an agent graph.
+    rest: [execute_graph_v1_graphs__graph_id__execute__graph_version__post]
+    method: POST
+    path: /external-api/v1/graphs/{graph_id}/execute/{graph_version}
+  - name: get_graph_execution_results
+    description: Read the results of a graph execution.
+    rest: [get_graph_execution_results_v1_graphs__graph_id__executions__graph_exec_id__results_get]
+    method: GET
+    path: /external-api/v1/graphs/{graph_id}/executions/{graph_exec_id}/results
+  - name: create_graph
+    description: Create a new agent graph.
+    rest: [create_graph_v1_graphs_post]
+    method: POST
+    path: /external-api/v1/graphs
+  - name: list_blocks
+    description: List every block available to build agents with.
+    rest: [get_graph_blocks_v1_blocks_get]
+    method: GET
+    path: /external-api/v1/blocks
+  - name: execute_block
+    description: Execute a single block directly without building a graph.
+    rest: [execute_graph_block_v1_blocks__block_id__execute_post]
+    method: POST
+    path: /external-api/v1/blocks/{block_id}/execute
+  - name: search_store_agents
+    description: Search the AutoGPT marketplace for published agents.
+    rest: [get_store_agents_v1_store_agents_get]
+    method: GET
+    path: /external-api/v1/store/agents
+  - name: get_store_agent
+    description: Read one marketplace agent listing by creator username and agent name.
+    rest: [get_store_agent_v1_store_agents__username___agent_name__get]
+    method: GET
+    path: /external-api/v1/store/agents/{username}/{agent_name}
+  - name: list_store_creators
+    description: List creators publishing agents to the marketplace.
+    rest: [get_store_creators_v1_store_creators_get]
+    method: GET
+    path: /external-api/v1/store/creators
+  - name: list_integration_providers
+    description: List the third-party providers an AutoGPT account can connect credentials for.
+    rest: [list_providers_v1_integrations_providers_get]
+    method: GET
+    path: /external-api/v1/integrations/providers
+  - name: list_credentials
+    description: List the caller's connected third-party credentials.
+    rest: [list_credentials_v1_integrations_credentials_get]
+    method: GET
+    path: /external-api/v1/integrations/credentials
+  - name: whoami
+    description: Return the authenticated user's id, e-mail and timezone.
+    rest: [get_user_info_v1_me_get]
+    method: GET
+    path: /external-api/v1/me
+coverage:
+  external_api_operations: 20
+  candidate_tools: 13
+  note: >-
+    The 7 unmapped operations are credential mutations (create/delete
+    credentials, OAuth initiate/complete) and the Prometheus /metrics endpoint —
+    surfaces that should not be exposed as agent tools.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

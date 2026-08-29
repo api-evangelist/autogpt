@@ -1,0 +1,99 @@
+generated: '2026-08-29'
+method: searched
+source: >-
+  https://agpt.co/docs/platform/changelog/changelog.md,
+  https://github.com/Significant-Gravitas/AutoGPT/releases,
+  https://raw.githubusercontent.com/Significant-Gravitas/AutoGPT/master/SECURITY.md,
+  and version/servers facts read from the two published OpenAPI documents.
+description: >-
+  AutoGPT Platform's release, versioning and support posture. The platform ships
+  weekly tagged beta releases on GitHub and publishes a human changelog in the
+  docs. It does NOT operate a public status page, does not publish an SLA, and
+  does not send RFC 8594 Sunset/Deprecation headers.
+versioning:
+  scheme: path-prefix on the External API; unversioned on the Agent Server API
+  mechanism: >-
+    External API operations all sit under /external-api/v1/. The Agent Server
+    API uses /api/<resource> with per-route "v1"/"v2" OpenAPI tags but no
+    version segment in the path, so a v1 and a v2 operation can share a path.
+  spec_versions:
+    external_api: '1.0'
+    agent_server: '0.1'
+  release_train: >-
+    Tagged releases named autogpt-platform-beta-vX.Y.Z, cut roughly weekly. The
+    platform is still labelled beta in its own release tags.
+  docs: https://agpt.co/docs/platform/changelog/changelog.md
+  notes: >-
+    No version request header, no date-pinning, no per-account pinned version.
+    A breaking change to /external-api/v1 would reach every caller at once.
+current_release:
+  tag: autogpt-platform-beta-v0.7.3
+  published: '2026-08-28'
+  url: https://github.com/Significant-Gravitas/AutoGPT/releases/tag/autogpt-platform-beta-v0.7.3
+deprecation:
+  policy_url: null
+  sunset_header: false
+  deprecation_header: false
+  notes: >-
+    No published deprecation policy for the API. The one deprecation AutoGPT
+    states in writing is at the codebase level: SECURITY.md declares everything
+    under classic/ "legacy, unsupported, and out of scope", and the supported-
+    versions table lists only the latest master release and pre-master
+    development commits as eligible for security updates.
+deprecated_products:
+  - name: AutoGPT Classic
+    superseded_by: AutoGPT Platform (backend.agpt.co)
+    evidence: >-
+      SECURITY.md — "Any code within the classic/ folder is considered legacy,
+      unsupported, and out of scope for security reports."
+    source: https://raw.githubusercontent.com/Significant-Gravitas/AutoGPT/master/SECURITY.md
+  - name: agpt (PyPI)
+    superseded_by: none — no replacement client library published
+    evidence: Last release 0.2.2 on 2023-04-21; wraps AutoGPT Classic, not the Platform API.
+deprecated_operations: []
+deprecated_operations_note: >-
+  Neither published OpenAPI document flags any operation, parameter or schema
+  with deprecated:true. Checked 2026-08-29.
+sla:
+  url: null
+  public_uptime_target: null
+  notes: >-
+    No SLA is published. The pricing page names "priority support" on the Max
+    plan and "security options" on the (coming-soon) Team plan, but states no
+    availability commitment.
+status_page:
+  published: false
+  probes:
+    - url: https://status.agpt.co/
+      status: '<no response> — DNS does not resolve'
+    - url: https://agpt.co/status
+      status: 404
+    - url: https://autogpt.statuspage.io
+      status: 200
+      note: >-
+        NOT AutoGPT's status page. It 302s to
+        https://www.atlassian.com/software/statuspage — the Statuspage product
+        marketing site. The subdomain is unclaimed. Recorded here so a later run
+        does not mistake the 200 for a served status page.
+  health_endpoint:
+    url: https://backend.agpt.co/health
+    status: 200
+    body: '{"status":"healthy"}'
+    note: >-
+      A liveness probe, not a status page. It is the only availability signal
+      AutoGPT exposes to the public.
+support:
+  channels:
+    - type: GitHub Issues
+      url: https://github.com/Significant-Gravitas/AutoGPT/issues
+      note: The API guide names this as the support route for API integration questions.
+    - type: Discord
+      url: https://discord.gg/autogpt
+      status: 200
+roadmap:
+  url: https://github.com/orgs/Significant-Gravitas/projects/2
+  status: 200
+  note: Public GitHub Projects board, "AutoGPT Roadmap".
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

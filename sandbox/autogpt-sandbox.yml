@@ -1,0 +1,75 @@
+generated: '2026-08-29'
+method: searched
+source: >-
+  https://agpt.co/docs/platform/api-and-integrations/api-guide.md and
+  https://agpt.co/docs/platform/self-hosting/getting-started.md; console
+  confirmed live at https://backend.agpt.co/external-api/docs (HTTP 200,
+  2026-08-29).
+description: >-
+  AutoGPT ships no test mode and no sandbox credentials — there are no test keys,
+  no test/live key prefixes, no fixture data and no time simulation. What it does
+  ship are two real places to try the API before committing: an interactive
+  Swagger UI console for the External API, and a fully self-hostable copy of the
+  entire platform. Both are genuine; neither isolates you from real spend on the
+  hosted platform.
+test_mode:
+  supported: false
+  key_prefixes:
+    live: agpt_xt_ (OAuth access token)
+    test: null
+  note: >-
+    One credential namespace. An API key created in account settings is a
+    production key against a production account, and calls made with it spend
+    real automation credits.
+console:
+  name: External API Swagger UI
+  url: https://backend.agpt.co/external-api/docs
+  status: 200
+  type: interactive try-it console
+  spec: https://backend.agpt.co/external-api/openapi.json
+  auth_required: true
+  description: >-
+    The API guide points here for "all available endpoints, request/response
+    schemas" and says it "allows you to try out API calls directly". Calls
+    executed from it are real calls against the caller's real account.
+  covers: The 20-operation External API only, not the 347-operation Agent Server API.
+self_host:
+  supported: true
+  docs: https://agpt.co/docs/platform/self-hosting/getting-started.md
+  installer: https://agpt.co/docs/platform/self-hosting/installer.md
+  single_container: https://agpt.co/docs/platform/self-hosting/single-container.md
+  source: https://github.com/Significant-Gravitas/AutoGPT
+  description: >-
+    The closest thing to a sandbox AutoGPT offers. Running the platform locally
+    gives a complete, isolated environment with the same API surface and no
+    hosted-credit consumption — you pay only your own model providers. A local
+    LLM path is documented so the whole loop can run without any third-party API
+    key.
+  local_llm: https://agpt.co/docs/platform/using-ai-services/copilot-local-llm.md
+  ollama: https://agpt.co/docs/platform/using-ai-services/ollama.md
+demo:
+  available: true
+  description: >-
+    The pricing page offers an instant demo without signup. It is a product
+    demo, not an API sandbox.
+test_data:
+  test_cards: null
+  test_accounts: null
+  fixtures: null
+  time_simulation: null
+  note: >-
+    None published. NOT recorded as available: the repository carries a rolling
+    "preview-seed-fixture" release described as a "fully SYNTHETIC
+    preview-database seed fixture", but that is an internal artifact for
+    AutoGPT's own preview environments, not a documented developer facility.
+gaps:
+  - >-
+    No test-mode credential, so an integrator cannot exercise the credit-spending
+    execute operations without spending credits.
+  - >-
+    Combined with the absence of idempotency keys (see
+    conventions/autogpt-conventions.yml), a retried execute during development
+    is a real double charge.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

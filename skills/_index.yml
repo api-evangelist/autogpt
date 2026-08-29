@@ -1,0 +1,52 @@
+generated: '2026-08-29'
+method: generated
+source: >-
+  Authored by the API Evangelist enrichment pipeline from
+  openapi/autogpt-external-api-openapi.json. Every operationId referenced in
+  every skill was grepped out of that document; none was invented. AutoGPT
+  publishes no skills or AGENTS.md of its own — searched
+  https://agpt.co/docs/llms.txt (250 entries) and the GitHub org on 2026-08-29.
+provider: AutoGPT
+providerId: autogpt
+api: AutoGPT External API
+base_url: https://backend.agpt.co/external-api
+description: >-
+  Packaged operating instructions for the three marquee flows of the AutoGPT
+  Platform External API. Each carries the rules that the OpenAPI cannot state:
+  which calls spend automation credits, which are not idempotent, which are
+  irreversible, and which need a human in the loop.
+skills:
+  - name: autogpt-run-an-agent
+    file: autogpt-run-an-agent.md
+    summary: Find an agent, run it, poll for the result, stop it, handle 402 and 429.
+    operations: 5
+    human_confirmation_required: true
+    reason: Spends credits and starts an autonomous agent with no idempotency key.
+  - name: autogpt-manage-integration-credentials
+    file: autogpt-manage-integration-credentials.md
+    summary: List providers, connect and remove the third-party credentials agents act on.
+    operations: 7
+    human_confirmation_required: true
+    reason: Credential deletion is irreversible and breaks dependent agents.
+  - name: autogpt-build-and-publish-an-agent
+    file: autogpt-build-and-publish-an-agent.md
+    summary: Read the block catalog, test a block, create a graph, browse the marketplace.
+    operations: 6
+    human_confirmation_required: true
+    reason: Single-block execution is a paid call.
+cross_references:
+  conventions: conventions/autogpt-conventions.yml
+  errors: errors/autogpt-problem-types.yml
+  scopes: scopes/autogpt-scopes.yml
+  authentication: authentication/autogpt-authentication.yml
+  rate_limits: rate-limits/autogpt-rate-limits.yml
+provider_published_skills:
+  found: false
+  note: >-
+    AutoGPT does host a SKILL.md surface of its own (POST /api/skills, GET
+    /api/skills/{name}) for user-distilled copilot skills, but publishes none
+    itself and does not document the format. Recorded in
+    conformance/autogpt-conformance.yml.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

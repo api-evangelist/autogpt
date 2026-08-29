@@ -1,0 +1,116 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the AutoGPT External API
+  version: 1.0.0
+extends: ../openapi/autogpt-external-api-openapi.json
+x-provenance:
+  generated: '2026-08-29'
+  method: generated
+  source: >-
+    Authored by the API Evangelist enrichment pipeline from facts verified
+    against https://backend.agpt.co and
+    https://agpt.co/docs/platform/api-and-integrations/api-guide.md on
+    2026-08-29. The upstream spec is never mutated; every enhancement below is
+    expressed as an overlay action.
+actions:
+  - target: $.info
+    description: >-
+      The upstream info block carries a one-line description and no contact,
+      license or terms. Fill it from AutoGPT's own published pages.
+    update:
+      description: >-
+        The AutoGPT External API is the third-party-facing surface of the
+        AutoGPT Platform. It lets an application find and run AutoGPT agents,
+        execute individual blocks, create agent graphs, read execution results,
+        browse the marketplace, and manage the third-party credentials an
+        agent uses. Authenticate with an account API key in an X-API-Key header
+        or an OAuth 2.0 bearer token prefixed agpt_xt_. Agent runs are
+        asynchronous and metered in automation credits; exhausting the wallet
+        returns 402 Payment Required.
+      termsOfService: https://agpt.co/legal/platform-terms-of-use
+      contact:
+        name: AutoGPT (Significant Gravitas)
+        url: https://github.com/Significant-Gravitas/AutoGPT/issues
+      license:
+        name: Polyform Shield / MIT (mixed — see repository LICENSE files)
+        url: https://github.com/Significant-Gravitas/AutoGPT
+  - target: $.servers
+    description: >-
+      Upstream declares a RELATIVE server, servers[0].url = "/external-api",
+      which cannot be resolved by a client that fetched the spec out of band.
+      Replace it with the absolute production host verified live on 2026-08-29.
+    update:
+      - url: https://backend.agpt.co/external-api
+        description: Production
+      - url: https://dev-server.agpt.co/external-api
+        description: >-
+          Development environment. Serves an identical spec; not for production
+          traffic.
+  - target: $.info
+    description: Record the runtime semantics OpenAPI cannot express, as x- extensions.
+    update:
+      x-conventions: conventions/autogpt-conventions.yml
+      x-errors: errors/autogpt-problem-types.yml
+      x-authentication: authentication/autogpt-authentication.yml
+      x-oauth-scopes: scopes/autogpt-scopes.yml
+      x-rate-limits: rate-limits/autogpt-rate-limits.yml
+      x-idempotency-supported: false
+      x-reversibility-grade: documented
+  - target: $.paths['/v1/graphs/{graph_id}/execute/{graph_version}'].post
+    description: >-
+      Flag the credit-spending, non-idempotent, asynchronous nature of the
+      central write. Upstream says nothing about any of it.
+    update:
+      x-agentic-access:
+        action-class: write
+        consequence: billable
+        reversible: partial
+        reversal: POST /api/graphs/{graph_id}/executions/{graph_exec_id}/stop
+        reversal-window: not stated by the provider
+        idempotent: false
+        escalation: >-
+          Confirm with a human before firing. This spends automation credits and
+          starts an autonomous agent that may take further actions in connected
+          third-party systems. There is no idempotency key, so a retry after a
+          timeout starts a SECOND run.
+      x-async:
+        pattern: poll
+        result-operation: get_graph_execution_results_v1_graphs__graph_id__executions__graph_exec_id__results_get
+  - target: $.paths['/v1/blocks/{block_id}/execute'].post
+    update:
+      x-agentic-access:
+        action-class: write
+        consequence: billable
+        reversible: false
+        idempotent: false
+        escalation: Confirm with a human — spends automation credits per invocation.
+  - target: $.paths['/v1/tools/run-agent'].post
+    update:
+      x-agentic-access:
+        action-class: write
+        consequence: billable
+        reversible: partial
+        idempotent: false
+        escalation: Confirm with a human — runs an autonomous agent and spends credits.
+  - target: $.paths['/v1/integrations/{provider}/credentials/{cred_id}'].delete
+    update:
+      x-agentic-access:
+        action-class: delete
+        consequence: destructive
+        reversible: false
+        escalation: >-
+          Confirm with a human. Removing a stored credential breaks every agent
+          that depends on it and cannot be undone from the API.
+  - target: $.paths['/v1/store/agents'].get
+    update:
+      x-agentic-access:
+        action-class: read
+        consequence: none
+        idempotent: true
+  - target: $.paths['/v1/me'].get
+    update:
+      x-agentic-access:
+        action-class: read
+        consequence: none
+        idempotent: true
+        note: Requires the IDENTITY OAuth scope when called with a bearer token.

@@ -1,0 +1,53 @@
+generated: '2026-08-29'
+method: searched
+source: >-
+  https://agpt.co/docs/platform/self-hosting/installer.md, the 250-entry docs
+  index at https://agpt.co/docs/llms.txt, and the package registries (see
+  packages/autogpt-packages.yml). Searched 2026-08-29.
+description: >-
+  RECORDED ABSENCE. AutoGPT ships no CLI for its API. There is no command-line
+  tool that authenticates, runs an agent, reads an execution or manages
+  credentials — the API guide's only example is raw curl. What AutoGPT does
+  publish on the command line is an INSTALLER for the self-hosted platform,
+  which is a deployment script, not an API client. No apis.yml CLI pointer is
+  emitted on the strength of it.
+api_cli:
+  published: false
+  evidence: >-
+    No CLI page in the docs index; no console_scripts entry point in any
+    first-party package; the only first-party PyPI package (agpt 0.2.2) predates
+    the Platform API by two years.
+installer:
+  name: AutoGPT Platform Installer
+  type: deployment script
+  docs: https://agpt.co/docs/platform/self-hosting/installer.md
+  scripts:
+    - platform: linux/macos
+      file: autogpt_platform/installer/setup-autogpt.sh
+      one_liner: curl -fsSL https://setup.agpt.co/install.sh -o install.sh && bash install.sh
+    - platform: windows
+      file: autogpt_platform/installer/setup-autogpt.bat
+      one_liner: 'powershell -c "iwr https://setup.agpt.co/install.bat -o install.bat; ./install.bat"'
+  what_it_does:
+    - Checks prerequisites (Git, Docker, npm)
+    - Clones the AutoGPT repository
+    - Brings up the backend services under Docker
+    - Sets up the frontend application
+    - Starts backend and frontend
+  flags:
+    - name: local-LLM opt-in
+      effect: >-
+        Installs Ollama, pulls a default chat model, and wires backend/.env so
+        AutoPilot runs with no cloud API keys — for air-gapped or
+        privacy-sensitive deployments.
+      docs: https://agpt.co/docs/platform/using-ai-services/copilot-local-llm.md
+  scope: >-
+    Stands the platform up on a machine. It does not call backend.agpt.co and
+    exposes no command surface against the API.
+recommendation: >-
+  A thin CLI over the 20-operation External API would be a day of work and would
+  close the largest developer-experience gap in this profile, alongside the
+  missing SDK.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

@@ -1,0 +1,103 @@
+generated: '2026-08-29'
+method: searched
+source: >-
+  https://agpt.co/docs/platform/changelog/changelog.md and
+  https://api.github.com/repos/Significant-Gravitas/AutoGPT/releases (fetched
+  2026-08-29).
+description: >-
+  AutoGPT publishes its change history twice, at two different altitudes. A
+  human, product-facing "What's New" changelog lives in the docs and is grouped
+  into dated release windows. A per-release engineering changelog is attached to
+  every GitHub tag, itemised by PR number and author. Neither is offered as a
+  feed, and neither separates breaking API changes from additions.
+scheme: dated release windows (docs) + semver-ish tags (GitHub)
+current_version: autogpt-platform-beta-v0.7.3
+current_version_date: '2026-08-28'
+cadence: roughly weekly tagged releases; docs changelog grouped into multi-week windows
+feeds:
+  rss: null
+  atom: null
+  note: >-
+    No changelog feed is published. The GitHub Releases atom feed
+    (github.com/Significant-Gravitas/AutoGPT/releases.atom) is the only
+    subscribable surface, and it is GitHub's, not AutoGPT's.
+breaking_change_marking: >-
+  None. Neither surface flags breaking changes distinctly; release notes are
+  grouped as "New Features" and "Bug Fixes" only.
+sources:
+  - name: What's New (product changelog)
+    url: https://agpt.co/docs/platform/changelog/changelog.md
+    format: markdown (also HTML at https://agpt.co/docs/platform/changelog/changelog)
+  - name: GitHub Releases
+    url: https://github.com/Significant-Gravitas/AutoGPT/releases
+    format: HTML + GitHub API
+entries:
+  - version: autogpt-platform-beta-v0.7.3
+    date: '2026-08-28'
+    url: https://github.com/Significant-Gravitas/AutoGPT/releases/tag/autogpt-platform-beta-v0.7.3
+    breaking: unstated
+    highlights:
+      - Replaced the e-mail system with a Briefing/Alert/Verdict/Ops design (#14003)
+  - version: autogpt-platform-beta-v0.7.2
+    date: '2026-08-21'
+    url: https://github.com/Significant-Gravitas/AutoGPT/releases/tag/autogpt-platform-beta-v0.7.2
+    breaking: unstated
+    highlights:
+      - AI-voice narrative in the morning briefing (#14021)
+      - Per-expert spend tracking on home team cards (#14022)
+  - version: autogpt-platform-beta-v0.7.1
+    date: '2026-08-13'
+    url: https://github.com/Significant-Gravitas/AutoGPT/releases/tag/autogpt-platform-beta-v0.7.1
+    breaking: unstated
+    highlights:
+      - Tavily provider blocks — search, extract, crawl, map (#13499)
+      - Claude Sonnet 5 support, tokenizer-aware (#13629)
+  - version: autogpt-platform-beta-v0.7.0
+    date: '2026-08-05'
+    url: https://github.com/Significant-Gravitas/AutoGPT/releases/tag/autogpt-platform-beta-v0.7.0
+    breaking: unstated
+    highlights:
+      - Expert-scoped sessions and identity context in the Copilot backend (#13687)
+  - version: autogpt-platform-beta-v0.6.70
+    date: '2026-07-29'
+    url: https://github.com/Significant-Gravitas/AutoGPT/releases/tag/autogpt-platform-beta-v0.6.70
+    breaking: unstated
+    highlights:
+      - Configurable transcription endpoints in CoPilot (#13500)
+  - version: autogpt-platform-beta-v0.6.69
+    date: '2026-07-22'
+    url: https://github.com/Significant-Gravitas/AutoGPT/releases/tag/autogpt-platform-beta-v0.6.69
+    breaking: unstated
+    highlights:
+      - App sidebar layout with redesigned profile menu, org switcher and agent activity (#13628)
+      - Proactive posting for Slack and Telegram (#13588)
+  - version: autogpt-platform-beta-v0.6.68
+    date: '2026-07-17'
+    url: https://github.com/Significant-Gravitas/AutoGPT/releases/tag/autogpt-platform-beta-v0.6.68
+    breaking: unstated
+    highlights:
+      - Refreshed README for the public platform (#13543)
+      - Improved product tour (#13585)
+docs_windows:
+  - window: 2026-06-18 to 2026-07-09
+    url: https://agpt.co/docs/platform/changelog/changelog/june-18-july-9-2026.md
+    highlights: File folders, shareable chats, Discord bot
+  - window: 2026-05-07 to 2026-06-10
+    url: https://agpt.co/docs/platform/changelog/changelog/may-7-june-10-2026.md
+    highlights: AutoPilot upgrades, redesigned login, live subscriptions, rebuilt settings
+  - window: 2026-04-10 to 2026-05-01
+    url: https://agpt.co/docs/platform/changelog/changelog/april-10-may-1-2026.md
+    highlights: Artifacts panel, agent briefings, AI chat in builder
+  - window: 2026-03-23 to 2026-04-09
+    url: https://agpt.co/docs/platform/changelog/changelog/march-23-april-9-2026.md
+    highlights: Themed prompt categories, live timer stats, redesigned onboarding
+  - window: 2026-03-20 to 2026-03-25
+    url: https://agpt.co/docs/platform/changelog/changelog/march-20-march-25-2026.md
+    highlights: Workflow import from other tools, marketplace UI polish, dry-run mode, parallel AutoPilot actions
+observed_gap: >-
+  The docs changelog's most recent window ends 2026-07-09, while GitHub has
+  shipped seven tagged releases since. The product changelog is roughly seven
+  weeks behind the release train.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

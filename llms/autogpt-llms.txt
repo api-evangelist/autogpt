@@ -1,0 +1,43 @@
+# AutoGPT
+
+> AutoGPT is an open-source platform for building, deploying, and running AI agents that automate digital workflows — research, outreach, content, support — without writing code. Describe an outcome in plain language or assemble agents in a visual builder, then let them run continuously on schedules and triggers. Self-host the platform for free, or use the managed cloud at https://agpt.co.
+
+## Product
+
+- [Homepage](https://agpt.co/): What AutoGPT is and what its AI agents can do
+- [AutoPilot](https://agpt.co/product/autopilot): Build AI agents by chatting — describe a job and get a scheduled, running agent
+- [Agents](https://agpt.co/product/agents): Mission control for your AI agents — live status, per-agent spend, and run history
+- [Marketplace](https://agpt.co/product/marketplace): Ready-made AI agents from AutoGPT and the community, with real run counts and creators
+- [Build](https://agpt.co/product/build): The visual canvas to build AI agents with full block-by-block control
+- [Pricing](https://agpt.co/pricing): Pro, Max, and Team plans plus the pay-as-you-go credit wallet
+- [Documentation](https://agpt.co/docs): Platform docs — self-hosting, agent builder, blocks, API
+- [GitHub repository](https://github.com/Significant-Gravitas/AutoGPT): Open-source AutoGPT platform source code
+
+## Compare
+
+- [AutoGPT vs Zapier: AI Agents vs Workflow Automation (2026)](https://agpt.co/compare/autogpt-vs-zapier): Zapier connects 9,000+ apps with task-based workflows. AutoGPT runs autonomous AI agents end to end. Compare pricing, self-hosting, and when to use each.
+- [AutoGPT vs Make: AI Agents vs Visual Scenarios (2026)](https://agpt.co/compare/autogpt-vs-make): Make builds visual scenarios billed in credits. AutoGPT runs autonomous AI agents end to end. Compare pricing, self-hosting, AI features, and when to use each.
+- [AutoGPT vs n8n: AI Agent Platform vs Fair-Code Automation (2026)](https://agpt.co/compare/autogpt-vs-n8n): n8n is fair-code workflow automation with deep AI nodes. AutoGPT is an AI agent platform. Compare licensing, pricing, self-hosting, and when to use each.
+- [AutoGPT vs LangChain: Agent Platform vs Developer Framework (2026)](https://agpt.co/compare/autogpt-vs-langchain): LangChain and LangGraph are code-first frameworks for building agents. AutoGPT is a no-code AI agent platform. Compare licensing, deployment, and which fits.
+- [AutoGPT vs CrewAI: Agent Platform vs Multi-Agent Framework (2026)](https://agpt.co/compare/autogpt-vs-crewai): CrewAI is a Python framework for orchestrating agent crews, plus a commercial platform. AutoGPT is a no-code AI agent platform. Compare pricing, hosting, and fit.
+
+## Blog
+
+- [Blog index](https://agpt.co/blog): Articles on AI agents, automation, and the AutoGPT platform
+- [Introducing @AutoGPT: Your Agent, Right Inside Discord and Telegram](https://agpt.co/blog/introducing-autopilot-discord): Tag @AutoGPT in Discord or Telegram to hand off research, monitoring, and real work to an AutoGPT agent, right where your team already talks. Here's how it works and how we use it.
+- [AutoGPT Joins GitHub’s Secure Open Source Fund (SOSF) to Advance AI Security](https://agpt.co/blog/autogpt-partners-with-github-for-ai-security): Discover how AutoGPT partnered with GitHub’s Secure Open Source Fund to strengthen AI security with better policies, automation, and collaboration.
+- [Top 5 Reasons to Use an AI Writing Assistant – Faster, Smarter Content](https://agpt.co/blog/ai-writing-assistants): How AI Writing Assistants Work – And Why You Need One | Cut content time in half with AI writing assistants. See how they draft, edit, and save you money.
+- [4 Ways to Make Money with AI](https://agpt.co/blog/4-ways-to-make-money-with-ai): Explore this guide for 4 ways to profit from AI: automation for existing businesses, consulting services, product development, and AI-powered startups.
+- [How to Integrate AI Assistants into Your Business Workflows: A Complete Guide for 2025](https://agpt.co/blog/how-to-integrate-ai-assistants-business-workflows-guide): Learn how to integrate AI assistants into your business with a practical guide covering implementation, best practices, and ROI measurement.
+- [How to Use AI to Automate Work – 10 Easy Wins for Teams](https://agpt.co/blog/10-tasks-to-automate-with-an-ai-assistant): Top 10 Tasks You Can Automate with an AI Assistant | Save hours by automating reports, emails & more with AI. – See real examples & get started today.
+- [AI Assistants Explained: What They Are & How They Boost Your Work](https://agpt.co/blog/what-is-an-ai-assistant): AI Assistants Explained: What They Are & How They Transform Work | Learn what AI assistants are, how they work, and why they’re changing productivity.
+- [Agentic AI Explained: How AI Agents Are Transforming Automation](https://agpt.co/blog/agentic-ai-explained): Agentic AI explained: How AI systems autonomously make decisions, adapt to changes, and automate complex business processes.
+- [AI Agents Explained: How Artificial Intelligence Makes Decisions](https://agpt.co/blog/ai-agents-explained): Learn About AI Agents: Your Guide to Smart Automation Technology & Intelligent Systems
+- [Introducing Agent Blocks: Build AI Workflows That Scale Through Multi-Agent Collaboration](https://agpt.co/blog/introducing-agent-blocks): Agent Blocks enable AI systems through specialized, collaborative agents - moving beyond single Agents to create modular, scalable intelligence networks.
+- [Introducing the AutoGPT Platform: The Future of AI Agents](https://agpt.co/blog/introducing-the-autogpt-platform): The AutoGPT Platform enables you to create, deploy, and manage continuous AI agents
+
+## Legal
+
+- [AutoGPT Platform Terms of Use](https://agpt.co/legal/platform-terms-of-use)
+- [Platform Privacy Policy](https://agpt.co/legal/platform-privacy-policy)
+- [Agent Jam Terms & Conditions](https://agpt.co/legal/agent-jam-terms-and-conditions)

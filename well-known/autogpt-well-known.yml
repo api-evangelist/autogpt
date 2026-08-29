@@ -1,0 +1,85 @@
+generated: '2026-08-29'
+method: probed
+source: >-
+  Live unauthenticated GET of every /.well-known/ path on the three AutoGPT
+  hosts, 2026-08-29.
+description: >-
+  RECORDED ABSENCE. Every /.well-known/ path returned 404 on all three AutoGPT
+  hosts — the marketing/docs site (agpt.co), the app (platform.agpt.co) and the
+  production API (backend.agpt.co). No security.txt, no OAuth/OIDC discovery
+  document, no api-catalog, no ai-plugin, no A2A agent card. This is notable
+  because AutoGPT DOES run a full OAuth 2.0 + PKCE authorization server at
+  /api/oauth/* on backend.agpt.co (authorize, token, introspect, revoke) — the
+  metadata document that would let a client discover it (RFC 8414
+  /.well-known/oauth-authorization-server) is simply not served. No apis.yml
+  WellKnown or SecurityTxt pointer is emitted, because nothing was served.
+hosts:
+  - host: agpt.co
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: platform.agpt.co
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: backend.agpt.co
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+notes:
+  - >-
+    agpt.co and platform.agpt.co are Next.js apps that answer /.well-known/*
+    with an HTML 404 page. backend.agpt.co (FastAPI) answers with a JSON
+    {"detail":"Not Found"} 404. Neither is a false-positive SPA 200.
+  - >-
+    Recommendation for the provider: publish
+    /.well-known/oauth-authorization-server on backend.agpt.co describing the
+    existing /api/oauth/authorize, /api/oauth/token, /api/oauth/introspect and
+    /api/oauth/revoke endpoints and the ten documented scopes, and a
+    /.well-known/security.txt on agpt.co pointing at the GitHub Security
+    Advisory intake already documented in SECURITY.md.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

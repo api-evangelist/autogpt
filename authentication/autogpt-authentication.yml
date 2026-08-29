@@ -1,0 +1,126 @@
+generated: '2026-08-29'
+method: searched
+source: >-
+  https://agpt.co/docs/platform/api-and-integrations/api-guide.md and
+  https://agpt.co/docs/platform/api-and-integrations/oauth-guide.md, reconciled
+  against the securitySchemes in openapi/autogpt-external-api-openapi.json and
+  openapi/autogpt-agent-server-openapi.json.
+docs: https://agpt.co/docs/platform/api-and-integrations/api-guide.md
+description: >-
+  AutoGPT Platform runs two distinct authenticated surfaces on the same host.
+  The External API (https://backend.agpt.co/external-api) is the documented,
+  third-party-facing one and accepts either an account API key in an X-API-Key
+  header or an OAuth 2.0 bearer token. The full Agent Server API
+  (https://backend.agpt.co/api) is the app's own backend and is authenticated
+  with a Supabase-issued JWT bearer; it is not documented for third parties.
+summary:
+  types:
+    - apiKey
+    - http
+    - oauth2
+  api_key_in:
+    - header
+surfaces:
+  - name: AutoGPT External API
+    base_url: https://backend.agpt.co/external-api
+    spec: openapi/autogpt-external-api-openapi.json
+    documented: true
+    console: https://backend.agpt.co/external-api/docs
+    schemes: [APIKeyHeader, HTTPBearer]
+  - name: AutoGPT Agent Server API
+    base_url: https://backend.agpt.co
+    spec: openapi/autogpt-agent-server-openapi.json
+    documented: false
+    schemes: [HTTPBearerJWT, HTTPBearer, APIKeyAuthenticator-X-Postmark-Webhook-Token]
+    note: >-
+      The first-party backend the AutoGPT web app calls. Published openly at
+      /openapi.json but not covered by the API guide; treat as internal.
+schemes:
+  - name: APIKeyHeader
+    type: apiKey
+    in: header
+    parameter: X-API-Key
+    sources:
+      - openapi/autogpt-external-api-openapi.json
+    how_to_obtain: >-
+      Generate an API key from AutoGPT Platform account settings. Managed
+      through /api/api-keys on the Agent Server API (create, list, get, revoke,
+      suspend, update permissions).
+    example_request: |
+      curl -H "X-API-Key: YOUR_API_KEY" https://backend.agpt.co/external-api/v1/blocks
+    best_for: server-to-server integrations, personal scripts, backend services
+    docs: https://agpt.co/docs/platform/api-and-integrations/api-guide.md
+  - name: HTTPBearer
+    type: http
+    scheme: bearer
+    sources:
+      - openapi/autogpt-external-api-openapi.json
+      - openapi/autogpt-agent-server-openapi.json
+    detail: >-
+      Carries an OAuth 2.0 access token issued by
+      https://backend.agpt.co/api/oauth/token. Tokens are prefixed agpt_xt_.
+    example_request: |
+      curl -H "Authorization: Bearer agpt_xt_..." https://backend.agpt.co/external-api/v1/blocks
+    docs: https://agpt.co/docs/platform/api-and-integrations/oauth-guide.md
+  - name: HTTPBearerJWT
+    type: http
+    scheme: bearer
+    bearerFormat: jwt
+    sources:
+      - openapi/autogpt-agent-server-openapi.json
+    detail: >-
+      The default scheme on 300+ Agent Server operations. A user session JWT
+      minted by the platform's identity provider, validated against JWT_JWKS_URL
+      (see the self-hosting security note in the AutoGPT SECURITY.md).
+  - name: APIKeyAuthenticator-X-Postmark-Webhook-Token
+    type: apiKey
+    in: header
+    parameter: X-Postmark-Webhook-Token
+    sources:
+      - openapi/autogpt-agent-server-openapi.json
+    detail: >-
+      Shared-secret header guarding the inbound Postmark e-mail webhook. Not a
+      consumer-facing credential.
+oauth2:
+  flow: authorization_code
+  pkce_required: true
+  pkce_method: S256
+  authorization_endpoint: https://platform.agpt.co/auth/authorize
+  token_endpoint: https://backend.agpt.co/api/oauth/token
+  introspection_endpoint: https://backend.agpt.co/api/oauth/introspect
+  revocation_endpoint: https://backend.agpt.co/api/oauth/revoke
+  refresh_tokens: true
+  access_token_prefix: agpt_xt_
+  state_required: true
+  scopes: scopes/autogpt-scopes.yml
+  scope_count: 10
+  client_registration: >-
+    Manual — the docs instruct developers to contact the platform administrator
+    for a client_id, client_secret and registered redirect URIs. No public
+    dynamic client registration (RFC 7591).
+  discovery_document: >-
+    None. /.well-known/oauth-authorization-server returns 404 on every AutoGPT
+    host (probed 2026-08-29).
+unauthenticated_operations:
+  - GET /api/store/agents
+  - GET /api/store/agents/{username}/{agent_name}
+  - GET /api/store/creators
+  - GET /api/store/creators/{username}
+  - GET /api/public/shared/{share_token}
+  - GET /api/public/shared/chats/{share_token}
+  - GET /health
+  - POST /api/oauth/token
+  - POST /api/oauth/introspect
+  - POST /api/oauth/revoke
+failure_modes:
+  - status: 401
+    body: '{"detail":"Authorization header is missing"}'
+    surface: Agent Server API
+    observed: '2026-08-29 against GET https://backend.agpt.co/api/api-keys'
+  - status: 401
+    body: '{"detail":"Missing authentication. Provide API key or access token."}'
+    surface: External API
+    observed: '2026-08-29 against GET https://backend.agpt.co/external-api/v1/blocks'
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

@@ -1,62 +1,184 @@
 aid: autogpt
 name: AutoGPT
 description: >-
-  AutoGPT is an autonomous AI agent framework that chains LLM calls to accomplish complex tasks independently.
+  AutoGPT, from Significant Gravitas, is an open-source platform for building,
+  deploying and running autonomous AI agents that automate digital work —
+  research, outreach, content, support — without writing code. Agents are
+  composed as graphs of reusable blocks in a visual builder, or described in
+  plain language to AutoPilot, then run continuously on schedules and triggers
+  across 45+ connected services. The platform is free to self-host from GitHub
+  and also sold as a managed cloud at agpt.co, where work is metered in
+  automation credits. Developers reach it through the AutoGPT External API at
+  backend.agpt.co/external-api, a 20-operation REST surface authenticated with
+  an X-API-Key header or an OAuth 2.0 token, which can find and run agents,
+  execute individual blocks, create agent graphs, read execution results and
+  manage the third-party credentials agents act on. AutoGPT is also a fluent MCP
+  client: its MCP Tool block connects an agent to any Model Context Protocol
+  server over Streamable HTTP with OAuth and PKCE.
 type: Index
 deliveryModel:
-  model: unknown
-  open_source: false
-  commercial: false
-  callable_host: false
-  label: Delivery model not determined — needs a product licence on record
-  confidence: low
+  model: open-source-and-managed-cloud
+  open_source: true
+  commercial: true
+  callable_host: true
+  label: Open-source platform with a managed cloud and a public REST API
+  confidence: high
   source:
-  - none
-  generated: '2026-08-28'
-  method: derived
+  - https://github.com/Significant-Gravitas/AutoGPT
+  - https://agpt.co/pricing
+  - https://backend.agpt.co/external-api/openapi.json
+  generated: '2026-08-29'
+  method: searched
 accessModel:
-  pricing: freemium
-  onboarding: unknown
+  pricing: paid
+  onboarding: self-service
   trial: false
-  try_now: false
-  public: false
-  label: Freemium
-  confidence: medium
+  try_now: true
+  public: true
+  label: Paid subscription plus pay-as-you-go credits; free to self-host
+  confidence: high
   source:
-  - plans
-  generated: '2026-07-22'
-  method: derived
+  - https://agpt.co/pricing
+  - plans/autogpt-plans-pricing.yml
+  generated: '2026-08-29'
+  method: searched
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/autogpt.png
 tags:
   - AI Agents
   - AI Automation
+  - Agent Platform
+  - Workflow Automation
+  - Model Context Protocol
+  - Open Source
+  - No-Code
+  - LLM Orchestration
+  - Agent Marketplace
 url: >-
   https://raw.githubusercontent.com/api-evangelist/autogpt/refs/heads/main/apis.yml
 created: '2026-03-27'
-modified: '2026-03-27'
+modified: '2026-08-29'
 specificationVersion: '0.23'
 apis:
   - aid: autogpt:autogpt
-    name: AutoGPT
+    name: AutoGPT External API
     description: >-
-      AutoGPT is an autonomous AI agent framework that chains LLM calls to accomplish complex tasks independently.
-    humanURL: https://agpt.co
+      The documented, third-party-facing REST API of the AutoGPT Platform. Twenty
+      operations that find and run AutoGPT agents, execute individual blocks,
+      create agent graphs, read graph execution results, browse the agent
+      marketplace, and manage the third-party integration credentials an agent
+      acts on. Authenticate with an account API key in an X-API-Key header or an
+      OAuth 2.0 bearer token prefixed agpt_xt_. Runs are asynchronous and
+      metered in automation credits.
+    humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+    baseURL: https://backend.agpt.co/external-api
     tags:
       - AI Automation
+      - AI Agents
+      - Agent Execution
     properties:
+      - type: OpenAPI
+        url: openapi/autogpt-external-api-openapi.json
       - type: Documentation
-        url: https://docs.agpt.co
+        url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+      - type: APIReference
+        url: https://backend.agpt.co/external-api/docs
+      - type: Sandbox
+        url: sandbox/autogpt-sandbox.yml
+      - type: Overlay
+        url: overlays/autogpt-external-api-overlay.yaml
+      - type: AgentSkill
+        url: skills/_index.yml
+  - aid: autogpt:autogpt-agent-server
+    name: AutoGPT Agent Server API
+    description: >-
+      The AutoGPT Platform's own backend API — 293 paths, 347 operations and 458
+      schemas covering graphs, executions, schedules, the library, the agent
+      marketplace, credits and billing, organizations, workspaces, experts,
+      copilot chat, OAuth applications, API keys and integrations. AutoGPT
+      publishes this OpenAPI openly at backend.agpt.co/openapi.json but does not
+      document it for third parties; the External API is the supported surface.
+      Recorded here because it is published, parses, and is where the OAuth
+      authorization server, the API-key management surface and the credit
+      wallet actually live.
+    humanURL: https://agpt.co/docs
+    baseURL: https://backend.agpt.co
+    tags:
+      - AI Automation
+      - Agent Execution
+      - Platform API
+    properties:
+      - type: OpenAPI
+        url: openapi/autogpt-agent-server-openapi.json
+      - type: Documentation
+        url: https://agpt.co/docs
 common:
-  - type: DomainSecurity
-    url: security/autogpt-domain-security.yml
-  - url: https://agpt.co/blog
-    type: Blog
-  - type: GitHubOrganization
-    url: https://github.com/significant-gravitas
   - type: Website
     url: https://agpt.co
+  - type: DeveloperPortal
+    url: https://agpt.co/docs
   - type: Documentation
-    url: https://docs.agpt.co
+    url: https://agpt.co/docs
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: GettingStarted
+    url: https://agpt.co/docs/platform/using-the-platform/getting-started-cloud
+  - type: Blog
+    url: https://agpt.co/blog
+  - type: GitHubOrganization
+    url: https://github.com/Significant-Gravitas
+  - type: Roadmap
+    url: https://github.com/orgs/Significant-Gravitas/projects/2
+  - type: Support
+    url: https://discord.gg/autogpt
+  - type: Pricing
+    url: https://agpt.co/pricing
+  - type: SignUp
+    url: https://platform.agpt.co/login
+  - type: TermsOfService
+    url: https://agpt.co/legal/platform-terms-of-use
+  - type: PrivacyPolicy
+    url: https://agpt.co/legal/platform-privacy-policy
+  - type: ChangeLog
+    url: changelog/autogpt-changelog.yml
+  - type: Authentication
+    url: authentication/autogpt-authentication.yml
+  - type: OAuthScopes
+    url: scopes/autogpt-scopes.yml
+  - type: ErrorCatalog
+    url: errors/autogpt-problem-types.yml
+  - type: Conventions
+    url: conventions/autogpt-conventions.yml
+  - type: Lifecycle
+    url: lifecycle/autogpt-lifecycle.yml
+  - type: Conformance
+    url: conformance/autogpt-conformance.yml
+  - type: DataModel
+    url: data-model/autogpt-data-model.yml
+  - type: Packages
+    url: packages/autogpt-packages.yml
+  - type: RateLimits
+    url: rate-limits/autogpt-rate-limits.yml
+  - type: Plans
+    url: plans/autogpt-plans-pricing.yml
+  - type: LLMsTxt
+    url: llms/autogpt-llms.txt
+  - type: Webhooks
+    url: asyncapi/autogpt-webhooks.yml
+  - type: AgentSkill
+    url: skills/_index.yml
+  - type: Security
+    url: security/autogpt-vulnerability-disclosure.yml
+  - type: VulnerabilityDisclosure
+    url: security/autogpt-vulnerability-disclosure.yml
+  - type: DomainSecurity
+    url: security/autogpt-domain-security.yml
+  - type: FinOps
+    url: finops/autogpt-finops.yml
+x-enrichment:
+  date: '2026-08-29'
+  status: enriched
+  artifacts_added: 25
+  pass: local-v1
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
