@@ -267,24 +267,6 @@ apis:
     url: sandbox/autogpt-sandbox.yml
   - type: Documentation
     url: https://agpt.co/docs
-- aid: autogpt:autogpt-oauth-api
-  name: AutoGPT OAUTH API
-  description: The oauth API from AutoGPT — 9 operation(s) for oauth.
-  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
-  baseURL: https://backend.agpt.co/external-api
-  tags:
-  - oauth
-  properties:
-  - type: OpenAPI
-    url: openapi/autogpt-oauth-api-openapi.yml
-  - type: Documentation
-    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
-  - type: APIReference
-    url: https://backend.agpt.co/external-api/docs
-  - type: Sandbox
-    url: sandbox/autogpt-sandbox.yml
-  - type: Documentation
-    url: https://agpt.co/docs
 - aid: autogpt:autogpt-platform-linking-api
   name: AutoGPT Platform Linking API
   description: The platform-linking API from AutoGPT — 8 operation(s) for platform-linking.
@@ -439,6 +421,24 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/autogpt-workspace-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-oauth-api
+  name: AutoGPT OAUTH API
+  description: The oauth API from AutoGPT — 9 operation(s) for oauth.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - oauth
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-oauth-api-openapi.yml
   - type: Documentation
     url: https://agpt.co/docs/platform/api-and-integrations/api-guide
   - type: APIReference
