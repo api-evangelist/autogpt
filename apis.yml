@@ -75,6 +75,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Analytics
+  tags_raw:
   - analytics
   properties:
   - type: OpenAPI
@@ -111,6 +113,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Blocks
+  tags_raw:
   - blocks
   properties:
   - type: OpenAPI
@@ -165,6 +169,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Graphs
+  tags_raw:
   - graphs
   properties:
   - type: OpenAPI
@@ -183,6 +189,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Health
+  tags_raw:
   - health
   properties:
   - type: OpenAPI
@@ -201,6 +209,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Homes
+  tags_raw:
   - home
   properties:
   - type: OpenAPI
@@ -219,6 +229,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Integration
+  tags_raw:
   - integrations
   properties:
   - type: OpenAPI
@@ -237,6 +249,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Meta
+  tags_raw:
   - meta
   properties:
   - type: OpenAPI
@@ -255,6 +269,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Monitoring
+  tags_raw:
   - monitoring
   properties:
   - type: OpenAPI
@@ -291,6 +307,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Push
+  tags_raw:
   - push
   properties:
   - type: OpenAPI
@@ -309,6 +327,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Search
+  tags_raw:
   - search
   properties:
   - type: OpenAPI
@@ -327,6 +347,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Store
+  tags_raw:
   - store
   properties:
   - type: OpenAPI
@@ -345,6 +367,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Tools
+  tags_raw:
   - tools
   properties:
   - type: OpenAPI
@@ -363,6 +387,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - User
+  tags_raw:
   - user
   properties:
   - type: OpenAPI
@@ -417,6 +443,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Workspace
+  tags_raw:
   - workspace
   properties:
   - type: OpenAPI
@@ -435,6 +463,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Authentication
+  tags_raw:
   - oauth
   properties:
   - type: OpenAPI
