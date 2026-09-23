@@ -1,0 +1,694 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT External Graphs API
+  description: External API for AutoGPT integrations
+  version: '1.0'
+servers:
+- url: /external-api
+tags:
+- name: Graphs
+paths:
+  /v1/graphs:
+    post:
+      tags:
+      - Graphs
+      summary: Create Graph
+      description: 'Create a new agent graph.
+
+
+        The graph will be validated and assigned a new ID.
+
+        It is automatically added to the user''s library.'
+      operationId: create_graph_v1_graphs_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Graph'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphModel'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+  /v1/graphs/{graph_id}/execute/{graph_version}:
+    post:
+      tags:
+      - Graphs
+      summary: Execute Graph
+      operationId: execute_graph_v1_graphs__graph_id__execute__graph_version__post
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: graph_version
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Graph Version
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Execute Graph V1 Graphs  Graph Id  Execute  Graph Version  Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/graphs/{graph_id}/executions/{graph_exec_id}/results:
+    get:
+      tags:
+      - Graphs
+      summary: Get Graph Execution Results
+      operationId: get_graph_execution_results_v1_graphs__graph_id__executions__graph_exec_id__results_get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: graph_exec_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Exec Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphExecutionResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Node:
+      properties:
+        id:
+          type: string
+          title: Id
+        block_id:
+          type: string
+          title: Block Id
+        input_default:
+          additionalProperties: true
+          type: object
+          title: Input Default
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        input_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Input Links
+        output_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Output Links
+      type: object
+      required:
+      - block_id
+      title: Node
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post:
+      properties:
+        node_input:
+          additionalProperties: true
+          type: object
+          title: Node Input
+      type: object
+      title: Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post
+    Graph:
+      properties:
+        id:
+          type: string
+          title: Id
+        version:
+          type: integer
+          title: Version
+          default: 1
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        nodes:
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+          title: Nodes
+        links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Links
+        sub_graphs:
+          items:
+            $ref: '#/components/schemas/BaseGraph-Input'
+          type: array
+          title: Sub Graphs
+      type: object
+      required:
+      - name
+      - description
+      title: Graph
+      description: Creatable graph model used in API create/update endpoints.
+    BaseGraph-Output:
+      properties:
+        id:
+          type: string
+          title: Id
+        version:
+          type: integer
+          title: Version
+          default: 1
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        nodes:
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+          title: Nodes
+        links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Links
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          readOnly: true
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+          readOnly: true
+        has_external_trigger:
+          type: boolean
+          title: Has External Trigger
+          readOnly: true
+        has_human_in_the_loop:
+          type: boolean
+          title: Has Human In The Loop
+          readOnly: true
+        has_sensitive_action:
+          type: boolean
+          title: Has Sensitive Action
+          readOnly: true
+        trigger_setup_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+          readOnly: true
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      - output_schema
+      - has_external_trigger
+      - has_human_in_the_loop
+      - has_sensitive_action
+      - trigger_setup_info
+      title: BaseGraph
+      description: 'Graph with nodes, links, and computed I/O schema fields.
+
+
+        Used to represent sub-graphs within a `Graph`. Contains the full graph
+
+        structure including nodes and links, plus computed fields for schemas
+
+        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
+    BaseGraph-Input:
+      properties:
+        id:
+          type: string
+          title: Id
+        version:
+          type: integer
+          title: Version
+          default: 1
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        nodes:
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+          title: Nodes
+        links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Links
+      type: object
+      required:
+      - name
+      - description
+      title: BaseGraph
+      description: 'Graph with nodes, links, and computed I/O schema fields.
+
+
+        Used to represent sub-graphs within a `Graph`. Contains the full graph
+
+        structure including nodes and links, plus computed fields for schemas
+
+        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
+    ExecutionNode:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+        input:
+          title: Input
+        output:
+          additionalProperties: true
+          type: object
+          title: Output
+      type: object
+      required:
+      - node_id
+      - input
+      - output
+      title: ExecutionNode
+    NodeModel:
+      properties:
+        id:
+          type: string
+          title: Id
+        block_id:
+          type: string
+          title: Block Id
+        input_default:
+          additionalProperties: true
+          type: object
+          title: Input Default
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        input_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Input Links
+        output_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Output Links
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        webhook_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Webhook Id
+      type: object
+      required:
+      - block_id
+      - graph_id
+      - graph_version
+      title: NodeModel
+    GraphModel:
+      properties:
+        id:
+          type: string
+          title: Id
+        version:
+          type: integer
+          title: Version
+          default: 1
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        user_id:
+          type: string
+          title: User Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        nodes:
+          items:
+            $ref: '#/components/schemas/NodeModel'
+          type: array
+          title: Nodes
+        links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Links
+        sub_graphs:
+          items:
+            $ref: '#/components/schemas/BaseGraph-Output'
+          type: array
+          title: Sub Graphs
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          readOnly: true
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+          readOnly: true
+        has_external_trigger:
+          type: boolean
+          title: Has External Trigger
+          readOnly: true
+        has_human_in_the_loop:
+          type: boolean
+          title: Has Human In The Loop
+          readOnly: true
+        has_sensitive_action:
+          type: boolean
+          title: Has Sensitive Action
+          readOnly: true
+        trigger_setup_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+          readOnly: true
+        credentials_input_schema:
+          additionalProperties: true
+          type: object
+          title: Credentials Input Schema
+          readOnly: true
+      type: object
+      required:
+      - name
+      - description
+      - user_id
+      - created_at
+      - input_schema
+      - output_schema
+      - has_external_trigger
+      - has_human_in_the_loop
+      - has_sensitive_action
+      - trigger_setup_info
+      - credentials_input_schema
+      title: GraphModel
+      description: 'Full graph model representing an existing graph from the database.
+
+
+        This is the primary model for working with persisted graphs. Includes all
+
+        graph data (nodes, links, sub_graphs) plus user ownership and timestamps.
+
+        Provides computed fields (input_schema, output_schema, etc.) used during
+
+        set-up (frontend) and execution (backend).
+
+
+        Inherits from:
+
+        - `Graph`: provides structure (nodes, links, sub_graphs) and computed schemas
+
+        - `GraphMeta`: provides user_id, created_at for database records'
+    GraphExecutionResult:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        status:
+          type: string
+          title: Status
+        nodes:
+          items:
+            $ref: '#/components/schemas/ExecutionNode'
+          type: array
+          title: Nodes
+        output:
+          anyOf:
+          - items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+          - type: 'null'
+          title: Output
+      type: object
+      required:
+      - execution_id
+      - status
+      - nodes
+      - output
+      title: GraphExecutionResult
+    Link:
+      properties:
+        id:
+          type: string
+          title: Id
+        source_id:
+          type: string
+          title: Source Id
+        sink_id:
+          type: string
+          title: Sink Id
+        source_name:
+          type: string
+          title: Source Name
+        sink_name:
+          type: string
+          title: Sink Name
+        is_static:
+          type: boolean
+          title: Is Static
+          default: false
+      type: object
+      required:
+      - source_id
+      - sink_id
+      - source_name
+      - sink_name
+      title: Link
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    HTTPBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,897 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server OAUTH API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: OAuth
+paths:
+  /api/oauth/app/{client_id}:
+    get:
+      tags:
+      - OAuth
+      summary: Get Oauth App Info
+      description: 'Get public information about an OAuth application.
+
+
+        This endpoint is used by the consent screen to display application details
+
+        to the user before they authorize access.
+
+
+        Returns:
+
+        - name: Application name
+
+        - description: Application description (if provided)
+
+        - scopes: List of scopes the application is allowed to request'
+      operationId: getOauthGetOauthAppInfo
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: client_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Client Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthApplicationPublicInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Application not found or disabled
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/oauth/apps/mine:
+    get:
+      tags:
+      - OAuth
+      summary: List My Oauth Apps
+      description: 'List all OAuth applications owned by the current user.
+
+
+        Returns a list of OAuth applications with their details including:
+
+        - id, name, description, logo_url
+
+        - client_id (public identifier)
+
+        - redirect_uris, grant_types, scopes
+
+        - is_active status
+
+        - created_at, updated_at timestamps
+
+
+        Note: client_secret is never returned for security reasons.'
+      operationId: getOauthListMyOauthApps
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OAuthApplicationInfo'
+                type: array
+                title: Response Getoauthlistmyoauthapps
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/oauth/apps/{app_id}/logo:
+    patch:
+      tags:
+      - OAuth
+      summary: Update App Logo
+      description: 'Update the logo URL for an OAuth application.
+
+
+        Only the application owner can update the logo.
+
+        The logo should be uploaded first using the media upload endpoint,
+
+        then this endpoint is called with the resulting URL.
+
+
+        Logo requirements:
+
+        - Must be square (1:1 aspect ratio)
+
+        - Minimum 512x512 pixels
+
+        - Maximum 2048x2048 pixels
+
+
+        Returns the updated application info.'
+      operationId: patchOauthUpdateAppLogo
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: App Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppLogoRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthApplicationInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/oauth/apps/{app_id}/logo/upload:
+    post:
+      tags:
+      - OAuth
+      summary: Upload App Logo
+      description: 'Upload a logo image for an OAuth application.
+
+
+        Requirements:
+
+        - Image must be square (1:1 aspect ratio)
+
+        - Minimum 512x512 pixels
+
+        - Maximum 2048x2048 pixels
+
+        - Allowed formats: JPEG, PNG, WebP
+
+        - Maximum file size: 3MB
+
+
+        The image is uploaded to cloud storage and the app''s logoUrl is updated.
+
+        Returns the updated application info.'
+      operationId: postOauthUploadAppLogo
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: App Id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_postOauthUploadAppLogo'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthApplicationInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/oauth/apps/{app_id}/status:
+    patch:
+      tags:
+      - OAuth
+      summary: Update App Status
+      description: 'Enable or disable an OAuth application.
+
+
+        Only the application owner can update the status.
+
+        When disabled, the application cannot be used for new authorizations
+
+        and existing access tokens will fail validation.
+
+
+        Returns the updated application info.'
+      operationId: patchOauthUpdateAppStatus
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: App Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_patchOauthUpdateAppStatus'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthApplicationInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/oauth/authorize:
+    post:
+      tags:
+      - OAuth
+      summary: Authorize
+      description: 'OAuth 2.0 Authorization Endpoint
+
+
+        User must be logged in (authenticated with Supabase JWT).
+
+        This endpoint creates an authorization code and returns a redirect URL.
+
+
+        PKCE (Proof Key for Code Exchange) is REQUIRED for all authorization requests.
+
+
+        The frontend consent screen should call this endpoint after the user approves,
+
+        then redirect the user to the returned `redirect_url`.
+
+
+        Request Body:
+
+        - client_id: The OAuth application''s client ID
+
+        - redirect_uri: Where to redirect after authorization (must match registered URI)
+
+        - scopes: List of permissions (e.g., "EXECUTE_GRAPH READ_GRAPH")
+
+        - state: Anti-CSRF token provided by client (will be returned in redirect)
+
+        - response_type: Must be "code" (for authorization code flow)
+
+        - code_challenge: PKCE code challenge (required)
+
+        - code_challenge_method: "S256" (recommended) or "plain"
+
+
+        Returns:
+
+        - redirect_url: The URL to redirect the user to (includes authorization code)
+
+
+        Error cases return a redirect_url with error parameters, or raise HTTPException
+
+        for critical errors (like invalid redirect_uri).'
+      operationId: postOauthAuthorize
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorizeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizeResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/oauth/introspect:
+    post:
+      tags:
+      - OAuth
+      summary: Introspect
+      description: 'OAuth 2.0 Token Introspection Endpoint (RFC 7662)
+
+
+        Allows clients to check if a token is valid and get its metadata.
+
+
+        Returns:
+
+        - active: Whether the token is currently active
+
+        - scopes: List of authorized scopes (if active)
+
+        - client_id: The client the token was issued to (if active)
+
+        - user_id: The user the token represents (if active)
+
+        - exp: Expiration timestamp (if active)
+
+        - token_type: "access_token" or "refresh_token" (if active)'
+      operationId: postOauthIntrospect
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_postOauthIntrospect'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenIntrospectionResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/oauth/revoke:
+    post:
+      tags:
+      - OAuth
+      summary: Revoke
+      description: 'OAuth 2.0 Token Revocation Endpoint (RFC 7009)
+
+
+        Allows clients to revoke an access or refresh token.
+
+
+        Note: Revoking a refresh token does NOT revoke associated access tokens.
+
+        Revoking an access token does NOT revoke the associated refresh token.'
+      operationId: postOauthRevoke
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_postOauthRevoke'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/oauth/token:
+    post:
+      tags:
+      - OAuth
+      summary: Token
+      description: 'OAuth 2.0 Token Endpoint
+
+
+        Exchanges authorization code or refresh token for access token.
+
+
+        Grant Types:
+
+        1. authorization_code: Exchange authorization code for tokens
+
+        - Required: grant_type, code, redirect_uri, client_id, client_secret
+
+        - Optional: code_verifier (required if PKCE was used)
+
+
+        2. refresh_token: Exchange refresh token for new access token
+
+        - Required: grant_type, refresh_token, client_id, client_secret
+
+
+        Returns:
+
+        - access_token: Bearer token for API access (1 hour TTL)
+
+        - token_type: "Bearer"
+
+        - expires_in: Seconds until access token expires
+
+        - refresh_token: Token for refreshing access (30 days TTL)
+
+        - scopes: List of scopes'
+      operationId: postOauthToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/TokenRequestByCode'
+              - $ref: '#/components/schemas/TokenRequestByRefreshToken'
+              title: Request
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    TokenRequestByCode:
+      properties:
+        grant_type:
+          type: string
+          const: authorization_code
+          title: Grant Type
+        code:
+          type: string
+          title: Code
+          description: Authorization code
+        redirect_uri:
+          type: string
+          title: Redirect Uri
+          description: Redirect URI (must match authorization request)
+        client_id:
+          type: string
+          title: Client Id
+        client_secret:
+          type: string
+          title: Client Secret
+        code_verifier:
+          type: string
+          title: Code Verifier
+          description: PKCE code verifier
+      type: object
+      required:
+      - grant_type
+      - code
+      - redirect_uri
+      - client_id
+      - client_secret
+      - code_verifier
+      title: TokenRequestByCode
+    Body_patchOauthUpdateAppStatus:
+      properties:
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the app should be active
+      type: object
+      required:
+      - is_active
+      title: Body_patchOauthUpdateAppStatus
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    AuthorizeRequest:
+      properties:
+        client_id:
+          type: string
+          title: Client Id
+          description: Client identifier
+        redirect_uri:
+          type: string
+          title: Redirect Uri
+          description: Redirect URI
+        scopes:
+          items:
+            type: string
+          type: array
+          title: Scopes
+          description: List of scopes
+        state:
+          type: string
+          title: State
+          description: Anti-CSRF token from client
+        response_type:
+          type: string
+          title: Response Type
+          description: Must be 'code' for authorization code flow
+          default: code
+        code_challenge:
+          type: string
+          title: Code Challenge
+          description: PKCE code challenge (required)
+        code_challenge_method:
+          type: string
+          enum:
+          - S256
+          - plain
+          title: Code Challenge Method
+          description: PKCE code challenge method (S256 recommended)
+          default: S256
+      type: object
+      required:
+      - client_id
+      - redirect_uri
+      - scopes
+      - state
+      - code_challenge
+      title: AuthorizeRequest
+      description: OAuth 2.0 authorization request
+    Body_postOauthIntrospect:
+      properties:
+        token:
+          type: string
+          title: Token
+          description: Token to introspect
+        token_type_hint:
+          anyOf:
+          - type: string
+            enum:
+            - access_token
+            - refresh_token
+          - type: 'null'
+          title: Token Type Hint
+          description: Hint about token type ('access_token' or 'refresh_token')
+        client_id:
+          type: string
+          title: Client Id
+          description: Client identifier
+        client_secret:
+          type: string
+          title: Client Secret
+          description: Client secret
+      type: object
+      required:
+      - token
+      - client_id
+      - client_secret
+      title: Body_postOauthIntrospect
+    TokenResponse:
+      properties:
+        token_type:
+          type: string
+          const: Bearer
+          title: Token Type
+          default: Bearer
+        access_token:
+          type: string
+          title: Access Token
+        access_token_expires_at:
+          type: string
+          format: date-time
+          title: Access Token Expires At
+        refresh_token:
+          type: string
+          title: Refresh Token
+        refresh_token_expires_at:
+          type: string
+          format: date-time
+          title: Refresh Token Expires At
+        scopes:
+          items:
+            type: string
+          type: array
+          title: Scopes
+      type: object
+      required:
+      - access_token
+      - access_token_expires_at
+      - refresh_token
+      - refresh_token_expires_at
+      - scopes
+      title: TokenResponse
+      description: OAuth 2.0 token response
+    Body_postOauthUploadAppLogo:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_postOauthUploadAppLogo
+    Body_postOauthRevoke:
+      properties:
+        token:
+          type: string
+          title: Token
+          description: Token to revoke
+        token_type_hint:
+          anyOf:
+          - type: string
+            enum:
+            - access_token
+            - refresh_token
+          - type: 'null'
+          title: Token Type Hint
+          description: Hint about token type ('access_token' or 'refresh_token')
+        client_id:
+          type: string
+          title: Client Id
+          description: Client identifier
+        client_secret:
+          type: string
+          title: Client Secret
+          description: Client secret
+      type: object
+      required:
+      - token
+      - client_id
+      - client_secret
+      title: Body_postOauthRevoke
+    TokenIntrospectionResult:
+      properties:
+        active:
+          type: boolean
+          title: Active
+        scopes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Scopes
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+        exp:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Exp
+        token_type:
+          anyOf:
+          - type: string
+            enum:
+            - access_token
+            - refresh_token
+          - type: 'null'
+          title: Token Type
+      type: object
+      required:
+      - active
+      title: TokenIntrospectionResult
+      description: Result of token introspection (RFC 7662)
+    TokenRequestByRefreshToken:
+      properties:
+        grant_type:
+          type: string
+          const: refresh_token
+          title: Grant Type
+        refresh_token:
+          type: string
+          title: Refresh Token
+        client_id:
+          type: string
+          title: Client Id
+        client_secret:
+          type: string
+          title: Client Secret
+      type: object
+      required:
+      - grant_type
+      - refresh_token
+      - client_id
+      - client_secret
+      title: TokenRequestByRefreshToken
+    UpdateAppLogoRequest:
+      properties:
+        logo_url:
+          type: string
+          title: Logo Url
+          description: URL of the uploaded logo image
+      type: object
+      required:
+      - logo_url
+      title: UpdateAppLogoRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    APIKeyPermission:
+      type: string
+      enum:
+      - IDENTITY
+      - EXECUTE_GRAPH
+      - READ_GRAPH
+      - WRITE_GRAPH
+      - EXECUTE_BLOCK
+      - READ_BLOCK
+      - READ_STORE
+      - WRITE_LIBRARY
+      - USE_TOOLS
+      - MANAGE_INTEGRATIONS
+      - READ_INTEGRATIONS
+      - DELETE_INTEGRATIONS
+      title: APIKeyPermission
+    OAuthApplicationInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        logo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Logo Url
+        client_id:
+          type: string
+          title: Client Id
+        redirect_uris:
+          items:
+            type: string
+          type: array
+          title: Redirect Uris
+        grant_types:
+          items:
+            type: string
+          type: array
+          title: Grant Types
+        scopes:
+          items:
+            $ref: '#/components/schemas/APIKeyPermission'
+          type: array
+          title: Scopes
+        owner_id:
+          type: string
+          title: Owner Id
+        is_active:
+          type: boolean
+          title: Is Active
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name
+      - client_id
+      - redirect_uris
+      - grant_types
+      - scopes
+      - owner_id
+      - is_active
+      - created_at
+      - updated_at
+      title: OAuthApplicationInfo
+      description: OAuth application information (without client secret hash)
+    OAuthApplicationPublicInfo:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        logo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Logo Url
+        scopes:
+          items:
+            type: string
+          type: array
+          title: Scopes
+      type: object
+      required:
+      - name
+      - scopes
+      title: OAuthApplicationPublicInfo
+      description: Public information about an OAuth application (for consent screen)
+    AuthorizeResponse:
+      properties:
+        redirect_url:
+          type: string
+          title: Redirect Url
+          description: URL to redirect the user to
+      type: object
+      required:
+      - redirect_url
+      title: AuthorizeResponse
+      description: OAuth 2.0 authorization response with redirect URL
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

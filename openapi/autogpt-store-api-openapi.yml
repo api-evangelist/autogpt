@@ -1,0 +1,624 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT External Store API
+  description: External API for AutoGPT integrations
+  version: '1.0'
+servers:
+- url: /external-api
+tags:
+- name: Store
+paths:
+  /v1/store/agents:
+    get:
+      tags:
+      - Store
+      summary: Get Store Agents
+      description: 'Get a paginated list of agents from the store with optional filtering and sorting.
+
+
+        Args:
+
+        featured: Filter to only show featured agents
+
+        creator: Filter agents by creator username
+
+        sorted_by: Sort agents by "runs", "rating", "name", or "updated_at"
+
+        search_query: Search agents by name, subheading and description
+
+        category: Filter agents by category
+
+        page: Page number for pagination (default 1)
+
+        page_size: Number of agents per page (default 20)
+
+
+        Returns:
+
+        StoreAgentsResponse: Paginated list of agents matching the filters'
+      operationId: get_store_agents_v1_store_agents_get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: featured
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Featured
+      - name: creator
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Creator
+      - name: sorted_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/StoreAgentsSortOptions'
+          - type: 'null'
+          title: Sorted By
+      - name: search_query
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search Query
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreAgentsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/store/agents/{username}/{agent_name}:
+    get:
+      tags:
+      - Store
+      summary: Get Store Agent
+      description: 'Get details of a specific store agent by username and agent name.
+
+
+        Args:
+
+        username: Creator''s username
+
+        agent_name: Name/slug of the agent
+
+
+        Returns:
+
+        StoreAgentDetails: Detailed information about the agent'
+      operationId: get_store_agent_v1_store_agents__username___agent_name__get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Username
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreAgentDetails'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/store/creators:
+    get:
+      tags:
+      - Store
+      summary: Get Store Creators
+      description: 'Get a paginated list of store creators with optional filtering and sorting.
+
+
+        Args:
+
+        featured: Filter to only show featured creators
+
+        search_query: Search creators by profile description
+
+        sorted_by: Sort by "agent_rating", "agent_runs", or "num_agents"
+
+        page: Page number for pagination (default 1)
+
+        page_size: Number of creators per page (default 20)
+
+
+        Returns:
+
+        CreatorsResponse: Paginated list of creators matching the filters'
+      operationId: get_store_creators_v1_store_creators_get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: featured
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Featured
+      - name: search_query
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search Query
+      - name: sorted_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/StoreCreatorsSortOptions'
+          - type: 'null'
+          title: Sorted By
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatorsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/store/creators/{username}:
+    get:
+      tags:
+      - Store
+      summary: Get Store Creator
+      description: 'Get details of a specific store creator by username.
+
+
+        Args:
+
+        username: Creator''s username
+
+
+        Returns:
+
+        CreatorDetails: Detailed information about the creator'
+      operationId: get_store_creator_v1_store_creators__username__get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Username
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatorDetails'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    CreatorDetails:
+      properties:
+        username:
+          type: string
+          title: Username
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        links:
+          items:
+            type: string
+          type: array
+          title: Links
+        is_featured:
+          type: boolean
+          title: Is Featured
+        num_agents:
+          type: integer
+          title: Num Agents
+        agent_runs:
+          type: integer
+          title: Agent Runs
+        agent_rating:
+          type: number
+          title: Agent Rating
+        top_categories:
+          items:
+            type: string
+          type: array
+          title: Top Categories
+      type: object
+      required:
+      - username
+      - name
+      - description
+      - avatar_url
+      - links
+      - is_featured
+      - num_agents
+      - agent_runs
+      - agent_rating
+      - top_categories
+      title: CreatorDetails
+      description: Marketplace creator profile details, including aggregated stats
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    StoreAgentsResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/StoreAgent'
+          type: array
+          title: Agents
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - agents
+      - pagination
+      title: StoreAgentsResponse
+    CreatorsResponse:
+      properties:
+        creators:
+          items:
+            $ref: '#/components/schemas/CreatorDetails'
+          type: array
+          title: Creators
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - creators
+      - pagination
+      title: CreatorsResponse
+    StoreAgentDetails:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        slug:
+          type: string
+          title: Slug
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_video:
+          type: string
+          title: Agent Video
+        agent_output_demo:
+          type: string
+          title: Agent Output Demo
+        agent_image:
+          items:
+            type: string
+          type: array
+          title: Agent Image
+        creator:
+          type: string
+          title: Creator
+        creator_avatar:
+          type: string
+          title: Creator Avatar
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        runs:
+          type: integer
+          title: Runs
+        rating:
+          type: number
+          title: Rating
+        versions:
+          items:
+            type: string
+          type: array
+          title: Versions
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_versions:
+          items:
+            type: string
+          type: array
+          title: Graph Versions
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        owning_org_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owning Org Id
+        active_version_id:
+          type: string
+          title: Active Version Id
+        has_approved_version:
+          type: boolean
+          title: Has Approved Version
+        changelog:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChangelogEntry'
+            type: array
+          - type: 'null'
+          title: Changelog
+      type: object
+      required:
+      - store_listing_version_id
+      - slug
+      - agent_name
+      - agent_video
+      - agent_output_demo
+      - agent_image
+      - creator
+      - creator_avatar
+      - sub_heading
+      - description
+      - categories
+      - runs
+      - rating
+      - versions
+      - graph_id
+      - graph_versions
+      - last_updated
+      - active_version_id
+      - has_approved_version
+      title: StoreAgentDetails
+    StoreCreatorsSortOptions:
+      type: string
+      enum:
+      - agent_rating
+      - agent_runs
+      - num_agents
+      title: StoreCreatorsSortOptions
+    ChangelogEntry:
+      properties:
+        version:
+          type: string
+          title: Version
+        changes_summary:
+          type: string
+          title: Changes Summary
+        date:
+          type: string
+          format: date-time
+          title: Date
+      type: object
+      required:
+      - version
+      - changes_summary
+      - date
+      title: ChangelogEntry
+    StoreAgent:
+      properties:
+        slug:
+          type: string
+          title: Slug
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_image:
+          type: string
+          title: Agent Image
+        creator:
+          type: string
+          title: Creator
+        creator_avatar:
+          type: string
+          title: Creator Avatar
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        runs:
+          type: integer
+          title: Runs
+        rating:
+          type: number
+          title: Rating
+        agent_graph_id:
+          type: string
+          title: Agent Graph Id
+      type: object
+      required:
+      - slug
+      - agent_name
+      - agent_image
+      - creator
+      - creator_avatar
+      - sub_heading
+      - description
+      - runs
+      - rating
+      - agent_graph_id
+      title: StoreAgent
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    StoreAgentsSortOptions:
+      type: string
+      enum:
+      - rating
+      - runs
+      - name
+      - updated_at
+      title: StoreAgentsSortOptions
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    HTTPBearer:
+      type: http
+      scheme: bearer

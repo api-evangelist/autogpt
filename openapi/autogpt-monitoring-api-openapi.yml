@@ -1,0 +1,32 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT External Monitoring API
+  description: External API for AutoGPT integrations
+  version: '1.0'
+servers:
+- url: /external-api
+tags:
+- name: Monitoring
+paths:
+  /metrics:
+    get:
+      tags:
+      - Monitoring
+      summary: Metrics
+      description: Endpoint that serves Prometheus metrics.
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    HTTPBearer:
+      type: http
+      scheme: bearer

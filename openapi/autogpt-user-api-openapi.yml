@@ -1,0 +1,60 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT External User API
+  description: External API for AutoGPT integrations
+  version: '1.0'
+servers:
+- url: /external-api
+tags:
+- name: User
+paths:
+  /v1/me:
+    get:
+      tags:
+      - User
+      summary: Get User Info
+      operationId: get_user_info_v1_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoResponse'
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+components:
+  schemas:
+    UserInfoResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          type: string
+          title: Email
+        timezone:
+          type: string
+          title: Timezone
+          description: The user's last known timezone (e.g. 'Europe/Amsterdam'), or 'not-set' if not set
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - timezone
+      title: UserInfoResponse
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    HTTPBearer:
+      type: http
+      scheme: bearer

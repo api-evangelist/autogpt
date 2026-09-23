@@ -1,0 +1,35 @@
+# Front Door AI Index — autogpt — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: autogpt
+  lexicon_version: '1.0'
+  probed_at: '2026-09-17'
+  host: agpt.co
+  final_host: agpt.co
+  ownership: own
+  owner: autogpt
+  shares_host_with: null
+  inherited_from: null
+  verdict: scored
+  score: 65
+  host_score: 65
+  density: 23.96
+  words: 2713
+  tiers:
+    agentic: 17
+    core: 40
+    model: 8
+  ambiguous: 67
+  top_terms:
+    agent: 62
+    AI: 39
+    AI agent: 10
+    automation: 5
+    prompts: 4
+    ChatGPT: 3
+    GPT: 3
+    Claude: 2
+    chatbot: 2
+    LLMs: 1
+    fine-tune: 1

@@ -1,0 +1,188 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Push API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Push
+paths:
+  /api/push/subscribe:
+    post:
+      tags:
+      - Push
+      summary: Register a push subscription for the current user
+      operationId: postPushRegister a push subscription for the current user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushSubscribeRequest'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/push/unsubscribe:
+    post:
+      tags:
+      - Push
+      summary: Remove a push subscription
+      operationId: postPushRemove a push subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushUnsubscribeRequest'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/push/vapid-key:
+    get:
+      tags:
+      - Push
+      summary: Get VAPID public key for push subscription
+      operationId: getPushGet vapid public key for push subscription
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VapidPublicKeyResponse'
+components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PushSubscribeRequest:
+      properties:
+        endpoint:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Endpoint
+        keys:
+          $ref: '#/components/schemas/PushSubscriptionKeys'
+        user_agent:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: User Agent
+      type: object
+      required:
+      - endpoint
+      - keys
+      title: PushSubscribeRequest
+    PushUnsubscribeRequest:
+      properties:
+        endpoint:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Endpoint
+      type: object
+      required:
+      - endpoint
+      title: PushUnsubscribeRequest
+    PushSubscriptionKeys:
+      properties:
+        p256dh:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: P256Dh
+        auth:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Auth
+      type: object
+      required:
+      - p256dh
+      - auth
+      title: PushSubscriptionKeys
+    VapidPublicKeyResponse:
+      properties:
+        public_key:
+          type: string
+          title: Public Key
+      type: object
+      required:
+      - public_key
+      title: VapidPublicKeyResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

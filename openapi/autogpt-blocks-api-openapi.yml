@@ -1,0 +1,116 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT External Blocks API
+  description: External API for AutoGPT integrations
+  version: '1.0'
+servers:
+- url: /external-api
+tags:
+- name: Blocks
+paths:
+  /v1/blocks:
+    get:
+      tags:
+      - Blocks
+      summary: Get Graph Blocks
+      operationId: get_graph_blocks_v1_blocks_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+                title: Response Get Graph Blocks V1 Blocks Get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+  /v1/blocks/{block_id}/execute:
+    post:
+      tags:
+      - Blocks
+      summary: Execute Graph Block
+      operationId: execute_graph_block_v1_blocks__block_id__execute_post
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: block_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Block Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items: {}
+                title: Response Execute Graph Block V1 Blocks  Block Id  Execute Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    HTTPBearer:
+      type: http
+      scheme: bearer

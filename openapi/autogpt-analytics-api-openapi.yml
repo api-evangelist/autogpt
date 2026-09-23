@@ -1,0 +1,163 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Analytics API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Analytics
+paths:
+  /api/analytics/log_raw_analytics:
+    post:
+      tags:
+      - Analytics
+      summary: Log Raw Analytics
+      operationId: postAnalyticsLogRawAnalytics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_postAnalyticsLogRawAnalytics'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/analytics/log_raw_metric:
+    post:
+      tags:
+      - Analytics
+      summary: Log Raw Metric
+      operationId: postAnalyticsLogRawMetric
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRawMetricRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    LogRawMetricRequest:
+      properties:
+        metric_name:
+          type: string
+          minLength: 1
+          title: Metric Name
+        metric_value:
+          type: number
+          title: Metric Value
+        data_string:
+          type: string
+          minLength: 1
+          title: Data String
+      type: object
+      required:
+      - metric_name
+      - metric_value
+      - data_string
+      title: LogRawMetricRequest
+    Body_postAnalyticsLogRawAnalytics:
+      properties:
+        type:
+          type: string
+          title: Type
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+          description: The data to log
+        data_index:
+          type: string
+          title: Data Index
+          description: Indexable field for any count based analytical measures like page order clicking, tutorial step completion, etc.
+      type: object
+      required:
+      - type
+      - data
+      - data_index
+      title: Body_postAnalyticsLogRawAnalytics
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

@@ -1,0 +1,813 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Workspace API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Workspace
+paths:
+  /api/workspace/files:
+    get:
+      tags:
+      - Workspace
+      summary: List workspace files
+      description: 'List files in the user''s workspace.
+
+
+        When session_id is provided, only files for that session are returned.
+
+        Otherwise, all files across sessions are listed. Results are paginated
+
+        via `limit`/`offset`; `has_more` indicates whether additional pages exist.
+
+
+        The Artifacts page uses ``q`` for name search and ``origin`` to filter
+
+        between Uploaded (user-uploaded) and Generated (agent/block output) files.
+
+
+        ``session_id`` (a per-session view) and the folder filters (``folder_id`` /
+
+        ``root_only``) are distinct, mutually exclusive axes, and ``folder_id`` and
+
+        ``root_only`` likewise conflict; passing conflicting filters returns a 400
+
+        rather than silently yielding an empty list.'
+      operationId: listWorkspaceFiles
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 200
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Case-insensitive substring search on file name. Applied in the database for fresh results without waiting on embedding generation.
+          title: Q
+        description: Case-insensitive substring search on file name. Applied in the database for fresh results without waiting on embedding generation.
+      - name: origin
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - uploaded
+            - generated
+            type: string
+          - type: 'null'
+          description: Filter by file origin. ``uploaded`` matches files the user uploaded (``metadata.origin == 'user-upload'``, set by the upload endpoint for both Builder and CoPilot uploads); ``generated`` matches everything else (agent/block output). Ignored when ``session_id`` is set.
+          title: Origin
+        description: Filter by file origin. ``uploaded`` matches files the user uploaded (``metadata.origin == 'user-upload'``, set by the upload endpoint for both Builder and CoPilot uploads); ``generated`` matches everything else (agent/block output). Ignored when ``session_id`` is set.
+      - name: folder_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            minLength: 1
+          - type: 'null'
+          description: Only return files in this folder.
+          title: Folder Id
+        description: Only return files in this folder.
+      - name: root_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Only return root-level files (not in any folder).
+          default: false
+          title: Root Only
+        description: Only return root-level files (not in any folder).
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilesResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/workspace/files/upload:
+    post:
+      tags:
+      - Workspace
+      summary: Upload file to workspace
+      description: 'Upload a file to the user''s workspace.
+
+
+        Files are stored in session-scoped paths when session_id is provided,
+
+        so the agent''s session-scoped tools can discover them automatically.'
+      operationId: uploadWorkspaceFile
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+      - name: overwrite
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Overwrite
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_uploadWorkspaceFile'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/backend__api__features__workspace__routes__UploadFileResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/workspace/files/{file_id}:
+    delete:
+      tags:
+      - Workspace
+      summary: Delete a workspace file
+      description: 'Soft-delete a workspace file and attempt to remove it from storage.
+
+
+        Used when a user clears a file input in the builder.'
+      operationId: deleteWorkspaceFile
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: File Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteFileResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/workspace/files/{file_id}/download:
+    get:
+      tags:
+      - Workspace
+      summary: Download file by ID
+      description: 'Download a file by its ID.
+
+
+        Returns the file content directly or redirects to a signed URL for GCS.'
+      operationId: getWorkspaceDownloadFileById
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: File Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/workspace/files/{file_id}/preview:
+    get:
+      tags:
+      - Workspace
+      summary: Preview file by ID
+      description: 'Return a cheap preview of a file.
+
+
+        Images/PDFs/Office docs are returned as a small WebP thumbnail; text-like
+
+        files return only their first ``bytes`` bytes. Used by the Artifacts page so
+
+        a grid of files no longer downloads every file in full.'
+      operationId: getWorkspaceFilePreview
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: File Id
+      - name: w
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1024
+          minimum: 16
+          default: 400
+          title: W
+      - name: bytes
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 131072
+          minimum: 256
+          default: 4096
+          title: Bytes
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/workspace/folders:
+    get:
+      tags:
+      - Workspace
+      summary: List workspace folders
+      operationId: listWorkspaceFolders
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceFolderListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+    post:
+      tags:
+      - Workspace
+      summary: Create workspace folder
+      operationId: createWorkspaceFolder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceFolderCreateRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceFolder'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '409':
+          description: A folder with this name already exists
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/workspace/folders/files/bulk-move:
+    post:
+      tags:
+      - Workspace
+      summary: Move workspace files to a folder
+      operationId: bulkMoveWorkspaceFiles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkMoveFilesRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkspaceFile'
+                type: array
+                title: Response Bulkmoveworkspacefiles
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/workspace/folders/{folder_id}:
+    delete:
+      tags:
+      - Workspace
+      summary: Delete workspace folder
+      operationId: deleteWorkspaceFolder
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Folder Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Folder not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Workspace
+      summary: Update workspace folder
+      operationId: updateWorkspaceFolder
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Folder Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceFolderUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceFolder'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Folder not found
+        '409':
+          description: A folder with this name already exists
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/workspace/storage/usage:
+    get:
+      tags:
+      - Workspace
+      summary: Get workspace storage usage
+      description: Get storage usage information for the user's workspace.
+      operationId: getWorkspaceStorageUsage
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageUsageResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+components:
+  schemas:
+    WorkspaceFile:
+      properties:
+        id:
+          type: string
+          title: Id
+        workspace_id:
+          type: string
+          title: Workspace Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        name:
+          type: string
+          title: Name
+        path:
+          type: string
+          title: Path
+        storage_path:
+          type: string
+          title: Storage Path
+        mime_type:
+          type: string
+          title: Mime Type
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        checksum:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Checksum
+        is_deleted:
+          type: boolean
+          title: Is Deleted
+          default: false
+        deleted_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Deleted At
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - id
+      - workspace_id
+      - created_at
+      - updated_at
+      - name
+      - path
+      - storage_path
+      - mime_type
+      - size_bytes
+      title: WorkspaceFile
+      description: Pydantic model for UserWorkspaceFile, safe for RPC transport.
+    WorkspaceFolderListResponse:
+      properties:
+        folders:
+          items:
+            $ref: '#/components/schemas/WorkspaceFolder'
+          type: array
+          title: Folders
+      type: object
+      required:
+      - folders
+      title: WorkspaceFolderListResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WorkspaceFolderUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+      type: object
+      title: WorkspaceFolderUpdateRequest
+    WorkspaceFolder:
+      properties:
+        id:
+          type: string
+          title: Id
+        workspace_id:
+          type: string
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        file_count:
+          type: integer
+          title: File Count
+          default: 0
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - created_at
+      - updated_at
+      title: WorkspaceFolder
+      description: Pydantic model for UserWorkspaceFolder, safe for RPC transport.
+    StorageUsageResponse:
+      properties:
+        used_bytes:
+          type: integer
+          title: Used Bytes
+        limit_bytes:
+          type: integer
+          title: Limit Bytes
+        used_percent:
+          type: number
+          title: Used Percent
+        file_count:
+          type: integer
+          title: File Count
+      type: object
+      required:
+      - used_bytes
+      - limit_bytes
+      - used_percent
+      - file_count
+      title: StorageUsageResponse
+    ListFilesResponse:
+      properties:
+        files:
+          items:
+            $ref: '#/components/schemas/WorkspaceFileItem'
+          type: array
+          title: Files
+        offset:
+          type: integer
+          title: Offset
+          default: 0
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+      type: object
+      required:
+      - files
+      title: ListFilesResponse
+    WorkspaceFileItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        path:
+          type: string
+          title: Path
+        mime_type:
+          type: string
+          title: Mime Type
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        origin:
+          type: string
+          enum:
+          - uploaded
+          - generated
+          title: Origin
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - path
+      - mime_type
+      - size_bytes
+      - origin
+      - created_at
+      title: WorkspaceFileItem
+    Body_uploadWorkspaceFile:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_uploadWorkspaceFile
+    BulkMoveFilesRequest:
+      properties:
+        file_ids:
+          items:
+            type: string
+          type: array
+          title: File Ids
+        folder_id:
+          anyOf:
+          - type: string
+            minLength: 1
+          - type: 'null'
+          title: Folder Id
+      type: object
+      required:
+      - file_ids
+      title: BulkMoveFilesRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    WorkspaceFolderCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+      type: object
+      required:
+      - name
+      title: WorkspaceFolderCreateRequest
+    backend__api__features__workspace__routes__UploadFileResponse:
+      properties:
+        file_id:
+          type: string
+          title: File Id
+        name:
+          type: string
+          title: Name
+        path:
+          type: string
+          title: Path
+        mime_type:
+          type: string
+          title: Mime Type
+        size_bytes:
+          type: integer
+          title: Size Bytes
+      type: object
+      required:
+      - file_id
+      - name
+      - path
+      - mime_type
+      - size_bytes
+      title: UploadFileResponse
+    DeleteFileResponse:
+      properties:
+        deleted:
+          type: boolean
+          title: Deleted
+      type: object
+      required:
+      - deleted
+      title: DeleteFileResponse
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

@@ -1,0 +1,102 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Copilot Webhooks API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Copilot Webhooks
+paths:
+  /api/copilot-webhooks/slack/commands:
+    post:
+      summary: Handle Command Request
+      operationId: _handle_command_request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      tags:
+      - Copilot Webhooks
+  /api/copilot-webhooks/slack/events:
+    post:
+      summary: Handle Event Request
+      operationId: _handle_event_request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      tags:
+      - Copilot Webhooks
+  /api/copilot-webhooks/slack/install:
+    get:
+      summary: Handle Install
+      operationId: _handle_install
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      tags:
+      - Copilot Webhooks
+  /api/copilot-webhooks/slack/oauth/callback:
+    get:
+      summary: Callback
+      operationId: _callback
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      tags:
+      - Copilot Webhooks
+  /api/copilot-webhooks/teams/messages:
+    post:
+      summary: Handle Messages Request
+      description: 'Authenticate, then ACK immediately and process off-request.
+
+
+        The Connector retries deliveries it considers slow, so the real work
+
+        must never happen inside the request; redeliveries that arrive anyway
+
+        are dropped by the activity-id dedupe in ``_dispatch_activity``.'
+      operationId: _handle_messages_request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      tags:
+      - Copilot Webhooks
+  /api/copilot-webhooks/telegram/updates:
+    post:
+      summary: Handle Update Request
+      operationId: _handle_update_request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      tags:
+      - Copilot Webhooks
+components:
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

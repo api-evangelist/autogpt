@@ -1,0 +1,640 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT External Integrations API
+  description: External API for AutoGPT integrations
+  version: '1.0'
+servers:
+- url: /external-api
+tags:
+- name: Integrations
+paths:
+  /v1/integrations/providers:
+    get:
+      tags:
+      - Integrations
+      summary: List Providers
+      description: 'List all available integration providers.
+
+
+        Returns a list of all providers with their supported credential types.
+
+        Most providers support API key credentials, and some also support OAuth.'
+      operationId: list_providers_v1_integrations_providers_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProviderInfo'
+                type: array
+                title: Response List Providers V1 Integrations Providers Get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+  /v1/integrations/{provider}/oauth/initiate:
+    post:
+      tags:
+      - Integrations
+      summary: Initiate OAuth flow
+      description: 'Initiate an OAuth flow for an external application.
+
+
+        This endpoint allows external apps to start an OAuth flow with a custom
+
+        callback URL. The callback URL must be from an allowed origin configured
+
+        in the platform settings.
+
+
+        Returns a login URL to redirect the user to, along with a state token
+
+        for CSRF protection.'
+      operationId: initiate_oauth_v1_integrations__provider__oauth_initiate_post
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+          title: The OAuth provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthInitiateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthInitiateResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/integrations/{provider}/oauth/complete:
+    post:
+      tags:
+      - Integrations
+      summary: Complete OAuth flow
+      description: 'Complete an OAuth flow by exchanging the authorization code for tokens.
+
+
+        This endpoint should be called after the user has authorized the application
+
+        and been redirected back to the external app''s callback URL with an
+
+        authorization code.'
+      operationId: complete_oauth_v1_integrations__provider__oauth_complete_post
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+          title: The OAuth provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthCompleteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthCompleteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/integrations/credentials:
+    get:
+      tags:
+      - Integrations
+      summary: List Credentials
+      description: 'List all credentials for the authenticated user.
+
+
+        Returns metadata about each credential without exposing sensitive tokens.'
+      operationId: list_credentials_v1_integrations_credentials_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CredentialsMetaResponse'
+                type: array
+                title: Response List Credentials V1 Integrations Credentials Get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+  /v1/integrations/{provider}/credentials:
+    get:
+      tags:
+      - Integrations
+      summary: List Credentials By Provider
+      description: List credentials for a specific provider.
+      operationId: list_credentials_by_provider_v1_integrations__provider__credentials_get
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+          title: The provider to list credentials for
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CredentialsMetaResponse'
+                title: Response List Credentials By Provider V1 Integrations  Provider  Credentials Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Integrations
+      summary: Create credentials
+      description: 'Create non-OAuth credentials for a provider.
+
+
+        Supports creating:
+
+        - API key credentials (type: "api_key")
+
+        - Username/password credentials (type: "user_password")
+
+        - Host-scoped credentials (type: "host_scoped")
+
+
+        For OAuth credentials, use the OAuth initiate/complete flow instead.'
+      operationId: create_credential_v1_integrations__provider__credentials_post
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+          title: The provider to create credentials for
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/CreateAPIKeyCredentialRequest'
+              - $ref: '#/components/schemas/CreateUserPasswordCredentialRequest'
+              - $ref: '#/components/schemas/CreateHostScopedCredentialRequest'
+              discriminator:
+                propertyName: type
+                mapping:
+                  api_key: '#/components/schemas/CreateAPIKeyCredentialRequest'
+                  user_password: '#/components/schemas/CreateUserPasswordCredentialRequest'
+                  host_scoped: '#/components/schemas/CreateHostScopedCredentialRequest'
+              title: Request
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCredentialResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/integrations/{provider}/credentials/{cred_id}:
+    delete:
+      tags:
+      - Integrations
+      summary: Delete Credential
+      description: 'Delete a credential.
+
+
+        Note: This does not revoke the tokens with the provider. For full cleanup,
+
+        use the main API''s delete endpoint which handles webhook cleanup and
+
+        token revocation.'
+      operationId: delete_credential_v1_integrations__provider__credentials__cred_id__delete
+      security:
+      - APIKeyHeader: []
+      - HTTPBearer: []
+      parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+          title: The provider
+      - name: cred_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: The credential ID to delete
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteCredentialResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    CreateCredentialResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        provider:
+          type: string
+          title: Provider
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+      type: object
+      required:
+      - id
+      - provider
+      - type
+      title: CreateCredentialResponse
+      description: Response model for credential creation.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ProviderInfo:
+      properties:
+        name:
+          type: string
+          title: Name
+        supports_oauth:
+          type: boolean
+          title: Supports Oauth
+          default: false
+        supports_api_key:
+          type: boolean
+          title: Supports Api Key
+          default: false
+        supports_user_password:
+          type: boolean
+          title: Supports User Password
+          default: false
+        supports_host_scoped:
+          type: boolean
+          title: Supports Host Scoped
+          default: false
+        default_scopes:
+          items:
+            type: string
+          type: array
+          title: Default Scopes
+      type: object
+      required:
+      - name
+      title: ProviderInfo
+      description: Information about an integration provider.
+    DeleteCredentialResponse:
+      properties:
+        deleted:
+          type: boolean
+          title: Deleted
+          description: Whether the credential was deleted
+        credentials_id:
+          type: string
+          title: Credentials Id
+          description: ID of the deleted credential
+      type: object
+      required:
+      - deleted
+      - credentials_id
+      title: DeleteCredentialResponse
+      description: Response model for deleting a credential.
+    OAuthCompleteRequest:
+      properties:
+        code:
+          type: string
+          title: Code
+          description: Authorization code from OAuth provider
+        state_token:
+          type: string
+          title: State Token
+          description: State token from initiate request
+      type: object
+      required:
+      - code
+      - state_token
+      title: OAuthCompleteRequest
+      description: Request model for completing an OAuth flow.
+    OAuthInitiateRequest:
+      properties:
+        callback_url:
+          type: string
+          title: Callback Url
+          description: The external app's callback URL for OAuth redirect
+        scopes:
+          items:
+            type: string
+          type: array
+          title: Scopes
+          description: OAuth scopes to request
+        state_metadata:
+          additionalProperties: true
+          type: object
+          title: State Metadata
+          description: Arbitrary metadata to echo back on completion
+      type: object
+      required:
+      - callback_url
+      title: OAuthInitiateRequest
+      description: Request model for initiating an OAuth flow.
+    CredentialsMetaResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        provider:
+          type: string
+          title: Provider
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        scopes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Scopes
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Username
+        host:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Host
+          description: Host pattern for host-scoped or MCP server URL for MCP credentials
+        is_managed:
+          type: boolean
+          title: Is Managed
+          default: false
+      type: object
+      required:
+      - id
+      - provider
+      - type
+      - title
+      - scopes
+      - username
+      title: CredentialsMetaResponse
+    CreateHostScopedCredentialRequest:
+      properties:
+        type:
+          type: string
+          const: host_scoped
+          title: Type
+          default: host_scoped
+        host:
+          type: string
+          title: Host
+          description: Host/domain pattern to match
+        headers:
+          additionalProperties:
+            type: string
+          type: object
+          title: Headers
+          description: Headers to include in requests
+        title:
+          type: string
+          title: Title
+          description: A name for this credential
+      type: object
+      required:
+      - host
+      - headers
+      - title
+      title: CreateHostScopedCredentialRequest
+      description: Request model for creating host-scoped credentials.
+    OAuthCompleteResponse:
+      properties:
+        credentials_id:
+          type: string
+          title: Credentials Id
+          description: ID of the stored credentials
+        provider:
+          type: string
+          title: Provider
+          description: Provider name
+        type:
+          type: string
+          title: Type
+          description: Credential type (oauth2)
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+          description: Credential title
+        scopes:
+          items:
+            type: string
+          type: array
+          title: Scopes
+          description: Granted scopes
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Username
+          description: Username from provider
+        state_metadata:
+          additionalProperties: true
+          type: object
+          title: State Metadata
+          description: Echoed metadata from initiate request
+      type: object
+      required:
+      - credentials_id
+      - provider
+      - type
+      title: OAuthCompleteResponse
+      description: Response model for OAuth completion.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    OAuthInitiateResponse:
+      properties:
+        login_url:
+          type: string
+          title: Login Url
+          description: URL to redirect user for OAuth consent
+        state_token:
+          type: string
+          title: State Token
+          description: State token for CSRF protection
+        expires_at:
+          type: integer
+          title: Expires At
+          description: Unix timestamp when the state token expires
+      type: object
+      required:
+      - login_url
+      - state_token
+      - expires_at
+      title: OAuthInitiateResponse
+      description: Response model for OAuth initiation.
+    CreateUserPasswordCredentialRequest:
+      properties:
+        type:
+          type: string
+          const: user_password
+          title: Type
+          default: user_password
+        username:
+          type: string
+          title: Username
+          description: Username
+        password:
+          type: string
+          title: Password
+          description: Password
+        title:
+          type: string
+          title: Title
+          description: A name for this credential
+      type: object
+      required:
+      - username
+      - password
+      - title
+      title: CreateUserPasswordCredentialRequest
+      description: Request model for creating username/password credentials.
+    CreateAPIKeyCredentialRequest:
+      properties:
+        type:
+          type: string
+          const: api_key
+          title: Type
+          default: api_key
+        api_key:
+          type: string
+          title: Api Key
+          description: The API key
+        title:
+          type: string
+          title: Title
+          description: A name for this credential
+        expires_at:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Expires At
+          description: Unix timestamp when the API key expires
+      type: object
+      required:
+      - api_key
+      - title
+      title: CreateAPIKeyCredentialRequest
+      description: Request model for creating API key credentials.
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    HTTPBearer:
+      type: http
+      scheme: bearer

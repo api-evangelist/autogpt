@@ -1,0 +1,535 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Platform Linking API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: platform-linking
+paths:
+  /api/platform-linking/links:
+    get:
+      tags:
+      - platform-linking
+      summary: List all platform servers linked to the authenticated user
+      operationId: getPlatform-linkingList all platform servers linked to the authenticated user
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PlatformLinkInfo'
+                type: array
+                title: Response Getplatform-Linkinglist All Platform Servers Linked To The Authenticated User
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/platform-linking/links/{link_id}:
+    delete:
+      tags:
+      - platform-linking
+      summary: Unlink a platform server
+      operationId: deletePlatform-linkingUnlink a platform server
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: link_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Link Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteLinkResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/platform-linking/platforms:
+    get:
+      tags:
+      - platform-linking
+      summary: List bot platforms enabled on this deployment plus the caller's links
+      operationId: list_bot_platforms
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BotPlatformInfo'
+                type: array
+                title: Response List Bot Platforms
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/platform-linking/tokens/{token}/confirm:
+    post:
+      tags:
+      - platform-linking
+      summary: Confirm a SERVER link token (user must be authenticated)
+      operationId: postPlatform-linkingConfirm a server link token (user must be authenticated)
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+          title: Token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/ConfirmLinkRequest'
+              - type: 'null'
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmLinkResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/platform-linking/tokens/{token}/info:
+    get:
+      tags:
+      - platform-linking
+      summary: Get display info for a link token
+      operationId: getPlatform-linkingGet display info for a link token
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+          title: Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkTokenInfoResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/platform-linking/user-links:
+    get:
+      tags:
+      - platform-linking
+      summary: List all DM links for the authenticated user
+      operationId: getPlatform-linkingList all dm links for the authenticated user
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PlatformUserLinkInfo'
+                type: array
+                title: Response Getplatform-Linkinglist All Dm Links For The Authenticated User
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/platform-linking/user-links/{link_id}:
+    delete:
+      tags:
+      - platform-linking
+      summary: Unlink a DM / user link
+      operationId: deletePlatform-linkingUnlink a dm / user link
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: link_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Link Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteLinkResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/platform-linking/user-tokens/{token}/confirm:
+    post:
+      tags:
+      - platform-linking
+      summary: Confirm a USER link token (user must be authenticated)
+      operationId: postPlatform-linkingConfirm a user link token (user must be authenticated)
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+          title: Token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/ConfirmLinkRequest'
+              - type: 'null'
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmUserLinkResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  schemas:
+    PendingInstallInfo:
+      properties:
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Name
+        open_bot_url:
+          type: string
+          title: Open Bot Url
+      type: object
+      required:
+      - open_bot_url
+      title: PendingInstallInfo
+      description: 'The caller added the bot to a server but hasn''t linked an account yet.
+
+
+        ``open_bot_url`` deep-links into the bot''s chat on the platform, where the
+
+        next step (the bot''s Link Account prompt) is waiting.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ConfirmLinkResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        link_type:
+          $ref: '#/components/schemas/LinkType'
+          default: SERVER
+        platform:
+          type: string
+          title: Platform
+        platform_server_id:
+          type: string
+          title: Platform Server Id
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Name
+        return_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Return Url
+      type: object
+      required:
+      - success
+      - platform
+      - platform_server_id
+      - server_name
+      title: ConfirmLinkResponse
+    PlatformUserLinkInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        platform:
+          type: string
+          title: Platform
+        platform_user_id:
+          type: string
+          title: Platform User Id
+        platform_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform Username
+        linked_at:
+          type: string
+          format: date-time
+          title: Linked At
+      type: object
+      required:
+      - id
+      - platform
+      - platform_user_id
+      - platform_username
+      - linked_at
+      title: PlatformUserLinkInfo
+    ConfirmLinkRequest:
+      properties:
+        telegram_auth:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Telegram Auth
+      type: object
+      title: ConfirmLinkRequest
+      description: 'Optional confirm payload. ``telegram_auth`` carries the signed identity
+
+        Telegram appends when the user reached this page via a login_url button —
+
+        when present it must verify, and the link token must belong to that same
+
+        Telegram user.'
+    LinkTokenInfoResponse:
+      properties:
+        platform:
+          type: string
+          title: Platform
+        link_type:
+          $ref: '#/components/schemas/LinkType'
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Name
+        server_noun:
+          type: string
+          title: Server Noun
+          default: server
+      type: object
+      required:
+      - platform
+      - link_type
+      title: LinkTokenInfoResponse
+    ConfirmUserLinkResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        link_type:
+          $ref: '#/components/schemas/LinkType'
+          default: USER
+        platform:
+          type: string
+          title: Platform
+        platform_user_id:
+          type: string
+          title: Platform User Id
+        return_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Return Url
+      type: object
+      required:
+      - success
+      - platform
+      - platform_user_id
+      title: ConfirmUserLinkResponse
+    DeleteLinkResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+      type: object
+      required:
+      - success
+      title: DeleteLinkResponse
+    BotPlatformInfo:
+      properties:
+        platform:
+          type: string
+          title: Platform
+        display_name:
+          type: string
+          title: Display Name
+        icon:
+          type: string
+          title: Icon
+        server_noun:
+          type: string
+          title: Server Noun
+          default: server
+        add_bot_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Add Bot Url
+        dm_link:
+          anyOf:
+          - $ref: '#/components/schemas/PlatformUserLinkInfo'
+          - type: 'null'
+        server_links:
+          items:
+            $ref: '#/components/schemas/PlatformLinkInfo'
+          type: array
+          title: Server Links
+        pending_install:
+          anyOf:
+          - $ref: '#/components/schemas/PendingInstallInfo'
+          - type: 'null'
+      type: object
+      required:
+      - platform
+      - display_name
+      - icon
+      title: BotPlatformInfo
+      description: 'A bot platform enabled on this deployment plus the caller''s links to it.
+
+
+        Platforms whose adapter isn''t configured (missing token/credentials) are
+
+        omitted from the response entirely — the Bots settings page hides them.'
+    LinkType:
+      type: string
+      enum:
+      - SERVER
+      - USER
+      title: LinkType
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PlatformLinkInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        platform:
+          type: string
+          title: Platform
+        platform_server_id:
+          type: string
+          title: Platform Server Id
+        owner_platform_user_id:
+          type: string
+          title: Owner Platform User Id
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Name
+        linked_at:
+          type: string
+          format: date-time
+          title: Linked At
+      type: object
+      required:
+      - id
+      - platform
+      - platform_server_id
+      - owner_platform_user_id
+      - server_name
+      - linked_at
+      title: PlatformLinkInfo
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
