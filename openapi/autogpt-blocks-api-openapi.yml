@@ -1,13 +1,82 @@
 openapi: 3.2.0
 info:
-  title: AutoGPT External Blocks API
-  description: External API for AutoGPT integrations
+  title: Autogpt Blocks API
   version: '1.0'
+  description: 'Operations tagged blocks across 2 of this provider''s published API definitions: autogpt-agent-server-openapi.json, autogpt-external-api-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /external-api
 tags:
 - name: Blocks
 paths:
+  /api/blocks:
+    get:
+      tags:
+      - Blocks
+      summary: List available blocks
+      operationId: getV1ListAvailableBlocks
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+                title: Response Getv1List Available Blocks
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1List available blocks
+  /api/blocks/{block_id}/execute:
+    post:
+      tags:
+      - Blocks
+      summary: Execute graph block
+      operationId: postV1ExecuteGraphBlock
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: block_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Block Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items: {}
+                title: Response Postv1Execute Graph Block
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '402':
+          description: Subscription required (NO_TIER user, paywall on)
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Execute graph block
   /v1/blocks:
     get:
       tags:
@@ -28,6 +97,8 @@ paths:
       security:
       - APIKeyHeader: []
       - HTTPBearer: []
+    servers:
+    - url: /external-api
   /v1/blocks/{block_id}/execute:
     post:
       tags:
@@ -69,8 +140,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    servers:
+    - url: /external-api
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -97,20 +179,32 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
     APIKeyHeader:
       type: apiKey
       in: header
       name: X-API-Key
-    HTTPBearer:
-      type: http
-      scheme: bearer
+x-refined-from:
+- autogpt-agent-server-openapi.json
+- autogpt-external-api-openapi.json

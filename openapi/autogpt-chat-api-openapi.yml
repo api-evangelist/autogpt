@@ -1,0 +1,4153 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Chat API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Chat
+paths:
+  /api/chat/config/ttl:
+    get:
+      tags:
+      - Chat
+      summary: Get Ttl Config
+      description: 'Get the stream TTL configuration.
+
+
+        Returns the Time-To-Live settings for chat streams, which determines
+
+        how long clients can reconnect to an active stream.
+
+
+        Returns:
+
+        dict: TTL configuration with seconds and milliseconds values.'
+      operationId: getV2GetTtlConfig
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Getv2Getttlconfig
+  /api/chat/health:
+    get:
+      tags:
+      - Chat
+      summary: Health Check
+      description: 'Health check endpoint for the chat service.
+
+
+        Performs a full cycle test of session creation and retrieval. Should always return healthy
+
+        if the service and data layer are operational.
+
+
+        Returns:
+
+        dict: A status dictionary indicating health, service name, and API version.'
+      operationId: getV2HealthCheck
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Getv2Healthcheck
+  /api/chat/schema/tool-responses:
+    get:
+      tags:
+      - Chat
+      summary: '[Dummy] Tool response type export for codegen'
+      description: This endpoint is not meant to be called. It exists solely to expose tool response models in the OpenAPI schema for frontend codegen.
+      operationId: getV2[dummy]ToolResponseTypeExportForCodegen
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/AgentsFoundResponse'
+                - $ref: '#/components/schemas/NoResultsResponse'
+                - $ref: '#/components/schemas/AgentDetailsResponse'
+                - $ref: '#/components/schemas/SetupRequirementsResponse'
+                - $ref: '#/components/schemas/ExecutionStartedResponse'
+                - $ref: '#/components/schemas/NeedLoginResponse'
+                - $ref: '#/components/schemas/ErrorResponse'
+                - $ref: '#/components/schemas/InputValidationErrorResponse'
+                - $ref: '#/components/schemas/AgentOutputResponse'
+                - $ref: '#/components/schemas/UnderstandingUpdatedResponse'
+                - $ref: '#/components/schemas/AgentPreviewResponse'
+                - $ref: '#/components/schemas/AgentSavedResponse'
+                - $ref: '#/components/schemas/ClarificationNeededResponse'
+                - $ref: '#/components/schemas/SuggestedGoalResponse'
+                - $ref: '#/components/schemas/BlockListResponse'
+                - $ref: '#/components/schemas/BlockDetailsResponse'
+                - $ref: '#/components/schemas/BlockOutputResponse'
+                - $ref: '#/components/schemas/DocSearchResultsResponse'
+                - $ref: '#/components/schemas/DocPageResponse'
+                - $ref: '#/components/schemas/MCPToolsDiscoveredResponse'
+                - $ref: '#/components/schemas/MCPToolOutputResponse'
+                - $ref: '#/components/schemas/TaskDecompositionResponse'
+                - $ref: '#/components/schemas/ScheduleListResponse'
+                - $ref: '#/components/schemas/ScheduleDeletedResponse'
+                - $ref: '#/components/schemas/PresetListResponse'
+                - $ref: '#/components/schemas/PresetUpdatedResponse'
+                - $ref: '#/components/schemas/PresetDeletedResponse'
+                - $ref: '#/components/schemas/MemoryStoreResponse'
+                - $ref: '#/components/schemas/MemorySearchResponse'
+                - $ref: '#/components/schemas/MemoryForgetCandidatesResponse'
+                - $ref: '#/components/schemas/MemoryForgetConfirmResponse'
+                - $ref: '#/components/schemas/TodoWriteResponse'
+                - $ref: '#/components/schemas/ExpertSoulUpdatedResponse'
+                title: Response Getv2[Dummy] Tool Response Type Export For Codegen
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2[dummy] tool response type export for codegen
+  /api/chat/sessions:
+    get:
+      tags:
+      - Chat
+      summary: List Sessions
+      description: 'List chat sessions for the authenticated user.
+
+
+        Returns a paginated list of chat sessions belonging to the current user,
+
+        with pinned sessions first and most-recently-updated as the tiebreaker.
+
+
+        Args:
+
+        user_id: The authenticated user''s ID.
+
+        limit: Maximum number of sessions to return (1-100).
+
+        offset: Number of sessions to skip for pagination.
+
+        expert_id: Restrict the listing to sessions scoped to this expert.
+
+        pinned_first: Whether pinned sessions precede strict recency ordering.
+
+
+        Returns:
+
+        ListSessionsResponse: List of session summaries and total count.'
+      operationId: getV2ListSessions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: expert_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 128
+          - type: 'null'
+          title: Expert Id
+      - name: pinned_first
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Keep pinned sessions before recent sessions. Set false for strict recency when adopting the latest expert thread.
+          default: true
+          title: Pinned First
+        description: Keep pinned sessions before recent sessions. Set false for strict recency when adopting the latest expert thread.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSessionsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Chat
+      summary: Create Session
+      description: 'Create (or get-or-create) a chat session.
+
+
+        Two modes, selected by the request body:
+
+
+        - Default: create a fresh session for the user. ``dry_run=True`` forces
+
+        run_block and run_agent calls to use dry-run simulation.
+
+        - Builder-bound: when ``builder_graph_id`` is set, get-or-create keyed
+
+        on ``(user_id, builder_graph_id)``. Returns the existing session for
+
+        that graph or creates one locked to it. Graph ownership is validated
+
+        inside :func:`get_or_create_builder_session`; raises 404 on
+
+        unauthorized access. Write-side scope is enforced per-tool
+
+        (``edit_agent`` / ``run_agent`` reject any ``agent_id`` other than
+
+        the bound graph) and a small blacklist hides tools that conflict
+
+        with the panel''s scope (see :data:`BUILDER_BLOCKED_TOOLS`).
+
+        - Expert kickoff: atomically create or adopt the canonical first session
+
+        for ``(user_id, expert_id)``.
+
+
+        Args:
+
+        user_id: The authenticated user ID parsed from the JWT (required).
+
+        request: Optional request body with ``dry_run``,
+
+        ``builder_graph_id`` and/or ``expert_id``.
+
+
+        Returns:
+
+        CreateSessionResponse: Details of the resulting session.'
+      operationId: postV2CreateSession
+      security:
+      - HTTPBearerJWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/CreateSessionRequest'
+              - type: 'null'
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSessionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chat/sessions/{session_id}:
+    delete:
+      tags:
+      - Chat
+      summary: Delete Session
+      description: 'Delete a chat session.
+
+
+        Permanently removes a chat session and all its messages.
+
+        Only the owner can delete their sessions.
+
+
+        Args:
+
+        session_id: The session ID to delete.
+
+        user_id: The authenticated user''s ID.
+
+
+        Returns:
+
+        204 No Content on success.
+
+
+        Raises:
+
+        HTTPException: 404 if session not found or not owned by user.'
+      operationId: deleteV2DeleteSession
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Session not found or access denied
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Chat
+      summary: Get Session
+      description: 'Retrieve the details of a specific chat session.
+
+
+        Supports cursor-based pagination via ``limit`` and ``before_sequence``.
+
+        When no pagination params are provided, returns the most recent messages.'
+      operationId: getV2GetSession
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: before_sequence
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          title: Before Sequence
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDetailResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chat/sessions/{session_id}/assign-user:
+    patch:
+      tags:
+      - Chat
+      summary: Session Assign User
+      description: 'Assign an authenticated user to a chat session.
+
+
+        Used (typically post-login) to claim an existing anonymous session as the current authenticated user.
+
+
+        Args:
+
+        session_id: The identifier for the (previously anonymous) session.
+
+        user_id: The authenticated user''s ID to associate with the session.
+
+
+        Returns:
+
+        dict: Status of the assignment.'
+      operationId: patchV2SessionAssignUser
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Patchv2Sessionassignuser
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chat/sessions/{session_id}/cancel:
+    post:
+      tags:
+      - Chat
+      summary: Cancel Session Task
+      description: 'Cancel an in-flight task for a session.
+
+
+        Handles both lifecycle states uniformly:
+
+
+        * **Queued** (``chatStatus=''queued''``) — the dispatcher hasn''t
+
+        claimed the row yet. Flip the session back to ``idle`` and
+
+        return; no executor cancel event needed.
+
+        * **Running** (``chatStatus=''running''``) — publish a cancel event
+
+        to the executor via RabbitMQ FANOUT, then poll Redis until the
+
+        task status flips out of ``running`` or a 5 s timeout is hit.'
+      operationId: postV2CancelSessionTask
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelSessionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chat/sessions/{session_id}/messages/pending:
+    get:
+      tags:
+      - Chat
+      summary: Get Pending Messages
+      description: 'Peek at the pending-message buffer without consuming it.
+
+
+        Returns the current contents of the session''s pending message buffer
+
+        so the frontend can restore the queued-message indicator after a page
+
+        refresh and clear it correctly once a turn drains the buffer.'
+      operationId: getV2GetPendingMessages
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeekPendingMessagesResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Session not found or access denied
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Chat
+      summary: Queue Pending Message
+      description: Queue a follow-up message while the session has an active turn.
+      operationId: postV2QueuePendingMessage
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueuePendingMessageRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueuePendingMessageResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Session not found or access denied
+        '409':
+          description: Session has no active turn to receive pending messages
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '429':
+          description: Call-frequency cap exceeded
+        '503':
+          description: Chat service degraded (Redis unavailable); client should honour the Retry-After header before retrying.
+  /api/chat/sessions/{session_id}/pinned:
+    patch:
+      tags:
+      - Chat
+      summary: Update session pinned
+      description: 'Pin or unpin a chat session.
+
+
+        Pinned sessions surface at the top of the user''s sidebar list ahead of
+
+        unpinned ones, regardless of recency.
+
+
+        Args:
+
+        session_id: The session ID to update.
+
+        request: Request body containing the new pin state.
+
+        user_id: The authenticated user''s ID.
+
+
+        Returns:
+
+        dict: Status of the update.
+
+
+        Raises:
+
+        HTTPException: 404 if session not found or not owned by user.'
+      operationId: patchV2UpdateSessionPinned
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionPinnedRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Patchv2Update Session Pinned
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Session not found or access denied
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update session pinned
+  /api/chat/sessions/{session_id}/share:
+    delete:
+      tags:
+      - Chat
+      summary: Disable Chat Sharing
+      description: 'Revoke sharing for a chat session.
+
+
+        Cascade-revokes linked executions whose share originated here
+
+        (``sharedVia == CHAT_LINK``). User-initiated execution shares
+
+        survive — see :func:`backend.copilot.sharing.db.disable_chat_session_share`.'
+      operationId: deleteV2DisableChatSharing
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Chat
+      summary: Enable Chat Sharing
+      description: 'Enable sharing for a chat session.
+
+
+        Flag-gated: refuses with 403 when ``chat-sharing`` is off so a stale
+
+        frontend cannot enable shares post-rollback.'
+      operationId: postV2EnableChatSharing
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnableShareRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/backend__api__features__chat__share__ShareResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '403':
+          description: Chat sharing is not enabled for this user
+        '404':
+          description: Chat session not found for user
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chat/sessions/{session_id}/share/state:
+    get:
+      tags:
+      - Chat
+      summary: Get Chat Share State
+      description: 'Return the chat''s current share state.
+
+
+        The share modal calls this on open so it can render in the right
+
+        mode (share-vs-revoke) and pre-select the auto-share toggle.'
+      operationId: getV2GetChatShareState
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatShareStateResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chat/sessions/{session_id}/stream:
+    delete:
+      tags:
+      - Chat
+      summary: Disconnect Session Stream
+      description: 'Disconnect all active SSE listeners for a session.
+
+
+        Called by the frontend when the user switches away from a chat so the
+
+        backend releases XREAD listeners immediately rather than waiting for
+
+        the 5-10 s timeout.'
+      operationId: deleteV2DisconnectSessionStream
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Chat
+      summary: Resume Session Stream
+      description: 'Resume an active stream for a session.
+
+
+        Called by the AI SDK''s ``useChat(resume: true)`` on page load.
+
+        Checks for an active (in-progress) task on the session and either replays
+
+        the full SSE stream or returns 204 No Content if nothing is running.
+
+
+        Always replays the active turn from ``0-0``. The AI SDK UI-message parser
+
+        keeps text/reasoning part state inside a single parser instance; resuming
+
+        from a Redis cursor can skip the ``*-start`` events required by later
+
+        ``*-delta`` chunks.'
+      operationId: getV2ResumeSessionStream
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Chat
+      summary: Stream Chat Post
+      description: 'Start a new turn and return an AI SDK UI message stream.
+
+
+        Returns an SSE stream (``text/event-stream``) with Vercel AI SDK chunks
+
+        (text fragments, tool-call UI, tool results). The generation runs in a
+
+        background task that survives client disconnects; reconnect via
+
+        ``GET /sessions/{session_id}/stream`` to resume.
+
+
+        Follow-up messages typed while a turn is already running should use
+
+        ``POST /sessions/{session_id}/messages/pending``. If an older client still
+
+        posts that follow-up here, we queue it defensively but still return a valid
+
+        empty UI-message stream so AI SDK transports never receive a JSON body from
+
+        the stream endpoint.
+
+
+        Args:
+
+        session_id: The chat session identifier.
+
+        request: Request body with message, is_user_message, and optional context.
+
+        user_id: Authenticated user ID.'
+      operationId: postV2StreamChatPost
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamChatRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '402':
+          description: Subscription required (NO_TIER user, paywall on)
+        '404':
+          description: Session not found or access denied
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '429':
+          description: Cost rate-limit, call-frequency cap, or per-user concurrent-turn limit exceeded
+        '503':
+          description: Chat service degraded (Redis unavailable for rate limit or stream registry); client should honour the Retry-After header before retrying.
+  /api/chat/sessions/{session_id}/title:
+    patch:
+      tags:
+      - Chat
+      summary: Update session title
+      description: 'Update the title of a chat session.
+
+
+        Allows the user to rename their chat session.
+
+
+        Args:
+
+        session_id: The session ID to update.
+
+        request: Request body containing the new title.
+
+        user_id: The authenticated user''s ID.
+
+
+        Returns:
+
+        dict: Status of the update.
+
+
+        Raises:
+
+        HTTPException: 404 if session not found or not owned by user.'
+      operationId: patchV2UpdateSessionTitle
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionTitleRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Patchv2Update Session Title
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Session not found or access denied
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update session title
+  /api/chat/suggested-prompts:
+    get:
+      tags:
+      - Chat
+      summary: Get Suggested Prompts
+      description: 'Get LLM-generated suggested prompts grouped by theme.
+
+
+        Returns personalized quick-action prompts based on the user''s
+
+        business understanding. Returns empty themes list if no custom
+
+        prompts are available.'
+      operationId: getV2GetSuggestedPrompts
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestedPromptsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/chat/transports:
+    get:
+      tags:
+      - Chat
+      summary: List Chat Transports
+      operationId: getV2ListChatTransports
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatTransportsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/chat/usage:
+    get:
+      tags:
+      - Chat
+      summary: Get Copilot Usage
+      description: 'Get CoPilot usage status for the authenticated user.
+
+
+        Returns the percentage of the daily/weekly allowance used — not the
+
+        raw spend or cap — so clients cannot derive per-turn cost or platform
+
+        margins. Global defaults sourced from LaunchDarkly (falling back to
+
+        config). Includes the user''s rate-limit tier.'
+      operationId: getV2GetCopilotUsage
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoPilotUsagePublic'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/chat/usage/reset:
+    post:
+      tags:
+      - Chat
+      summary: Reset Copilot Usage
+      description: 'Reset the daily CoPilot rate limit by spending credits.
+
+
+        Allows users who have hit their daily cost limit to spend credits
+
+        to reset their daily usage counter and continue working.
+
+        Returns 400 if the feature is disabled or the user is not over the limit.
+
+        Returns 402 if the user has insufficient credits.'
+      operationId: postV2ResetCopilotUsage
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResetResponse'
+        '400':
+          description: Bad Request (feature disabled or daily limit not reached)
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '402':
+          description: Payment Required (insufficient credits)
+        '429':
+          description: Too Many Requests (max daily resets exceeded or reset in progress)
+        '503':
+          description: Service Unavailable (Redis reset failed; credits refunded or support needed)
+      security:
+      - HTTPBearerJWT: []
+  /api/public/shared/chats/{share_token}:
+    get:
+      tags:
+      - Chat
+      summary: Get Shared Chat
+      operationId: getV2GetSharedChat
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          title: Share Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedChatSession'
+        '404':
+          description: Shared chat not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/public/shared/chats/{share_token}/files/{file_id}/download:
+    get:
+      tags:
+      - Chat
+      summary: Download a file from a shared chat
+      description: 'Download a workspace file allowlisted by a shared chat (no auth).
+
+
+        Returns uniform 404 for every failure mode to prevent enumeration —
+
+        indistinguishable from "unknown token" or "wrong file id".'
+      operationId: download_shared_chat_file
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          title: Share Token
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          title: File Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Uniform 404 for every failure mode (unknown token, wrong file id, file no longer present) — prevents enumeration.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/public/shared/chats/{share_token}/messages:
+    get:
+      tags:
+      - Chat
+      summary: Get Shared Chat Messages
+      operationId: getV2GetSharedChatMessages
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          title: Share Token
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: before_sequence
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Before Sequence
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedChatMessagesPage'
+        '400':
+          description: Invalid limit (must be 1..200)
+        '404':
+          description: Shared chat not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ListSessionsResponse:
+      properties:
+        sessions:
+          items:
+            $ref: '#/components/schemas/SessionSummaryResponse'
+          type: array
+          title: Sessions
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - sessions
+      - total
+      title: ListSessionsResponse
+      description: Response model for listing chat sessions.
+    MCPToolInfo:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        params:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Params
+          description: 'Compact argument summary: top-level input field names, required ones marked with *.'
+        input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input Schema
+          description: Full input schema. Omitted in discovery responses to keep them small; the execution error path returns the failed tool's full schema on demand.
+      type: object
+      required:
+      - name
+      - description
+      title: MCPToolInfo
+      description: Information about a single MCP tool discovered from a server.
+    ChatSessionMetadata:
+      properties:
+        dry_run:
+          type: boolean
+          title: Dry Run
+          default: false
+        llm_auth_provider:
+          type: string
+          enum:
+          - platform
+          - codex
+          title: Llm Auth Provider
+          default: platform
+        llm_credential_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Llm Credential Id
+        builder_graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Builder Graph Id
+        source_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Platform
+        origin:
+          anyOf:
+          - type: string
+            enum:
+            - interactive
+            - automation
+          - type: 'null'
+          title: Origin
+        kind:
+          type: string
+          title: Kind
+          default: normal
+        dream_pass_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dream Pass Id
+        delegated_by_expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delegated By Expert Id
+        delegated_by_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delegated By Session Id
+        handed_off_from_expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Handed Off From Expert Id
+        pending_question:
+          anyOf:
+          - $ref: '#/components/schemas/PendingQuestion'
+          - type: 'null'
+      type: object
+      title: ChatSessionMetadata
+      description: 'Typed metadata stored in the ``metadata`` JSON column of ChatSession.
+
+
+        Add new session-level flags here instead of adding DB columns —
+
+        no migration required for new fields as long as a default is provided.'
+    ClarifyingQuestion:
+      properties:
+        question:
+          type: string
+          title: Question
+        keyword:
+          type: string
+          title: Keyword
+        example:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Example
+        options:
+          items:
+            type: string
+          type: array
+          title: Options
+      type: object
+      required:
+      - question
+      - keyword
+      title: ClarifyingQuestion
+      description: A question that needs user clarification.
+    MemorySearchResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: memory_search
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        facts:
+          items:
+            type: string
+          type: array
+          title: Facts
+        recent_episodes:
+          items:
+            type: string
+          type: array
+          title: Recent Episodes
+      type: object
+      required:
+      - message
+      title: MemorySearchResponse
+      description: Response when memories are searched.
+    NoResultsResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: no_results
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        suggestions:
+          items:
+            type: string
+          type: array
+          title: Suggestions
+          default: []
+        name:
+          type: string
+          title: Name
+          default: no_results
+      type: object
+      required:
+      - message
+      title: NoResultsResponse
+      description: Response when no agents found.
+    InputValidationErrorResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: input_validation_error
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        unrecognized_fields:
+          items:
+            type: string
+          type: array
+          title: Unrecognized Fields
+          description: List of input field names that were not recognized
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+          description: The agent's valid input schema for reference
+        graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Id
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+      type: object
+      required:
+      - message
+      - unrecognized_fields
+      - inputs
+      title: InputValidationErrorResponse
+      description: Response when run_agent receives unknown input fields.
+    MemoryForgetFailureCode:
+      type: string
+      enum:
+      - no_match
+      - query_error
+      title: MemoryForgetFailureCode
+      description: 'Stable, machine-switchable reason a forget delete failed.
+
+
+        The frontend/model can branch on this code (retry vs. give up) without
+
+        parsing the free-text ``reason``. New codes may be added over time, so
+
+        consumers must tolerate unknown values.'
+    UnderstandingUpdatedResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: understanding_updated
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        updated_fields:
+          items:
+            type: string
+          type: array
+          title: Updated Fields
+        current_understanding:
+          additionalProperties: true
+          type: object
+          title: Current Understanding
+      type: object
+      required:
+      - message
+      title: UnderstandingUpdatedResponse
+      description: Response for add_understanding tool.
+    ScheduleDeletedResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: schedule_deleted
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        schedule_id:
+          type: string
+          title: Schedule Id
+      type: object
+      required:
+      - message
+      - schedule_id
+      title: ScheduleDeletedResponse
+      description: Response confirming a schedule was deleted.
+    QueuePendingMessageResponse:
+      properties:
+        buffer_length:
+          type: integer
+          title: Buffer Length
+        max_buffer_length:
+          type: integer
+          title: Max Buffer Length
+        turn_in_flight:
+          type: boolean
+          title: Turn In Flight
+      type: object
+      required:
+      - buffer_length
+      - max_buffer_length
+      - turn_in_flight
+      title: QueuePendingMessageResponse
+      description: "Response returned when a message is queued because the session already\nhas a turn in flight.\n\n- ``buffer_length``: how many messages are now in the session's\n  pending buffer (after this push)\n- ``max_buffer_length``: the per-session cap (server-side constant)\n- ``turn_in_flight``: ``True`` if a copilot turn was running when\n  we checked — purely informational for UX feedback."
+    AgentDetailsResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: agent_details
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        agent:
+          $ref: '#/components/schemas/AgentDetails'
+        user_authenticated:
+          type: boolean
+          title: User Authenticated
+          default: false
+        graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Id
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+      type: object
+      required:
+      - message
+      - agent
+      title: AgentDetailsResponse
+      description: Response for get_details action.
+    DocSearchResultsResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: doc_search_results
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        results:
+          items:
+            $ref: '#/components/schemas/DocSearchResult'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+        query:
+          type: string
+          title: Query
+      type: object
+      required:
+      - message
+      - results
+      - count
+      - query
+      title: DocSearchResultsResponse
+      description: Response for search_docs tool.
+    SubscriptionTier:
+      type: string
+      enum:
+      - NO_TIER
+      - BASIC
+      - PRO
+      - MAX
+      - BUSINESS
+      - ENTERPRISE
+      title: SubscriptionTier
+      description: "Subscription tiers with increasing cost allowances.\n\nMirrors the ``SubscriptionTier`` enum in ``schema.prisma``.\nOnce ``prisma generate`` is run, this can be replaced with::\n\n    from prisma.enums import SubscriptionTier"
+    ScheduleListResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: schedule_list
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        schedules:
+          items:
+            $ref: '#/components/schemas/ScheduleSummary'
+          type: array
+          title: Schedules
+      type: object
+      required:
+      - message
+      - schedules
+      title: ScheduleListResponse
+      description: Response containing a list of schedules.
+    CreateSessionResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        created_at:
+          type: string
+          title: Created At
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+        metadata:
+          $ref: '#/components/schemas/ChatSessionMetadata'
+          default:
+            dry_run: false
+            llm_auth_provider: platform
+            kind: normal
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+      type: object
+      required:
+      - id
+      - created_at
+      - user_id
+      title: CreateSessionResponse
+      description: Response model containing information on a newly created chat session.
+    SoulFieldChange:
+      properties:
+        field:
+          type: string
+          enum:
+          - identity
+          - voice_preferences
+          - boundaries
+          title: Field
+        before:
+          type: string
+          title: Before
+        after:
+          type: string
+          title: After
+      type: object
+      required:
+      - field
+      - before
+      - after
+      title: SoulFieldChange
+      description: One field's before/after values for an expert soul edit.
+    ExecutionOptions:
+      properties:
+        manual:
+          type: boolean
+          title: Manual
+          default: true
+        scheduled:
+          type: boolean
+          title: Scheduled
+          default: true
+        webhook:
+          type: boolean
+          title: Webhook
+          default: false
+      type: object
+      title: ExecutionOptions
+      description: Available execution options for an agent.
+    ChatTransportResponse:
+      properties:
+        auth_provider:
+          type: string
+          enum:
+          - platform
+          - codex
+          title: Auth Provider
+        credential_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credential Id
+        label:
+          type: string
+          title: Label
+        available:
+          type: boolean
+          title: Available
+        default:
+          type: boolean
+          title: Default
+      type: object
+      required:
+      - auth_provider
+      - credential_id
+      - label
+      - available
+      - default
+      title: ChatTransportResponse
+    SharedChatSession:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        shared_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Shared At
+        linked_executions:
+          items:
+            $ref: '#/components/schemas/SharedChatLinkedExecution'
+          type: array
+          title: Linked Executions
+      type: object
+      required:
+      - id
+      - title
+      - created_at
+      - updated_at
+      - shared_at
+      - linked_executions
+      title: SharedChatSession
+      description: Public-safe projection of a chat session (header only).
+    BlockDetails:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+          default: {}
+        outputs:
+          additionalProperties: true
+          type: object
+          title: Outputs
+          default: {}
+        credentials:
+          items:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: array
+          title: Credentials
+          default: []
+      type: object
+      required:
+      - id
+      - name
+      - description
+      title: BlockDetails
+      description: Detailed block information.
+    TaskDecompositionResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: task_decomposition
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        goal:
+          type: string
+          title: Goal
+          description: The original user goal
+        steps:
+          items:
+            $ref: '#/components/schemas/DecompositionStepModel'
+          type: array
+          title: Steps
+        step_count:
+          type: integer
+          title: Step Count
+          description: Number of steps (auto-derived from steps list)
+          default: 0
+      type: object
+      required:
+      - message
+      - goal
+      - steps
+      title: TaskDecompositionResponse
+      description: Response for decompose_goal tool — shows the plan to the user.
+    RateLimitResetResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        credits_charged:
+          type: integer
+          title: Credits Charged
+          description: Credits charged (in cents)
+        remaining_balance:
+          type: integer
+          title: Remaining Balance
+          description: Credit balance after charge (in cents)
+        usage:
+          $ref: '#/components/schemas/CoPilotUsagePublic'
+          description: Updated usage status after reset (percentages only)
+      type: object
+      required:
+      - success
+      - credits_charged
+      - remaining_balance
+      - usage
+      title: RateLimitResetResponse
+      description: Response from resetting the daily rate limit.
+    ExecutionStartedResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: execution_started
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_name:
+          type: string
+          title: Graph Name
+        library_agent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Library Agent Id
+        library_agent_link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Library Agent Link
+        status:
+          type: string
+          title: Status
+          default: QUEUED
+        saved_preset_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Saved Preset Id
+      type: object
+      required:
+      - message
+      - execution_id
+      - graph_id
+      - graph_name
+      title: ExecutionStartedResponse
+      description: Response for run/schedule actions.
+    ClarificationNeededResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: agent_builder_clarification_needed
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        questions:
+          items:
+            $ref: '#/components/schemas/ClarifyingQuestion'
+          type: array
+          title: Questions
+      type: object
+      required:
+      - message
+      title: ClarificationNeededResponse
+      description: Response when the LLM needs more information from the user.
+    SuggestedGoalResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: suggested_goal
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        suggested_goal:
+          type: string
+          title: Suggested Goal
+          description: The suggested alternative goal
+        reason:
+          type: string
+          title: Reason
+          description: Why the original goal needs refinement
+          default: ''
+        original_goal:
+          type: string
+          title: Original Goal
+          description: The user's original goal for context
+          default: ''
+        goal_type:
+          type: string
+          enum:
+          - vague
+          - unachievable
+          title: Goal Type
+          description: 'Type: ''vague'' or ''unachievable'''
+          default: vague
+      type: object
+      required:
+      - message
+      - suggested_goal
+      title: SuggestedGoalResponse
+      description: Response when the goal needs refinement with a suggested alternative.
+    EnableShareRequest:
+      properties:
+        auto_share_executions:
+          type: boolean
+          title: Auto Share Executions
+          default: false
+      type: object
+      title: EnableShareRequest
+      description: 'Whether to auto-link every ``run_agent`` execution in this chat.
+
+
+        When true, the backend creates ``ChatLinkedShare`` rows for every
+
+        existing agent run AND auto-links any new runs that land while the
+
+        share is active.  When false, only the chat messages are shared
+
+        (cards in the viewer render in their "execution not shared" state).'
+    PeekPendingMessagesResponse:
+      properties:
+        messages:
+          items:
+            type: string
+          type: array
+          title: Messages
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+      - messages
+      - count
+      title: PeekPendingMessagesResponse
+      description: 'Response for the pending-message peek (GET) endpoint.
+
+
+        Returns a read-only view of the pending buffer — messages are NOT
+
+        consumed.  The frontend uses this to restore the queued-message
+
+        indicator after a page refresh and to decide when to clear it once
+
+        a turn has ended.'
+    PendingQuestion:
+      properties:
+        text:
+          type: string
+          title: Text
+        asked_at:
+          type: string
+          format: date-time
+          title: Asked At
+      type: object
+      required:
+      - text
+      - asked_at
+      title: PendingQuestion
+      description: The last unanswered question a session asked the user.
+    TodoWriteResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: todo_write
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        todos:
+          items:
+            $ref: '#/components/schemas/TodoItem'
+          type: array
+          title: Todos
+      type: object
+      required:
+      - message
+      title: TodoWriteResponse
+      description: 'Ack returned by ``TodoWrite``.
+
+
+        The tool is effectively stateless — the authoritative task list lives in
+
+        the assistant''s latest tool-call arguments, which are replayed from the
+
+        transcript on each turn. The tool output only needs to confirm that the
+
+        update was accepted so the model can proceed.'
+    ExecutionOutputInfo:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        status:
+          type: string
+          title: Status
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+        outputs:
+          additionalProperties:
+            items: {}
+            type: array
+          type: object
+          title: Outputs
+        inputs_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs Summary
+        node_executions:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Node Executions
+        nodes_failed:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/NodeFailureSummary'
+            type: array
+          - type: 'null'
+          title: Nodes Failed
+      type: object
+      required:
+      - execution_id
+      - status
+      - outputs
+      title: ExecutionOutputInfo
+      description: Summary of a single execution's outputs.
+    SetupInfo:
+      properties:
+        agent_id:
+          type: string
+          title: Agent Id
+        agent_name:
+          type: string
+          title: Agent Name
+        requirements:
+          additionalProperties:
+            items: {}
+            type: array
+          type: object
+          title: Requirements
+        user_readiness:
+          $ref: '#/components/schemas/UserReadiness'
+      type: object
+      required:
+      - agent_id
+      - agent_name
+      title: SetupInfo
+      description: Complete setup information.
+    MemoryForgetConfirmResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: memory_forget_confirm
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        deleted_uuids:
+          items:
+            type: string
+          type: array
+          title: Deleted Uuids
+        failed_uuids:
+          items:
+            type: string
+          type: array
+          title: Failed Uuids
+        failures:
+          items:
+            $ref: '#/components/schemas/MemoryForgetFailure'
+          type: array
+          title: Failures
+      type: object
+      required:
+      - message
+      title: MemoryForgetConfirmResponse
+      description: Response after deleting specific memory edges.
+    MemoryStoreResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: memory_store
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        memory_name:
+          type: string
+          title: Memory Name
+      type: object
+      required:
+      - message
+      - memory_name
+      title: MemoryStoreResponse
+      description: Response when a memory is stored.
+    QueuePendingMessageRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 64000
+          title: Message
+        context:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Context
+        file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: File Ids
+      type: object
+      required:
+      - message
+      title: QueuePendingMessageRequest
+      description: Request model for queueing a follow-up while a turn is running.
+    UsageWindowPublic:
+      properties:
+        percent_used:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Percent Used
+          description: Percentage of the window's allowance used (0-100). Clamped at 100 when over the cap.
+        resets_at:
+          type: string
+          format: date-time
+          title: Resets At
+      type: object
+      required:
+      - percent_used
+      - resets_at
+      title: UsageWindowPublic
+      description: 'Public view of a usage window — only the percentage and reset time.
+
+
+        Hides the raw spend and the cap so clients cannot derive per-turn cost
+
+        or reverse-engineer platform margins.  ``percent_used`` is capped at 100.'
+    MemoryForgetCandidatesResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: memory_forget_candidates
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        candidates:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Candidates
+      type: object
+      required:
+      - message
+      title: MemoryForgetCandidatesResponse
+      description: Response with candidate memories to forget.
+    DocSearchResult:
+      properties:
+        title:
+          type: string
+          title: Title
+        path:
+          type: string
+          title: Path
+        section:
+          type: string
+          title: Section
+        snippet:
+          type: string
+          title: Snippet
+        score:
+          type: number
+          title: Score
+        doc_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Doc Url
+      type: object
+      required:
+      - title
+      - path
+      - section
+      - snippet
+      - score
+      title: DocSearchResult
+      description: A single documentation search result.
+    ExpertSoulUpdatedResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: expert_soul_updated
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        applied:
+          type: boolean
+          title: Applied
+          default: false
+        changes:
+          items:
+            $ref: '#/components/schemas/SoulFieldChange'
+          type: array
+          title: Changes
+        confirmation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Confirmation Id
+      type: object
+      required:
+      - message
+      title: ExpertSoulUpdatedResponse
+      description: 'Response for the two-step Soul edit tools.
+
+
+        Carries the diff so the model must surface exactly what changed. ``applied``
+
+        is False for the update_expert_soul preview (nothing written yet; the
+
+        one-time ``confirmation_id`` references the stored proposal) and True once
+
+        confirm_expert_soul_update saves the edit.'
+    backend__api__features__chat__share__ShareResponse:
+      properties:
+        share_url:
+          type: string
+          title: Share Url
+        share_token:
+          type: string
+          title: Share Token
+      type: object
+      required:
+      - share_url
+      - share_token
+      title: ShareResponse
+    ErrorResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: error
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        execution_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Execution Id
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+      type: object
+      required:
+      - message
+      title: ErrorResponse
+      description: Response for errors.
+    TodoItem:
+      properties:
+        content:
+          type: string
+          title: Content
+          description: Imperative description of the task.
+        activeForm:
+          type: string
+          title: Activeform
+          description: Present-continuous form shown while the task is running.
+        status:
+          type: string
+          enum:
+          - pending
+          - in_progress
+          - completed
+          title: Status
+          default: pending
+      type: object
+      required:
+      - content
+      - activeForm
+      title: TodoItem
+      description: 'One entry in a ``TodoWrite`` checklist.
+
+
+        Mirrors the schema used by Claude Code''s built-in ``TodoWrite`` tool so
+
+        the frontend''s ``GenericTool`` accordion renders baseline-emitted todos
+
+        identically to SDK-emitted ones.'
+    UpdateSessionPinnedRequest:
+      properties:
+        is_pinned:
+          type: boolean
+          title: Is Pinned
+      type: object
+      required:
+      - is_pinned
+      title: UpdateSessionPinnedRequest
+      description: Request model for pinning/unpinning a session.
+    CreateSessionRequest:
+      properties:
+        dry_run:
+          type: boolean
+          title: Dry Run
+          default: false
+        builder_graph_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Builder Graph Id
+        llm_auth_provider:
+          type: string
+          enum:
+          - platform
+          - codex
+          title: Llm Auth Provider
+          default: platform
+        llm_credential_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Llm Credential Id
+        expert_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Expert Id
+        expert_kickoff:
+          type: boolean
+          title: Expert Kickoff
+          default: false
+      additionalProperties: false
+      type: object
+      title: CreateSessionRequest
+      description: "Request model for creating (or get-or-creating) a chat session.\n\nTwo modes, selected by the body:\n\n- Default: create a fresh session. ``dry_run`` is a **top-level**\n  field — do not nest it inside ``metadata``.\n- Builder-bound: when ``builder_graph_id`` is set, the endpoint\n  switches to **get-or-create** keyed on\n  ``(user_id, builder_graph_id)``.  The builder panel calls this on\n  mount so the chat persists across refreshes.  Graph ownership is\n  validated inside :func:`get_or_create_builder_session`. Write-side\n  scope is enforced per-tool (``edit_agent`` / ``run_agent`` reject\n  any ``agent_id`` other than the bound graph) and a small blacklist\n  hides tools that conflict with the panel's scope\n  (``create_agent`` / ``customize_agent`` / ``get_agent_building_guide``\n  — see :data:`BUILDER_BLOCKED_TOOLS`). Read-side lookups\n  (``find_block``, ``find_agent``, ``search_docs``, …) stay open.\n\n``expert_id`` scopes the session to a hired expert. It must reference\nan expert owned by the caller that is neither a template nor archived,\notherwise the request is rejected with 404. It is mutually exclusive\nwith ``builder_graph_id`` (422) — builder-bound sessions are never\nexpert-scoped.\n\n``expert_kickoff`` switches expert creation to an atomic create-or-adopt\nmode keyed by the authenticated user and expert. It is invalid without\n``expert_id``.\n\nExtra/unknown fields are rejected (422) to prevent silent mis-use."
+    BlockListResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: block_list
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfoSummary'
+          type: array
+          title: Blocks
+        count:
+          type: integer
+          title: Count
+        query:
+          type: string
+          title: Query
+        usage_hint:
+          type: string
+          title: Usage Hint
+          default: To execute a block, call run_block with block_id set to the block's 'id' field and input_data containing the fields listed in required_inputs.
+      type: object
+      required:
+      - message
+      - blocks
+      - count
+      - query
+      title: BlockListResponse
+      description: Response for find_block tool.
+    SharedChatMessagesPage:
+      properties:
+        messages:
+          items:
+            $ref: '#/components/schemas/SharedChatMessage'
+          type: array
+          title: Messages
+        has_more:
+          type: boolean
+          title: Has More
+        oldest_sequence:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Oldest Sequence
+      type: object
+      required:
+      - messages
+      - has_more
+      - oldest_sequence
+      title: SharedChatMessagesPage
+      description: Paginated message window for the public viewer.
+    CoPilotUsagePublic:
+      properties:
+        daily:
+          anyOf:
+          - $ref: '#/components/schemas/UsageWindowPublic'
+          - type: 'null'
+          description: Null when no daily cap is configured (unlimited).
+        weekly:
+          anyOf:
+          - $ref: '#/components/schemas/UsageWindowPublic'
+          - type: 'null'
+          description: Null when no weekly cap is configured (unlimited).
+        tier:
+          $ref: '#/components/schemas/SubscriptionTier'
+          default: NO_TIER
+        reset_cost:
+          type: integer
+          title: Reset Cost
+          description: Credit cost (in cents) to reset the daily limit. 0 = feature disabled.
+          default: 0
+      type: object
+      title: CoPilotUsagePublic
+      description: Current usage status for a user — public (client-safe) shape.
+    StreamChatRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 64000
+          title: Message
+        is_user_message:
+          type: boolean
+          title: Is User Message
+          default: true
+        context:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Context
+        file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: File Ids
+        mode:
+          anyOf:
+          - type: string
+            enum:
+            - fast
+            - extended_thinking
+          - type: 'null'
+          title: Mode
+          description: 'Autopilot mode: ''fast'' for baseline LLM, ''extended_thinking'' for Claude Agent SDK. If None, uses the server default (extended_thinking).'
+        model:
+          anyOf:
+          - type: string
+            enum:
+            - standard
+            - advanced
+          - type: 'null'
+          title: Model
+          description: 'Model tier: ''standard'' for the default model, ''advanced'' for the highest-capability model. If None, the server applies per-user LD targeting then falls back to config.'
+        message_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Message Id
+          description: Optional per-click UUID generated by the frontend. The server scopes it to the authenticated user and session before using the result as ``ChatMessage.id``. Frontend / network / RMQ-redelivery retransmits of the same logical send reuse the key, so the Postgres unique-constraint on the resulting PK is the atomic dedup primitive. A duplicate INSERT returns a subscribe-only response without creating a parallel turn. Distinct user clicks (even with identical text) MUST send different ids — the frontend's per-click ``crypto.randomUUID()`` guarantees that.
+        expert_kickoff:
+          type: boolean
+          title: Expert Kickoff
+          description: Marks the hidden, once-per-expert day-one kickoff. The server derives its owner-scoped message ID and persistence metadata.
+          default: false
+      type: object
+      required:
+      - message
+      title: StreamChatRequest
+      description: Request model for streaming chat with optional context.
+    SessionDetailResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        created_at:
+          type: string
+          title: Created At
+        updated_at:
+          type: string
+          title: Updated At
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+        chat_status:
+          type: string
+          title: Chat Status
+          default: idle
+        messages:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Messages
+        active_stream:
+          anyOf:
+          - $ref: '#/components/schemas/ActiveStreamInfo'
+          - type: 'null'
+        has_more_messages:
+          type: boolean
+          title: Has More Messages
+          default: false
+        oldest_sequence:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Oldest Sequence
+        total_prompt_tokens:
+          type: integer
+          title: Total Prompt Tokens
+          default: 0
+        total_completion_tokens:
+          type: integer
+          title: Total Completion Tokens
+          default: 0
+        metadata:
+          $ref: '#/components/schemas/ChatSessionMetadata'
+          default:
+            dry_run: false
+            llm_auth_provider: platform
+            kind: normal
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - user_id
+      - messages
+      title: SessionDetailResponse
+      description: Response model providing complete details for a chat session, including messages.
+    MemoryForgetFailure:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        code:
+          $ref: '#/components/schemas/MemoryForgetFailureCode'
+        reason:
+          type: string
+          title: Reason
+      type: object
+      required:
+      - uuid
+      - code
+      - reason
+      title: MemoryForgetFailure
+      description: 'One edge that could not be deleted, with an actionable reason.
+
+
+        Surfaced so the assistant (and user) can tell *why* a delete failed —
+
+        e.g. the edge was not found vs. the query itself errored — instead of a
+
+        bare "N failed" count that gives the model nothing to act on.'
+    SuggestedPromptsResponse:
+      properties:
+        themes:
+          items:
+            $ref: '#/components/schemas/SuggestedTheme'
+          type: array
+          title: Themes
+      type: object
+      required:
+      - themes
+      title: SuggestedPromptsResponse
+      description: Response model for user-specific suggested prompts grouped by theme.
+    BlockInfoSummary:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          description: Full JSON schema for block inputs
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+          description: Full JSON schema for block outputs
+        static_output:
+          type: boolean
+          title: Static Output
+          description: Whether the block produces output without needing input
+          default: false
+        required_inputs:
+          items:
+            $ref: '#/components/schemas/BlockInputFieldInfo'
+          type: array
+          title: Required Inputs
+          description: List of input fields for this block
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+          description: Integration provider slug when the block uses exactly one provider (e.g. 'google', 'discord'); used for provider icons in the chat UI
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - categories
+      title: BlockInfoSummary
+      description: Summary of a block for search results.
+    NeedLoginResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: need_login
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        agent_info:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Agent Info
+      type: object
+      required:
+      - message
+      title: NeedLoginResponse
+      description: Response when login is needed.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BlockOutputResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: block_output
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        block_id:
+          type: string
+          title: Block Id
+        block_name:
+          type: string
+          title: Block Name
+        outputs:
+          additionalProperties:
+            items: {}
+            type: array
+          type: object
+          title: Outputs
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+        success:
+          type: boolean
+          title: Success
+          default: true
+        is_dry_run:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Dry Run
+      type: object
+      required:
+      - message
+      - block_id
+      - block_name
+      - outputs
+      title: BlockOutputResponse
+      description: Response for run_block tool.
+    DecompositionStepModel:
+      properties:
+        step_id:
+          type: string
+          title: Step Id
+          description: Unique step identifier, e.g. 'step_1'
+        description:
+          type: string
+          title: Description
+          description: Plain-English description of what this step does for the user. Do not put block class names or wiring verbs here — block_name and action carry that technical detail.
+        action:
+          type: string
+          title: Action
+          description: 'Action type: ''add_block'', ''connect_blocks'', ''configure'', etc.'
+        block_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Block Name
+          description: Block being added, if applicable
+        status:
+          type: string
+          title: Status
+          description: 'Step status: pending, in_progress, completed, failed'
+          default: pending
+      type: object
+      required:
+      - step_id
+      - description
+      - action
+      title: DecompositionStepModel
+      description: A single step in a decomposed agent-building plan.
+    ScheduleSummary:
+      properties:
+        schedule_id:
+          type: string
+          title: Schedule Id
+        kind:
+          type: string
+          enum:
+          - graph
+          - copilot_turn
+          title: Kind
+        name:
+          type: string
+          title: Name
+        timezone:
+          type: string
+          title: Timezone
+        next_run_time:
+          type: string
+          title: Next Run Time
+        cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cron
+        run_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run At
+        graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Id
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+      type: object
+      required:
+      - schedule_id
+      - kind
+      - name
+      - timezone
+      - next_run_time
+      title: ScheduleSummary
+      description: Summary of a single schedule (either a graph run or copilot turn).
+    CancelSessionResponse:
+      properties:
+        cancelled:
+          type: boolean
+          title: Cancelled
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - cancelled
+      title: CancelSessionResponse
+      description: Response model for the cancel session endpoint.
+    SharedChatLinkedExecution:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Name
+        share_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Share Token
+      type: object
+      required:
+      - execution_id
+      - graph_id
+      - graph_name
+      - share_token
+      title: SharedChatLinkedExecution
+      description: Drill-in pointer for an AgentGraphExecution shared alongside a chat.
+    BlockInputFieldInfo:
+      properties:
+        name:
+          type: string
+          title: Name
+        type:
+          type: string
+          title: Type
+        description:
+          type: string
+          title: Description
+          default: ''
+        required:
+          type: boolean
+          title: Required
+          default: false
+        default:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Default
+      type: object
+      required:
+      - name
+      - type
+      title: BlockInputFieldInfo
+      description: Information about a block input field.
+    MCPToolOutputResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: mcp_tool_output
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        server_url:
+          type: string
+          title: Server Url
+        tool_name:
+          type: string
+          title: Tool Name
+        result:
+          title: Result
+        success:
+          type: boolean
+          title: Success
+          default: true
+      type: object
+      required:
+      - message
+      - server_url
+      - tool_name
+      title: MCPToolOutputResponse
+      description: Response after executing an MCP tool.
+    ChatTransportsResponse:
+      properties:
+        transports:
+          items:
+            $ref: '#/components/schemas/ChatTransportResponse'
+          type: array
+          title: Transports
+      type: object
+      required:
+      - transports
+      title: ChatTransportsResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SessionSummaryResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        created_at:
+          type: string
+          title: Created At
+        updated_at:
+          type: string
+          title: Updated At
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        chat_status:
+          type: string
+          title: Chat Status
+          default: idle
+        is_processing:
+          type: boolean
+          title: Is Processing
+        source_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Platform
+        is_pinned:
+          type: boolean
+          title: Is Pinned
+          default: false
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - is_processing
+      title: SessionSummaryResponse
+      description: Response model for a session summary (without messages).
+    UserReadiness:
+      properties:
+        has_all_credentials:
+          type: boolean
+          title: Has All Credentials
+          default: false
+        missing_credentials:
+          additionalProperties: true
+          type: object
+          title: Missing Credentials
+          default: {}
+        ready_to_run:
+          type: boolean
+          title: Ready To Run
+          default: false
+      type: object
+      title: UserReadiness
+      description: User readiness status.
+    DocPageResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: doc_page
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        title:
+          type: string
+          title: Title
+        path:
+          type: string
+          title: Path
+        content:
+          type: string
+          title: Content
+        doc_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Doc Url
+      type: object
+      required:
+      - message
+      - title
+      - path
+      - content
+      title: DocPageResponse
+      description: Response for get_doc_page tool.
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    Node:
+      properties:
+        id:
+          type: string
+          title: Id
+        block_id:
+          type: string
+          title: Block Id
+        input_default:
+          additionalProperties: true
+          type: object
+          title: Input Default
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        input_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Input Links
+        output_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Output Links
+      type: object
+      required:
+      - block_id
+      title: Node
+    PresetSummary:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        is_active:
+          type: boolean
+          title: Is Active
+        webhook_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Webhook Id
+        webhook_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Webhook Url
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+      type: object
+      required:
+      - id
+      - name
+      - graph_id
+      - graph_version
+      - is_active
+      title: PresetSummary
+      description: Summary of a single preset (saved run config / webhook trigger).
+    PresetUpdatedResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: preset_updated
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        preset_id:
+          type: string
+          title: Preset Id
+        name:
+          type: string
+          title: Name
+        is_active:
+          type: boolean
+          title: Is Active
+        webhook_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Webhook Url
+      type: object
+      required:
+      - message
+      - preset_id
+      - name
+      - is_active
+      title: PresetUpdatedResponse
+      description: Response confirming a preset was updated.
+    AgentOutputResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: agent_output
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_id:
+          type: string
+          title: Agent Id
+        library_agent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Library Agent Id
+        library_agent_link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Library Agent Link
+        execution:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionOutputInfo'
+          - type: 'null'
+        available_executions:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Available Executions
+        total_executions:
+          type: integer
+          title: Total Executions
+          default: 0
+      type: object
+      required:
+      - message
+      - agent_name
+      - agent_id
+      title: AgentOutputResponse
+      description: Response for agent_output tool.
+    SuggestedTheme:
+      properties:
+        name:
+          type: string
+          title: Name
+        prompts:
+          items:
+            type: string
+          type: array
+          title: Prompts
+      type: object
+      required:
+      - name
+      - prompts
+      title: SuggestedTheme
+      description: A themed group of suggested prompts.
+    ChatShareStateResponse:
+      properties:
+        is_shared:
+          type: boolean
+          title: Is Shared
+          default: false
+        share_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Share Token
+        auto_share_executions:
+          type: boolean
+          title: Auto Share Executions
+          default: false
+        message_count:
+          type: integer
+          title: Message Count
+          default: 0
+        linked_run_count:
+          type: integer
+          title: Linked Run Count
+          default: 0
+        file_count:
+          type: integer
+          title: File Count
+          default: 0
+      type: object
+      title: ChatShareStateResponse
+      description: 'Surfaces the chat''s current share state so the modal can open
+
+        in the right mode (share-vs-revoke) without an extra round-trip.
+
+
+        The three counts power the consent-disclosure block above the
+
+        toggle so the owner sees exactly what they''re about to expose.
+
+        They reflect live state — sharing is live (not snapshot-at-enable),
+
+        so these numbers are also a lower bound for what subsequent
+
+        viewers will see if more messages / runs / files land before
+
+        revocation.'
+    PresetListResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: preset_list
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        presets:
+          items:
+            $ref: '#/components/schemas/PresetSummary'
+          type: array
+          title: Presets
+        total_count:
+          type: integer
+          title: Total Count
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - message
+      - presets
+      - total_count
+      - page
+      - page_size
+      title: PresetListResponse
+      description: Response listing the user's presets.
+    AgentsFoundResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: agents_found
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        title:
+          type: string
+          title: Title
+          default: Available Agents
+        agents:
+          items:
+            $ref: '#/components/schemas/AgentInfo'
+          type: array
+          title: Agents
+        count:
+          type: integer
+          title: Count
+        name:
+          type: string
+          title: Name
+          default: agents_found
+      type: object
+      required:
+      - message
+      - agents
+      - count
+      title: AgentsFoundResponse
+      description: Response for find_agent tool.
+    UpdateSessionTitleRequest:
+      properties:
+        title:
+          type: string
+          title: Title
+      type: object
+      required:
+      - title
+      title: UpdateSessionTitleRequest
+      description: Request model for updating a session's title.
+    NodeFailureSummary:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+        block_name:
+          type: string
+          title: Block Name
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - node_id
+      - block_name
+      - error
+      title: NodeFailureSummary
+    PresetDeletedResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: preset_deleted
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        preset_id:
+          type: string
+          title: Preset Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - message
+      - preset_id
+      - name
+      title: PresetDeletedResponse
+      description: Response confirming a preset was deleted.
+    MCPToolsDiscoveredResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: mcp_tools_discovered
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        server_url:
+          type: string
+          title: Server Url
+        tools:
+          items:
+            $ref: '#/components/schemas/MCPToolInfo'
+          type: array
+          title: Tools
+      type: object
+      required:
+      - message
+      - server_url
+      - tools
+      title: MCPToolsDiscoveredResponse
+      description: Response when MCP tools are discovered from a server (agent-internal).
+    SetupRequirementsResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: setup_requirements
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        setup_info:
+          $ref: '#/components/schemas/SetupInfo'
+        graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Id
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+      type: object
+      required:
+      - message
+      - setup_info
+      title: SetupRequirementsResponse
+      description: Response for validate action.
+    BaseGraph-Output:
+      properties:
+        id:
+          type: string
+          title: Id
+        version:
+          type: integer
+          title: Version
+          default: 1
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        nodes:
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+          title: Nodes
+        links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Links
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          readOnly: true
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+          readOnly: true
+        has_external_trigger:
+          type: boolean
+          title: Has External Trigger
+          readOnly: true
+        has_human_in_the_loop:
+          type: boolean
+          title: Has Human In The Loop
+          readOnly: true
+        has_sensitive_action:
+          type: boolean
+          title: Has Sensitive Action
+          readOnly: true
+        trigger_setup_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+          readOnly: true
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      - output_schema
+      - has_external_trigger
+      - has_human_in_the_loop
+      - has_sensitive_action
+      - trigger_setup_info
+      title: BaseGraph
+      description: 'Graph with nodes, links, and computed I/O schema fields.
+
+
+        Used to represent sub-graphs within a `Graph`. Contains the full graph
+
+        structure including nodes and links, plus computed fields for schemas
+
+        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
+    Link:
+      properties:
+        id:
+          type: string
+          title: Id
+        source_id:
+          type: string
+          title: Source Id
+        sink_id:
+          type: string
+          title: Sink Id
+        source_name:
+          type: string
+          title: Source Name
+        sink_name:
+          type: string
+          title: Sink Name
+        is_static:
+          type: boolean
+          title: Is Static
+          default: false
+      type: object
+      required:
+      - source_id
+      - sink_id
+      - source_name
+      - sink_name
+      title: Link
+    AgentPreviewResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: agent_builder_preview
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        agent_json:
+          additionalProperties: true
+          type: object
+          title: Agent Json
+        agent_name:
+          type: string
+          title: Agent Name
+        description:
+          type: string
+          title: Description
+        node_count:
+          type: integer
+          title: Node Count
+        link_count:
+          type: integer
+          title: Link Count
+          default: 0
+      type: object
+      required:
+      - message
+      - agent_json
+      - agent_name
+      - description
+      - node_count
+      title: AgentPreviewResponse
+      description: Response for previewing a generated agent before saving.
+    CredentialsMetaInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
+      type: object
+      required:
+      - id
+      - provider
+      - type
+      title: CredentialsMetaInput
+      credentials_provider: []
+      credentials_types: []
+    AgentSavedResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: agent_builder_saved
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        agent_id:
+          type: string
+          title: Agent Id
+        agent_name:
+          type: string
+          title: Agent Name
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+        library_agent_id:
+          type: string
+          title: Library Agent Id
+        library_agent_link:
+          type: string
+          title: Library Agent Link
+        agent_page_link:
+          type: string
+          title: Agent Page Link
+      type: object
+      required:
+      - message
+      - agent_id
+      - agent_name
+      - library_agent_id
+      - library_agent_link
+      - agent_page_link
+      title: AgentSavedResponse
+      description: Response when an agent is saved to the library.
+    ActiveStreamInfo:
+      properties:
+        turn_id:
+          type: string
+          title: Turn Id
+        last_message_id:
+          type: string
+          title: Last Message Id
+        started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Started At
+      type: object
+      required:
+      - turn_id
+      - last_message_id
+      title: ActiveStreamInfo
+      description: Information about an active stream for reconnection.
+    AgentDetails:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        in_library:
+          type: boolean
+          title: In Library
+          default: false
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+          default: {}
+        credentials:
+          items:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: array
+          title: Credentials
+          default: []
+        execution_options:
+          $ref: '#/components/schemas/ExecutionOptions'
+        trigger_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+          description: Webhook-trigger setup info (provider, config_schema, credentials_input_name) for agents with an external trigger. Configure the trigger by passing config_schema fields to setup_agent_webhook_trigger — never by editing the trigger node in the graph. None for agents without a webhook trigger.
+      type: object
+      required:
+      - id
+      - name
+      - description
+      title: AgentDetails
+      description: Detailed agent information.
+    SharedChatMessage:
+      properties:
+        id:
+          type: string
+          title: Id
+        role:
+          type: string
+          title: Role
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        tool_call_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Call Id
+        tool_calls:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Tool Calls
+        function_call:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Function Call
+        sequence:
+          type: integer
+          title: Sequence
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - role
+      - content
+      - name
+      - tool_call_id
+      - tool_calls
+      - function_call
+      - sequence
+      - created_at
+      title: SharedChatMessage
+      description: Public-safe projection of a single chat message.
+    BlockDetailsResponse:
+      properties:
+        type:
+          $ref: '#/components/schemas/ResponseType'
+          default: block_details
+        message:
+          type: string
+          title: Message
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        block:
+          $ref: '#/components/schemas/BlockDetails'
+        user_authenticated:
+          type: boolean
+          title: User Authenticated
+          default: false
+      type: object
+      required:
+      - message
+      - block
+      title: BlockDetailsResponse
+      description: Response for block details (first run_block attempt).
+    AgentInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        source:
+          type: string
+          title: Source
+          description: marketplace or library
+        in_library:
+          type: boolean
+          title: In Library
+          default: false
+        creator:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Creator
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        rating:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Rating
+        runs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Runs
+        is_featured:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Featured
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        can_access_graph:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Can Access Graph
+        has_external_trigger:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has External Trigger
+        new_output:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: New Output
+        graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Id
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+        match_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Match Score
+          description: Combined relevance score in [0, 1] when this agent was returned from a similarity search (e.g. the create-time library check). Null for non-similarity sources.
+        input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input Schema
+          description: JSON Schema for the agent's inputs (for AgentExecutorBlock)
+        output_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Output Schema
+          description: JSON Schema for the agent's outputs (for AgentExecutorBlock)
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+          description: Input schema for the agent, including field names, types, and defaults
+        graph:
+          anyOf:
+          - $ref: '#/components/schemas/BaseGraph-Output'
+          - type: 'null'
+          description: Full graph structure (nodes + links) when include_graph is requested
+        trigger_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+          description: Webhook-trigger setup info (provider, config_schema, credentials_input_name) for agents with an external trigger. Configure the trigger by passing config_schema fields to setup_agent_webhook_trigger — never by editing the trigger node in the graph. None for agents without a webhook trigger.
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - source
+      title: AgentInfo
+      description: Information about an agent.
+    ResponseType:
+      type: string
+      enum:
+      - error
+      - no_results
+      - need_login
+      - agents_found
+      - agent_details
+      - setup_requirements
+      - input_validation_error
+      - execution_started
+      - agent_output
+      - understanding_updated
+      - suggested_goal
+      - agent_builder_guide
+      - agent_builder_preview
+      - agent_builder_saved
+      - agent_builder_clarification_needed
+      - agent_builder_validation_result
+      - agent_builder_fix_result
+      - task_decomposition
+      - block_list
+      - block_details
+      - block_output
+      - review_required
+      - schedule_list
+      - schedule_deleted
+      - schedule_created
+      - agent_trigger_list
+      - trigger_setup
+      - trigger_config_required
+      - preset_list
+      - preset_updated
+      - preset_deleted
+      - mcp_guide
+      - mcp_tools_discovered
+      - mcp_tool_output
+      - doc_search_results
+      - doc_page
+      - workspace_file_list
+      - workspace_file_content
+      - workspace_file_metadata
+      - workspace_file_written
+      - workspace_file_deleted
+      - folder_created
+      - folder_list
+      - folder_updated
+      - folder_moved
+      - folder_deleted
+      - agents_moved_to_folder
+      - browser_navigate
+      - browser_act
+      - browser_screenshot
+      - bash_exec
+      - web_fetch
+      - web_search
+      - feature_request_search
+      - feature_request_created
+      - memory_store
+      - memory_search
+      - memory_forget_candidates
+      - memory_forget_confirm
+      - todo_write
+      - platform_info
+      - chat_platform_channel_list
+      - chat_platform_posted
+      - skill_stored
+      - skill_loaded
+      - skill_deleted
+      - skill_list
+      - expert_soul_updated
+      - expert_change_proposed
+      - expert_change_applied
+      - team_roster
+      title: ResponseType
+      description: Types of tool responses.
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

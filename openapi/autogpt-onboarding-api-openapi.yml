@@ -1,0 +1,1083 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Onboarding API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Onboarding
+paths:
+  /api/onboarding:
+    get:
+      tags:
+      - Onboarding
+      summary: Onboarding state
+      operationId: getV1OnboardingState
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOnboarding'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Onboarding state
+    patch:
+      tags:
+      - Onboarding
+      summary: Update onboarding state
+      operationId: patchV1UpdateOnboardingState
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserOnboardingUpdate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOnboarding'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV1Update onboarding state
+  /api/onboarding/agents:
+    get:
+      tags:
+      - Onboarding
+      summary: Recommended onboarding agents
+      operationId: getV1RecommendedOnboardingAgents
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/StoreAgentDetails'
+                type: array
+                title: Response Getv1Recommended Onboarding Agents
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Recommended onboarding agents
+  /api/onboarding/brain-dump:
+    delete:
+      tags:
+      - Onboarding
+      summary: Discard Brain Dump
+      description: 'Drop a half-uploaded take''s server buffer when the user re-records.
+
+
+        The row and any stored audio are left alone — only the disposable
+
+        part buffer is cleared.
+
+
+        ``recording_id`` says *which* take to drop. Without it the row''s
+
+        current take is assumed, which is wrong as soon as a second tab has
+
+        moved the row on: the caller would clear a buffer that is still being
+
+        filled. Callers know their own id, so they send it.'
+      operationId: discard_brain_dump
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: recording_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            pattern: ^[A-Za-z0-9_-]{1,64}$
+          - type: 'null'
+          title: Recording Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DumpStatusResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/onboarding/brain-dump/finalize:
+    post:
+      tags:
+      - Onboarding
+      summary: Finalize Brain Dump
+      description: 'Close out a take: assemble, scan, store, transcribe.
+
+
+        Extraction and greeting generation continue in the background after
+
+        this responds — the preparing step polls ``/status`` until
+
+        ``greeting_ready``. Idempotent per ``recording_id`` — a client that
+
+        retries after a timeout gets the stored result rather than a second
+
+        transcription.'
+      operationId: finalize_brain_dump
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalizeResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/onboarding/brain-dump/intro:
+    get:
+      tags:
+      - Onboarding
+      summary: Get Brain Dump Intro
+      description: 'Content for the copilot home''s onboarding greeting.
+
+
+        Pre-generated during finalize, so this is a plain row read — the
+
+        copilot home never waits on a model to render its first screen.
+
+        ``greeting_done=true`` means the client should show nothing and cache
+
+        that locally.'
+      operationId: get_brain_dump_intro
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntroCardResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/onboarding/brain-dump/intro/complete:
+    post:
+      tags:
+      - Onboarding
+      summary: Complete Brain Dump Greeting
+      description: 'Mark the greeting as done — called when the first message is sent.
+
+
+        Permanent and content-preserving: the flag flips, the stored greeting
+
+        stays in the row.'
+      operationId: complete_brain_dump_greeting
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GreetingDoneResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/onboarding/brain-dump/parts:
+    post:
+      tags:
+      - Onboarding
+      summary: Upload Brain Dump Part
+      description: 'Accept one MediaRecorder timeslice blob.
+
+
+        Parts arrive while the user is still talking, so this stays cheap:
+
+        size checks, buffer, done. Validation that needs the whole stream
+
+        (virus scan, transcription) happens on finalize.'
+      operationId: upload_brain_dump_part
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_brain_dump_part'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadPartResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/onboarding/brain-dump/recommended-providers:
+    get:
+      tags:
+      - Onboarding
+      summary: Get Brain Dump Recommended Providers
+      description: 'Provider picks for the welcome dialog''s "Connect your tools" panel.
+
+
+        Written by a background job that runs beside the greeting one; a plain
+
+        row read here. ``ready=false`` means keep polling.'
+      operationId: get_brain_dump_recommended_providers
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendedProvidersResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/onboarding/brain-dump/recording:
+    get:
+      tags:
+      - Onboarding
+      summary: Download Brain Dump Recording
+      description: 'Hand back the user''s own recording.
+
+
+        Kept working even when ``status`` is ``failed`` — "your recording is
+
+        safe" has to be true, and this is what makes it checkable.'
+      operationId: download_brain_dump_recording
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/onboarding/brain-dump/status:
+    get:
+      tags:
+      - Onboarding
+      summary: Get Brain Dump Status
+      description: Polled by the loading screen while the pipeline runs.
+      operationId: get_brain_dump_status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DumpStatusResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/onboarding/completed:
+    get:
+      tags:
+      - Onboarding
+      summary: Check if onboarding is completed
+      operationId: getV1CheckIfOnboardingIsCompleted
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStatusResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Check if onboarding is completed
+  /api/onboarding/profile:
+    post:
+      tags:
+      - Onboarding
+      summary: Submit onboarding profile
+      operationId: postV1SubmitOnboardingProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardingProfileRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Submit onboarding profile
+  /api/onboarding/reset:
+    post:
+      tags:
+      - Onboarding
+      summary: Reset onboarding progress
+      operationId: postV1ResetOnboardingProgress
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOnboarding'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Reset onboarding progress
+  /api/onboarding/step:
+    post:
+      tags:
+      - Onboarding
+      summary: Complete onboarding step
+      operationId: postV1CompleteOnboardingStep
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: step
+        in: query
+        required: true
+        schema:
+          enum:
+          - WELCOME
+          - USAGE_REASON
+          - INTEGRATIONS
+          - AGENT_CHOICE
+          - AGENT_NEW_RUN
+          - AGENT_INPUT
+          - CONGRATS
+          - ONBOARDING_COMPLETE
+          - BUILDER_OPEN
+          - CAPABILITY_CARDS
+          - AGENTS_TAB_INTRO
+          - MARKETPLACE_TAB_INTRO
+          - BUILD_TAB_INTRO
+          type: string
+          title: Step
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Complete onboarding step
+components:
+  schemas:
+    OnboardingStatusResponse:
+      properties:
+        is_completed:
+          type: boolean
+          title: Is Completed
+      type: object
+      required:
+      - is_completed
+      title: OnboardingStatusResponse
+      description: Response for onboarding completion check.
+    UploadPartResponse:
+      properties:
+        recording_id:
+          type: string
+          title: Recording Id
+        part_index:
+          type: integer
+          title: Part Index
+        received_bytes:
+          type: integer
+          title: Received Bytes
+        total_bytes:
+          type: integer
+          title: Total Bytes
+      type: object
+      required:
+      - recording_id
+      - part_index
+      - received_bytes
+      - total_bytes
+      title: UploadPartResponse
+    BrainDumpStatus:
+      type: string
+      enum:
+      - recording_uploaded
+      - transcribing
+      - transcribed
+      - extracting
+      - completed
+      - failed
+      title: BrainDumpStatus
+    RecommendedProvider:
+      properties:
+        provider:
+          type: string
+          title: Provider
+        reason:
+          type: string
+          title: Reason
+          default: ''
+      type: object
+      required:
+      - provider
+      title: RecommendedProvider
+      description: 'One provider Claude picked from the transcript.
+
+
+        ``provider`` is a registry id (validated against the live provider
+
+        list before storage); ``reason`` is the one-liner shown under it in
+
+        the welcome dialog''s Recommended section.'
+    BrainDumpInputMode:
+      type: string
+      enum:
+      - voice
+      - typed
+      - skipped
+      title: BrainDumpInputMode
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    OnboardingStep:
+      type: string
+      enum:
+      - WELCOME
+      - USAGE_REASON
+      - INTEGRATIONS
+      - AGENT_CHOICE
+      - AGENT_NEW_RUN
+      - AGENT_INPUT
+      - CONGRATS
+      - ONBOARDING_COMPLETE
+      - GET_RESULTS
+      - MARKETPLACE_VISIT
+      - MARKETPLACE_ADD_AGENT
+      - LIBRARY_RUN_AGENT
+      - BUILDER_SAVE_AGENT
+      - RE_RUN_AGENT
+      - SCHEDULE_AGENT
+      - RUN_AGENTS
+      - RUN_3_DAYS
+      - TRIGGER_WEBHOOK
+      - RUN_14_DAYS
+      - RUN_AGENTS_100
+      - BUILDER_OPEN
+      - BUILDER_RUN_AGENT
+      - CAPABILITY_CARDS
+      - AGENTS_TAB_INTRO
+      - MARKETPLACE_TAB_INTRO
+      - BUILD_TAB_INTRO
+      title: OnboardingStep
+      description: Application-level onboarding step identifiers.
+    RecommendedProvidersResponse:
+      properties:
+        ready:
+          type: boolean
+          title: Ready
+        providers:
+          items:
+            $ref: '#/components/schemas/RecommendedProvider'
+          type: array
+          title: Providers
+          default: []
+      type: object
+      required:
+      - ready
+      title: RecommendedProvidersResponse
+      description: 'Recommendations for the "Connect your tools" panel.
+
+
+        ``ready`` is false while the background job is still running — the
+
+        client keeps polling. Once true, ``providers`` is the final answer,
+
+        empty included ("nothing worth recommending" is a real result).'
+    Body_upload_brain_dump_part:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+        recording_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+          title: Recording Id
+        part_index:
+          type: integer
+          minimum: 0.0
+          title: Part Index
+      type: object
+      required:
+      - file
+      - recording_id
+      - part_index
+      title: Body_upload_brain_dump_part
+    UserOnboardingUpdate:
+      properties:
+        walletShown:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Walletshown
+        notified:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/OnboardingStep'
+            type: array
+          - type: 'null'
+          title: Notified
+        usageReason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usagereason
+        integrations:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Integrations
+        otherIntegrations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Otherintegrations
+        selectedStoreListingVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selectedstorelistingversionid
+        agentInput:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Agentinput
+        onboardingAgentExecutionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Onboardingagentexecutionid
+      type: object
+      title: UserOnboardingUpdate
+    ChangelogEntry:
+      properties:
+        version:
+          type: string
+          title: Version
+        changes_summary:
+          type: string
+          title: Changes Summary
+        date:
+          type: string
+          format: date-time
+          title: Date
+      type: object
+      required:
+      - version
+      - changes_summary
+      - date
+      title: ChangelogEntry
+    IntroCardResponse:
+      properties:
+        path:
+          type: string
+          title: Path
+        greeting:
+          type: string
+          title: Greeting
+        prompts:
+          items:
+            $ref: '#/components/schemas/SuggestedPrompt'
+          type: array
+          title: Prompts
+          default: []
+        greeting_done:
+          type: boolean
+          title: Greeting Done
+          default: false
+        greeting_pending:
+          type: boolean
+          title: Greeting Pending
+          default: false
+        transcript:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transcript
+      type: object
+      required:
+      - path
+      - greeting
+      title: IntroCardResponse
+      description: 'Content for the copilot home''s onboarding greeting.
+
+
+        ``path`` is "A" when we have something to reflect back and "B" when
+
+        the greeting''s job is to invite a recording instead. ``greeting_done``
+
+        is the server-side "already seen it" flag — when true the client
+
+        shows nothing and caches the fact locally.'
+    StoreAgentDetails:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        slug:
+          type: string
+          title: Slug
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_video:
+          type: string
+          title: Agent Video
+        agent_output_demo:
+          type: string
+          title: Agent Output Demo
+        agent_image:
+          items:
+            type: string
+          type: array
+          title: Agent Image
+        creator:
+          type: string
+          title: Creator
+        creator_avatar:
+          type: string
+          title: Creator Avatar
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        runs:
+          type: integer
+          title: Runs
+        rating:
+          type: number
+          title: Rating
+        versions:
+          items:
+            type: string
+          type: array
+          title: Versions
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_versions:
+          items:
+            type: string
+          type: array
+          title: Graph Versions
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        owning_org_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owning Org Id
+        active_version_id:
+          type: string
+          title: Active Version Id
+        has_approved_version:
+          type: boolean
+          title: Has Approved Version
+        changelog:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChangelogEntry'
+            type: array
+          - type: 'null'
+          title: Changelog
+      type: object
+      required:
+      - store_listing_version_id
+      - slug
+      - agent_name
+      - agent_video
+      - agent_output_demo
+      - agent_image
+      - creator
+      - creator_avatar
+      - sub_heading
+      - description
+      - categories
+      - runs
+      - rating
+      - versions
+      - graph_id
+      - graph_versions
+      - last_updated
+      - active_version_id
+      - has_approved_version
+      title: StoreAgentDetails
+    FinalizeResponse:
+      properties:
+        status:
+          $ref: '#/components/schemas/BrainDumpStatus'
+        input_mode:
+          $ref: '#/components/schemas/BrainDumpInputMode'
+        transcript_preview:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transcript Preview
+        error_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Code
+      type: object
+      required:
+      - status
+      - input_mode
+      title: FinalizeResponse
+    GreetingDoneResponse:
+      properties:
+        greeting_done:
+          type: boolean
+          title: Greeting Done
+      type: object
+      required:
+      - greeting_done
+      title: GreetingDoneResponse
+    FinalizeRequest:
+      properties:
+        recording_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+          title: Recording Id
+        input_mode:
+          $ref: '#/components/schemas/BrainDumpInputMode'
+          default: voice
+        duration_secs:
+          anyOf:
+          - type: number
+            maximum: 14400.0
+            minimum: 0.0
+          - type: 'null'
+          title: Duration Secs
+        mime_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mime Type
+        text:
+          anyOf:
+          - type: string
+            maxLength: 20000
+          - type: 'null'
+          title: Text
+      type: object
+      required:
+      - recording_id
+      title: FinalizeRequest
+      description: 'Finalize one take.
+
+
+        ``text`` is the typed fallback: when set, no audio is expected and the
+
+        dump is stored with ``input_mode=typed``. ``input_mode=skipped``
+
+        records the deliberate skip so Path B can be chosen server-side.'
+    DumpStatusResponse:
+      properties:
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/BrainDumpStatus'
+          - type: 'null'
+        input_mode:
+          anyOf:
+          - $ref: '#/components/schemas/BrainDumpInputMode'
+          - type: 'null'
+        error_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Code
+        has_audio:
+          type: boolean
+          title: Has Audio
+          default: false
+        greeting_ready:
+          type: boolean
+          title: Greeting Ready
+          default: false
+      type: object
+      title: DumpStatusResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    UserOnboarding:
+      properties:
+        userId:
+          type: string
+          title: Userid
+        completedSteps:
+          items:
+            $ref: '#/components/schemas/OnboardingStep'
+          type: array
+          title: Completedsteps
+        walletShown:
+          type: boolean
+          title: Walletshown
+        notified:
+          items:
+            $ref: '#/components/schemas/OnboardingStep'
+          type: array
+          title: Notified
+        rewardedFor:
+          items:
+            $ref: '#/components/schemas/OnboardingStep'
+          type: array
+          title: Rewardedfor
+        usageReason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usagereason
+        integrations:
+          items:
+            type: string
+          type: array
+          title: Integrations
+        otherIntegrations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Otherintegrations
+        selectedStoreListingVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selectedstorelistingversionid
+        agentInput:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Agentinput
+        onboardingAgentExecutionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Onboardingagentexecutionid
+        agentRuns:
+          type: integer
+          title: Agentruns
+        lastRunAt:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Lastrunat
+        consecutiveRunDays:
+          type: integer
+          title: Consecutiverundays
+      type: object
+      required:
+      - userId
+      - completedSteps
+      - walletShown
+      - notified
+      - rewardedFor
+      - usageReason
+      - integrations
+      - otherIntegrations
+      - selectedStoreListingVersionId
+      - agentInput
+      - onboardingAgentExecutionId
+      - agentRuns
+      - lastRunAt
+      - consecutiveRunDays
+      title: UserOnboarding
+    OnboardingProfileRequest:
+      properties:
+        user_name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: User Name
+        user_role:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: User Role
+        pain_points:
+          items:
+            type: string
+          type: array
+          maxItems: 20
+          title: Pain Points
+      type: object
+      required:
+      - user_name
+      - user_role
+      title: OnboardingProfileRequest
+      description: Request body for onboarding profile submission.
+    SuggestedPrompt:
+      properties:
+        title:
+          type: string
+          title: Title
+        prompt:
+          type: string
+          title: Prompt
+        icon:
+          type: string
+          title: Icon
+          default: sparkle
+      type: object
+      required:
+      - title
+      - prompt
+      title: SuggestedPrompt
+      description: 'One pickable prompt under the greeting.
+
+
+        ``title`` is the short line the user sees; ``prompt`` is the full
+
+        message that gets sent when they pick it. ``icon`` is a Phosphor icon
+
+        slug from ``intro.PROMPT_ICONS`` — the frontend maps it to the actual
+
+        icon component and falls back to a sparkle for anything unknown.'
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

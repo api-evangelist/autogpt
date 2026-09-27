@@ -1,13 +1,755 @@
 openapi: 3.2.0
 info:
-  title: AutoGPT External Graphs API
-  description: External API for AutoGPT integrations
+  title: Autogpt Graphs API
   version: '1.0'
+  description: 'Operations tagged Graphs across 2 of this provider''s published API definitions: autogpt-agent-server-openapi.json, autogpt-external-api-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /external-api
 tags:
 - name: Graphs
 paths:
+  /api/graphs/{graph_id}/executions/{graph_exec_id}/share:
+    delete:
+      tags:
+      - Graphs
+      summary: Disable Execution Sharing
+      description: Disable sharing for a graph execution.
+      operationId: deleteV1DisableExecutionSharing
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: graph_exec_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Exec Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Graphs
+      summary: Enable Execution Sharing
+      description: Enable sharing for a graph execution.
+      operationId: postV1EnableExecutionSharing
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: graph_exec_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Exec Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareRequest'
+              default: {}
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/backend__api__features__v1__ShareResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/executions:
+    get:
+      tags:
+      - Graphs
+      summary: List all executions
+      operationId: getV1ListAllExecutions
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GraphExecutionMeta'
+                type: array
+                title: Response Getv1List All Executions
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1List all executions
+  /api/executions/cost-summary:
+    get:
+      tags:
+      - Graphs
+      summary: User cost summary
+      description: Aggregated cost breakdown for the calling user's graph executions.
+      operationId: getV1UserCostSummary
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: since
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: Window start (UTC). Defaults to start of current calendar month.
+          title: Since
+        description: Window start (UTC). Defaults to start of current calendar month.
+      - name: until
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: Window end (UTC). Defaults to now.
+          title: Until
+        description: Window end (UTC). Defaults to now.
+      - name: top_runs_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          description: Maximum number of top-cost runs to return.
+          default: 10
+          title: Top Runs Limit
+        description: Maximum number of top-cost runs to return.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserExecutionCostSummary'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1User cost summary
+  /api/executions/{graph_exec_id}:
+    delete:
+      tags:
+      - Graphs
+      summary: Delete graph execution
+      operationId: deleteV1DeleteGraphExecution
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_exec_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Exec Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV1Delete graph execution
+  /api/graphs:
+    get:
+      tags:
+      - Graphs
+      summary: List user graphs
+      operationId: getV1ListUserGraphs
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GraphMeta'
+                type: array
+                title: Response Getv1List User Graphs
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1List user graphs
+    post:
+      tags:
+      - Graphs
+      summary: Create new graph
+      operationId: postV1CreateNewGraph
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGraph'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphModel'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Create new graph
+  /api/graphs/{graph_id}:
+    delete:
+      tags:
+      - Graphs
+      summary: Delete graph permanently
+      operationId: deleteV1DeleteGraphPermanently
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteGraphResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV1Delete graph permanently
+    get:
+      tags:
+      - Graphs
+      summary: Get specific graph
+      operationId: getV1GetSpecificGraph
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: version
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Version
+      - name: for_export
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: For Export
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphModel'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get specific graph
+    put:
+      tags:
+      - Graphs
+      summary: Update graph version
+      operationId: putV1UpdateGraphVersion
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Graph'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGraphResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: putV1Update graph version
+  /api/graphs/{graph_id}/execute/{graph_version}:
+    post:
+      tags:
+      - Graphs
+      summary: Execute graph agent
+      operationId: postV1ExecuteGraphAgent
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: graph_version
+        in: path
+        required: true
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+      - name: preset_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Preset Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_postV1Execute_graph_agent'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphExecutionMeta'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '402':
+          description: 'Payment required: NO_TIER paywall, or insufficient credit balance'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '503':
+          description: Subscription state temporarily unavailable
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Execute graph agent
+  /api/graphs/{graph_id}/executions:
+    get:
+      tags:
+      - Graphs
+      summary: List graph executions
+      operationId: getV1ListGraphExecutions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Page number (1-indexed)
+          default: 1
+          title: Page
+        description: Page number (1-indexed)
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Number of executions per page
+          default: 25
+          title: Page Size
+        description: Number of executions per page
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphExecutionsPaginated'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1List graph executions
+  /api/graphs/{graph_id}/executions/{graph_exec_id}:
+    get:
+      tags:
+      - Graphs
+      summary: Get execution details
+      operationId: getV1GetExecutionDetails
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: graph_exec_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Exec Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/GraphExecution'
+                - $ref: '#/components/schemas/GraphExecutionWithNodes'
+                title: Response Getv1Get Execution Details
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get execution details
+  /api/graphs/{graph_id}/executions/{graph_exec_id}/stop:
+    post:
+      tags:
+      - Graphs
+      summary: Stop graph execution
+      operationId: postV1StopGraphExecution
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: graph_exec_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Exec Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/GraphExecutionMeta'
+                - type: 'null'
+                title: Response Postv1Stop Graph Execution
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Stop graph execution
+  /api/graphs/{graph_id}/settings:
+    patch:
+      tags:
+      - Graphs
+      summary: Update graph settings
+      description: Update graph settings for the user's library agent.
+      operationId: patchV1UpdateGraphSettings
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphSettings'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphSettings'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV1Update graph settings
+  /api/graphs/{graph_id}/versions:
+    get:
+      tags:
+      - Graphs
+      summary: Get all graph versions
+      operationId: getV1GetAllGraphVersions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GraphModel'
+                title: Response Getv1Get All Graph Versions
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get all graph versions
+  /api/graphs/{graph_id}/versions/active:
+    put:
+      tags:
+      - Graphs
+      summary: Set active graph version
+      operationId: putV1SetActiveGraphVersion
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGraphActiveVersion'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetActiveGraphVersionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: putV1Set active graph version
+  /api/graphs/{graph_id}/versions/{version}:
+    get:
+      tags:
+      - Graphs
+      summary: Get graph version
+      operationId: getV1GetGraphVersion
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: version
+        in: path
+        required: true
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Version
+      - name: for_export
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: For Export
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphModel'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get graph version
+  /api/public/shared/{share_token}/files/{file_id}/download:
+    get:
+      tags:
+      - Graphs
+      summary: Download a file from a shared execution
+      description: 'Download a workspace file from a shared execution (no auth required).
+
+
+        Validates that the file was explicitly exposed when sharing was enabled.
+
+        Returns a uniform 404 for all failure modes to prevent enumeration attacks.'
+      operationId: download_shared_file
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          title: Share Token
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          title: File Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/graphs:
     post:
       tags:
@@ -42,6 +784,8 @@ paths:
       security:
       - APIKeyHeader: []
       - HTTPBearer: []
+    servers:
+    - url: /external-api
   /v1/graphs/{graph_id}/execute/{graph_version}:
     post:
       tags:
@@ -84,6 +828,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    servers:
+    - url: /external-api
   /v1/graphs/{graph_id}/executions/{graph_exec_id}/results:
     get:
       tags:
@@ -119,8 +865,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    servers:
+    - url: /external-api
 components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ShareRequest:
+      properties: {}
+      type: object
+      title: ShareRequest
+      description: Optional request body for share endpoint.
     HTTPValidationError:
       properties:
         detail:
@@ -130,6 +919,59 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    backend__api__features__v1__ShareResponse:
+      properties:
+        share_url:
+          type: string
+          title: Share Url
+        share_token:
+          type: string
+          title: Share Token
+      type: object
+      required:
+      - share_url
+      - share_token
+      title: ShareResponse
+      description: Response from share endpoints.
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    GraphSettings:
+      properties:
+        human_in_the_loop_safe_mode:
+          type: boolean
+          title: Human In The Loop Safe Mode
+          default: true
+        sensitive_action_safe_mode:
+          type: boolean
+          title: Sensitive Action Safe Mode
+          default: false
+        builder_chat_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Builder Chat Session Id
+      type: object
+      title: GraphSettings
     Node:
       properties:
         id:
@@ -160,63 +1002,268 @@ components:
       required:
       - block_id
       title: Node
-    GraphTriggerInfo:
+    NodeExecutionResult:
       properties:
-        provider:
+        user_id:
           type: string
-          title: Provider
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        config_schema:
+          title: User Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        graph_exec_id:
+          type: string
+          title: Graph Exec Id
+        node_exec_id:
+          type: string
+          title: Node Exec Id
+        node_id:
+          type: string
+          title: Node Id
+        block_id:
+          type: string
+          title: Block Id
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        input_data:
           additionalProperties: true
           type: object
-          title: Config Schema
-          description: Input schema for the trigger block
-        credentials_input_name:
+          title: Input Data
+        output_data:
+          additionalProperties:
+            items: {}
+            type: array
+          type: object
+          title: Output Data
+        add_time:
+          type: string
+          format: date-time
+          title: Add Time
+        queue_time:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Queue Time
+        start_time:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Start Time
+        end_time:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: End Time
+      type: object
+      required:
+      - user_id
+      - graph_id
+      - graph_version
+      - graph_exec_id
+      - node_exec_id
+      - node_id
+      - block_id
+      - status
+      - input_data
+      - output_data
+      - add_time
+      - queue_time
+      - start_time
+      - end_time
+      title: NodeExecutionResult
+    GraphExecutionsPaginated:
+      properties:
+        executions:
+          items:
+            $ref: '#/components/schemas/GraphExecutionMeta'
+          type: array
+          title: Executions
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - executions
+      - pagination
+      title: GraphExecutionsPaginated
+      description: Response schema for paginated graph executions.
+    GraphMeta:
+      properties:
+        id:
+          type: string
+          title: Id
+        version:
+          type: integer
+          title: Version
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
           anyOf:
           - type: string
           - type: 'null'
-          title: Credentials Input Name
+          title: Instructions
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        user_id:
+          type: string
+          title: User Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
       type: object
       required:
-      - provider
-      - config_schema
-      - credentials_input_name
-      title: GraphTriggerInfo
-    ValidationError:
+      - id
+      - version
+      - name
+      - description
+      - user_id
+      - created_at
+      title: GraphMeta
+      description: 'Lightweight graph metadata model representing an existing graph from the database,
+
+        for use in listings and summaries.
+
+
+        Lacks `GraphModel`''s nodes, links, and expensive computed fields.
+
+        Use for list endpoints where full graph data is not needed and performance matters.'
+    AgentExecutionStatus:
+      type: string
+      enum:
+      - INCOMPLETE
+      - QUEUED
+      - RUNNING
+      - COMPLETED
+      - TERMINATED
+      - FAILED
+      - REVIEW
+      title: AgentExecutionStatus
+    ExecutionFailureReason:
+      type: string
+      enum:
+      - insufficient_balance
+      - entitlement_required
+      title: ExecutionFailureReason
+      description: Structured reasons for terminal graph execution failures.
+    SetActiveGraphVersionResponse:
       properties:
-        loc:
+        skipped_webhook_presets:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/SkippedWebhookPreset'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Skipped Webhook Presets
+      type: object
+      title: SetActiveGraphVersionResponse
+      description: 'Response for activating an existing graph version.
+
+
+        Carries any webhook presets that were left pinned to their old version
+
+        because the newly activated version''s trigger block is incompatible and
+
+        needs to be reconfigured.'
+    UserExecutionCostSummary:
+      properties:
+        total_cents:
+          type: integer
+          title: Total Cents
+        run_count:
+          type: integer
+          title: Run Count
+        billable_run_count:
+          type: integer
+          title: Billable Run Count
+        failed_cost_cents:
+          type: integer
+          title: Failed Cost Cents
+        success_run_count:
+          type: integer
+          title: Success Run Count
+          default: 0
+        failed_run_count:
+          type: integer
+          title: Failed Run Count
+          default: 0
+        review_run_count:
+          type: integer
+          title: Review Run Count
+          default: 0
+        total_duration_seconds:
+          type: number
+          title: Total Duration Seconds
+          default: 0
+        duration_run_count:
+          type: integer
+          title: Duration Run Count
+          default: 0
+        by_agent:
+          items:
+            $ref: '#/components/schemas/UserAgentCostRollup'
+          type: array
+          title: By Agent
+        by_expert:
+          items:
+            $ref: '#/components/schemas/UserExpertCostRollup'
+          type: array
+          title: By Expert
+          default: []
+        top_runs:
+          items:
+            $ref: '#/components/schemas/UserTopRun'
+          type: array
+          title: Top Runs
+        daily:
+          items:
+            $ref: '#/components/schemas/UserDailyCost'
+          type: array
+          title: Daily
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post:
-      properties:
-        node_input:
-          additionalProperties: true
-          type: object
-          title: Node Input
-      type: object
-      title: Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post
-    Graph:
+      - total_cents
+      - run_count
+      - billable_run_count
+      - failed_cost_cents
+      - by_agent
+      - top_runs
+      - daily
+      title: UserExecutionCostSummary
+    BaseGraph-Input:
       properties:
         id:
           type: string
@@ -265,17 +1312,52 @@ components:
             $ref: '#/components/schemas/Link'
           type: array
           title: Links
-        sub_graphs:
-          items:
-            $ref: '#/components/schemas/BaseGraph-Input'
-          type: array
-          title: Sub Graphs
       type: object
       required:
       - name
       - description
-      title: Graph
-      description: Creatable graph model used in API create/update endpoints.
+      title: BaseGraph
+      description: 'Graph with nodes, links, and computed I/O schema fields.
+
+
+        Used to represent sub-graphs within a `Graph`. Contains the full graph
+
+        structure including nodes and links, plus computed fields for schemas
+
+        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
+    UserExpertCostRollup:
+      properties:
+        expert_id:
+          type: string
+          title: Expert Id
+        cost_cents:
+          type: integer
+          title: Cost Cents
+        run_count:
+          type: integer
+          title: Run Count
+      type: object
+      required:
+      - expert_id
+      - cost_cents
+      - run_count
+      title: UserExpertCostRollup
+    CreateGraph:
+      properties:
+        graph:
+          $ref: '#/components/schemas/Graph'
+        source:
+          anyOf:
+          - type: string
+            enum:
+            - builder
+            - upload
+          - type: 'null'
+          title: Source
+      type: object
+      required:
+      - graph
+      title: CreateGraph
     BaseGraph-Output:
       properties:
         id:
@@ -371,7 +1453,297 @@ components:
         structure including nodes and links, plus computed fields for schemas
 
         and trigger info. Does NOT include user_id or created_at (see GraphModel).'
-    BaseGraph-Input:
+    UpdateGraphResponse:
+      properties:
+        graph:
+          $ref: '#/components/schemas/GraphModel'
+        skipped_webhook_presets:
+          items:
+            $ref: '#/components/schemas/SkippedWebhookPreset'
+          type: array
+          title: Skipped Webhook Presets
+      type: object
+      required:
+      - graph
+      title: UpdateGraphResponse
+      description: 'Response for creating/activating a new graph version.
+
+
+        Carries the new graph version plus any webhook presets that were left
+
+        pinned to their old version because the new version''s trigger block is
+
+        incompatible and needs to be reconfigured.'
+    Link:
+      properties:
+        id:
+          type: string
+          title: Id
+        source_id:
+          type: string
+          title: Source Id
+        sink_id:
+          type: string
+          title: Sink Id
+        source_name:
+          type: string
+          title: Source Name
+        sink_name:
+          type: string
+          title: Sink Name
+        is_static:
+          type: boolean
+          title: Is Static
+          default: false
+      type: object
+      required:
+      - source_id
+      - sink_id
+      - source_name
+      - sink_name
+      title: Link
+    SkippedWebhookPreset:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        pinned_version:
+          type: integer
+          title: Pinned Version
+      type: object
+      required:
+      - id
+      - name
+      - pinned_version
+      title: SkippedWebhookPreset
+      description: 'A webhook preset that was left pinned to its old version because the
+
+        newly activated version swaps or reconfigures the trigger block. The user
+
+        needs to reconfigure the trigger on the new version for it to fire.'
+    NodeModel:
+      properties:
+        id:
+          type: string
+          title: Id
+        block_id:
+          type: string
+          title: Block Id
+        input_default:
+          additionalProperties: true
+          type: object
+          title: Input Default
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        input_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Input Links
+        output_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Output Links
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        webhook_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Webhook Id
+      type: object
+      required:
+      - block_id
+      - graph_id
+      - graph_version
+      title: NodeModel
+    GraphExecution:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credential_inputs:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/CredentialsMetaInput'
+            type: object
+          - type: 'null'
+          title: Credential Inputs
+        nodes_input_masks:
+          anyOf:
+          - additionalProperties:
+              additionalProperties: true
+              type: object
+            type: object
+          - type: 'null'
+          title: Nodes Input Masks
+        preset_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Preset Id
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: When execution started running. Null if not yet started (QUEUED).
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+          description: When execution finished. Null if not yet completed (QUEUED, RUNNING, INCOMPLETE, REVIEW).
+        is_shared:
+          type: boolean
+          title: Is Shared
+          default: false
+        share_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Share Token
+        is_dry_run:
+          type: boolean
+          title: Is Dry Run
+          default: false
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        stats:
+          anyOf:
+          - $ref: '#/components/schemas/Stats'
+          - type: 'null'
+        outputs:
+          additionalProperties:
+            items: {}
+            type: array
+          type: object
+          title: Outputs
+      type: object
+      required:
+      - id
+      - user_id
+      - graph_id
+      - graph_version
+      - inputs
+      - credential_inputs
+      - nodes_input_masks
+      - preset_id
+      - status
+      - stats
+      - outputs
+      title: GraphExecution
+    CredentialsMetaInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
+      type: object
+      required:
+      - id
+      - provider
+      - type
+      title: CredentialsMetaInput
+      credentials_provider: []
+      credentials_types: []
+    SetGraphActiveVersion:
+      properties:
+        active_graph_version:
+          type: integer
+          title: Active Graph Version
+      type: object
+      required:
+      - active_graph_version
+      title: SetGraphActiveVersion
+    UserDailyCost:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+        cost_cents:
+          type: integer
+          title: Cost Cents
+        run_count:
+          type: integer
+          title: Run Count
+        success_count:
+          type: integer
+          title: Success Count
+          default: 0
+        failed_count:
+          type: integer
+          title: Failed Count
+          default: 0
+        review_count:
+          type: integer
+          title: Review Count
+          default: 0
+      type: object
+      required:
+      - date
+      - cost_cents
+      - run_count
+      title: UserDailyCost
+    Graph:
       properties:
         id:
           type: string
@@ -420,79 +1792,153 @@ components:
             $ref: '#/components/schemas/Link'
           type: array
           title: Links
+        sub_graphs:
+          items:
+            $ref: '#/components/schemas/BaseGraph-Input'
+          type: array
+          title: Sub Graphs
       type: object
       required:
       - name
       - description
-      title: BaseGraph
-      description: 'Graph with nodes, links, and computed I/O schema fields.
-
-
-        Used to represent sub-graphs within a `Graph`. Contains the full graph
-
-        structure including nodes and links, plus computed fields for schemas
-
-        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
-    ExecutionNode:
+      title: Graph
+      description: Creatable graph model used in API create/update endpoints.
+    Body_postV1Execute_graph_agent:
       properties:
-        node_id:
-          type: string
-          title: Node Id
-        input:
-          title: Input
-        output:
+        inputs:
           additionalProperties: true
           type: object
-          title: Output
+          title: Inputs
+        credentials_inputs:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Credentials Inputs
+        source:
+          anyOf:
+          - type: string
+            enum:
+            - builder
+            - library
+            - onboarding
+          - type: 'null'
+          title: Source
+        dry_run:
+          type: boolean
+          title: Dry Run
+          default: false
       type: object
-      required:
-      - node_id
-      - input
-      - output
-      title: ExecutionNode
-    NodeModel:
+      title: Body_postV1Execute graph agent
+    GraphExecutionMeta:
       properties:
         id:
           type: string
           title: Id
-        block_id:
+        user_id:
           type: string
-          title: Block Id
-        input_default:
-          additionalProperties: true
-          type: object
-          title: Input Default
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-        input_links:
-          items:
-            $ref: '#/components/schemas/Link'
-          type: array
-          title: Input Links
-        output_links:
-          items:
-            $ref: '#/components/schemas/Link'
-          type: array
-          title: Output Links
+          title: User Id
         graph_id:
           type: string
           title: Graph Id
         graph_version:
           type: integer
           title: Graph Version
-        webhook_id:
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+        credential_inputs:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/CredentialsMetaInput'
+            type: object
+          - type: 'null'
+          title: Credential Inputs
+        nodes_input_masks:
+          anyOf:
+          - additionalProperties:
+              additionalProperties: true
+              type: object
+            type: object
+          - type: 'null'
+          title: Nodes Input Masks
+        preset_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Webhook Id
+          title: Preset Id
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: When execution started running. Null if not yet started (QUEUED).
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+          description: When execution finished. Null if not yet completed (QUEUED, RUNNING, INCOMPLETE, REVIEW).
+        is_shared:
+          type: boolean
+          title: Is Shared
+          default: false
+        share_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Share Token
+        is_dry_run:
+          type: boolean
+          title: Is Dry Run
+          default: false
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        stats:
+          anyOf:
+          - $ref: '#/components/schemas/Stats'
+          - type: 'null'
       type: object
       required:
-      - block_id
+      - id
+      - user_id
       - graph_id
       - graph_version
-      title: NodeModel
+      - inputs
+      - credential_inputs
+      - nodes_input_masks
+      - preset_id
+      - status
+      - stats
+      title: GraphExecutionMeta
+    DeleteGraphResponse:
+      properties:
+        version_counts:
+          type: integer
+          title: Version Counts
+      type: object
+      required:
+      - version_counts
+      title: DeleteGraphResponse
     GraphModel:
       properties:
         id:
@@ -627,6 +2073,289 @@ components:
         - `Graph`: provides structure (nodes, links, sub_graphs) and computed schemas
 
         - `GraphMeta`: provides user_id, created_at for database records'
+    UserAgentCostRollup:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+        cost_cents:
+          type: integer
+          title: Cost Cents
+        run_count:
+          type: integer
+          title: Run Count
+      type: object
+      required:
+      - graph_id
+      - cost_cents
+      - run_count
+      title: UserAgentCostRollup
+    UserTopRun:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        cost_cents:
+          type: integer
+          title: Cost Cents
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        duration_seconds:
+          type: number
+          title: Duration Seconds
+        node_error_count:
+          type: integer
+          title: Node Error Count
+      type: object
+      required:
+      - execution_id
+      - graph_id
+      - cost_cents
+      - started_at
+      - status
+      - duration_seconds
+      - node_error_count
+      title: UserTopRun
+    GraphExecutionWithNodes:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credential_inputs:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/CredentialsMetaInput'
+            type: object
+          - type: 'null'
+          title: Credential Inputs
+        nodes_input_masks:
+          anyOf:
+          - additionalProperties:
+              additionalProperties: true
+              type: object
+            type: object
+          - type: 'null'
+          title: Nodes Input Masks
+        preset_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Preset Id
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: When execution started running. Null if not yet started (QUEUED).
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+          description: When execution finished. Null if not yet completed (QUEUED, RUNNING, INCOMPLETE, REVIEW).
+        is_shared:
+          type: boolean
+          title: Is Shared
+          default: false
+        share_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Share Token
+        is_dry_run:
+          type: boolean
+          title: Is Dry Run
+          default: false
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        stats:
+          anyOf:
+          - $ref: '#/components/schemas/Stats'
+          - type: 'null'
+        outputs:
+          additionalProperties:
+            items: {}
+            type: array
+          type: object
+          title: Outputs
+        node_executions:
+          items:
+            $ref: '#/components/schemas/NodeExecutionResult'
+          type: array
+          title: Node Executions
+      type: object
+      required:
+      - id
+      - user_id
+      - graph_id
+      - graph_version
+      - inputs
+      - credential_inputs
+      - nodes_input_masks
+      - preset_id
+      - status
+      - stats
+      - outputs
+      - node_executions
+      title: GraphExecutionWithNodes
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    Stats:
+      properties:
+        cost:
+          type: integer
+          title: Cost
+          description: Execution cost (cents)
+          default: 0
+        duration:
+          type: number
+          title: Duration
+          description: Seconds from start to end of run
+          default: 0
+        duration_cpu_only:
+          type: number
+          title: Duration Cpu Only
+          description: CPU sec of duration
+          default: 0
+        node_exec_time:
+          type: number
+          title: Node Exec Time
+          description: Seconds of total node runtime
+          default: 0
+        node_exec_time_cpu_only:
+          type: number
+          title: Node Exec Time Cpu Only
+          description: CPU sec of node_exec_time
+          default: 0
+        node_exec_count:
+          type: integer
+          title: Node Exec Count
+          description: Number of node executions
+          default: 0
+        node_error_count:
+          type: integer
+          title: Node Error Count
+          description: Number of node errors
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if any
+        failure_reason:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionFailureReason'
+          - type: 'null'
+          description: Structured reason for a terminal execution failure
+        activity_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Status
+          description: AI-generated summary of what the agent did
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+          description: AI-generated score (0.0-1.0) indicating how well the execution achieved its intended purpose
+      additionalProperties: true
+      type: object
+      title: Stats
+    Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post:
+      properties:
+        node_input:
+          additionalProperties: true
+          type: object
+          title: Node Input
+      type: object
+      title: Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post
+    ExecutionNode:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+        input:
+          title: Input
+        output:
+          additionalProperties: true
+          type: object
+          title: Output
+      type: object
+      required:
+      - node_id
+      - input
+      - output
+      title: ExecutionNode
     GraphExecutionResult:
       properties:
         execution_id:
@@ -656,39 +2385,22 @@ components:
       - nodes
       - output
       title: GraphExecutionResult
-    Link:
-      properties:
-        id:
-          type: string
-          title: Id
-        source_id:
-          type: string
-          title: Source Id
-        sink_id:
-          type: string
-          title: Sink Id
-        source_name:
-          type: string
-          title: Source Name
-        sink_name:
-          type: string
-          title: Sink Name
-        is_static:
-          type: boolean
-          title: Is Static
-          default: false
-      type: object
-      required:
-      - source_id
-      - sink_id
-      - source_name
-      - sink_name
-      title: Link
   securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
     APIKeyHeader:
       type: apiKey
       in: header
       name: X-API-Key
-    HTTPBearer:
-      type: http
-      scheme: bearer
+x-refined-from:
+- autogpt-agent-server-openapi.json
+- autogpt-external-api-openapi.json

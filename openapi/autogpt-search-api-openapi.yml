@@ -12,7 +12,7 @@ paths:
       tags:
       - Search
       summary: Global search
-      operationId: getSearchGlobal search
+      operationId: getSearchGlobalSearch
       security:
       - HTTPBearerJWT: []
       parameters:
@@ -52,6 +52,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getSearchGlobal search
 components:
   responses:
     HTTP401NotAuthenticatedError:
@@ -64,6 +66,33 @@ components:
               detail:
                 type: string
   schemas:
+    GlobalSearchResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Agents
+        files:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Files
+        chats:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Chats
+      type: object
+      title: GlobalSearchResponse
+      description: 'Top-N hits bucketed by item type.
+
+
+        For a non-empty query this contains hybrid-search results.
+
+        For an empty query this contains the most-recently-updated items
+
+        per bucket (cached per-user with a short TTL).'
     ValidationError:
       properties:
         loc:
@@ -149,33 +178,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    GlobalSearchResponse:
-      properties:
-        agents:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Agents
-        files:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Files
-        chats:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Chats
-      type: object
-      title: GlobalSearchResponse
-      description: 'Top-N hits bucketed by item type.
-
-
-        For a non-empty query this contains hybrid-search results.
-
-        For an empty query this contains the most-recently-updated items
-
-        per bucket (cached per-user with a short TTL).'
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

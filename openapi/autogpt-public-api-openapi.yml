@@ -1,43 +1,40 @@
 openapi: 3.2.0
 info:
-  title: AutoGPT Agent Server Auth Email API
+  title: AutoGPT Agent Server Public API
   summary: AutoGPT Agent Server
   description: This server is used to execute agents that are created by the AutoGPT system.
   version: '0.1'
 tags:
-- name: auth-email
+- name: Public
 paths:
-  /api/auth/email/send:
-    post:
+  /api/public/shared/{share_token}:
+    get:
       tags:
-      - auth-email
-      summary: Send a Better Auth transactional email via the backend mailer
-      operationId: sendAuthTransactionalEmail
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthEmailRequest'
+      - Public
+      summary: Get Shared Execution
+      description: Get a shared graph execution by share token (no auth required).
+      operationId: getV1GetSharedExecution
+      parameters:
+      - name: share_token
+        in: path
         required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          title: Share Token
       responses:
-        '204':
+        '200':
           description: Successful Response
-        '400':
-          description: url does not point at a trusted frontend origin
-        '401':
-          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
-        '403':
-          description: Service token is missing the required scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedExecutionResponse'
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-        '503':
-          description: Service-token verification is not configured
-      security:
-      - HTTPBearerJWT: []
 components:
   schemas:
     HTTPValidationError:
@@ -49,6 +46,17 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    AgentExecutionStatus:
+      type: string
+      enum:
+      - INCOMPLETE
+      - QUEUED
+      - RUNNING
+      - COMPLETED
+      - TERMINATED
+      - FAILED
+      - REVIEW
+      title: AgentExecutionStatus
     ValidationError:
       properties:
         loc:
@@ -75,38 +83,41 @@ components:
       - msg
       - type
       title: ValidationError
-    AuthEmailRequest:
+    SharedExecutionResponse:
       properties:
-        type:
+        id:
           type: string
-          enum:
-          - reset_password
-          - verify_email
-          - change_email
-          title: Type
-        to:
+          title: Id
+        graph_name:
           type: string
-          format: email
-          title: To
-        url:
+          title: Graph Name
+        graph_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Description
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        created_at:
           type: string
-          title: Url
+          format: date-time
+          title: Created At
+        outputs:
+          additionalProperties:
+            items: {}
+            type: array
+          type: object
+          title: Outputs
       type: object
       required:
-      - type
-      - to
-      - url
-      title: AuthEmailRequest
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
+      - id
+      - graph_name
+      - graph_description
+      - status
+      - created_at
+      - outputs
+      title: SharedExecutionResponse
+      description: Public-safe response for shared executions
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

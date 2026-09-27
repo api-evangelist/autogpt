@@ -1,0 +1,1500 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Orgs API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Orgs
+paths:
+  /api/orgs:
+    get:
+      tags:
+      - Orgs
+      summary: List user organizations
+      operationId: getV2ListUserOrganizations
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OrgResponse'
+                type: array
+                title: Response Getv2List User Organizations
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List user organizations
+    post:
+      tags:
+      - Orgs
+      summary: Create organization
+      operationId: postV2CreateOrganization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrgRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Create organization
+  /api/orgs/{org_id}:
+    delete:
+      tags:
+      - Orgs
+      summary: Delete organization
+      operationId: deleteV2DeleteOrganization
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Delete organization
+    get:
+      tags:
+      - Orgs
+      summary: Get organization details
+      operationId: getV2GetOrganizationDetails
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get organization details
+    patch:
+      tags:
+      - Orgs
+      summary: Update organization
+      operationId: patchV2UpdateOrganization
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrgRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update organization
+  /api/orgs/{org_id}/aliases:
+    get:
+      tags:
+      - Orgs
+      summary: List organization aliases
+      operationId: getV2ListOrganizationAliases
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrgAliasResponse'
+                title: Response Getv2List Organization Aliases
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List organization aliases
+    post:
+      tags:
+      - Orgs
+      summary: Create organization alias
+      operationId: postV2CreateOrganizationAlias
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAliasRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgAliasResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Create organization alias
+  /api/orgs/{org_id}/convert:
+    post:
+      tags:
+      - Orgs
+      summary: Convert personal org to team org
+      operationId: postV2ConvertPersonalOrgToTeamOrg
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Convert personal org to team org
+  /api/orgs/{org_id}/invitations:
+    get:
+      tags:
+      - Orgs
+      summary: List pending invitations
+      operationId: getV2ListPendingInvitations
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvitationResponse'
+                title: Response Getv2List Pending Invitations
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List pending invitations
+    post:
+      tags:
+      - Orgs
+      summary: Create invitation
+      operationId: postV2CreateInvitation
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvitationRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvitationCreateResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Create invitation
+  /api/orgs/{org_id}/invitations/{invitation_id}:
+    delete:
+      tags:
+      - Orgs
+      summary: Revoke invitation
+      operationId: deleteV2RevokeInvitation
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: invitation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Invitation Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Revoke invitation
+  /api/orgs/{org_id}/members:
+    get:
+      tags:
+      - Orgs
+      summary: List organization members
+      operationId: getV2ListOrganizationMembers
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrgMemberResponse'
+                title: Response Getv2List Organization Members
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List organization members
+    post:
+      tags:
+      - Orgs
+      summary: Add member to organization
+      operationId: postV2AddMemberToOrganization
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMemberRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgMemberResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Add member to organization
+  /api/orgs/{org_id}/members/{uid}:
+    delete:
+      tags:
+      - Orgs
+      summary: Remove member from organization
+      operationId: deleteV2RemoveMemberFromOrganization
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Uid
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Remove member from organization
+    patch:
+      tags:
+      - Orgs
+      summary: Update member role
+      operationId: patchV2UpdateMemberRole
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Uid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMemberRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgMemberResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update member role
+  /api/orgs/{org_id}/transfer-ownership:
+    post:
+      tags:
+      - Orgs
+      summary: Transfer organization ownership
+      operationId: postV2TransferOrganizationOwnership
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferOwnershipRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Transfer organization ownership
+  /api/orgs/{org_id}/workspaces:
+    get:
+      tags:
+      - Orgs
+      summary: List workspaces
+      operationId: getV2ListWorkspaces
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamResponse'
+                title: Response Getv2List Workspaces
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List workspaces
+    post:
+      tags:
+      - Orgs
+      summary: Create workspace
+      operationId: postV2CreateWorkspace
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Create workspace
+  /api/orgs/{org_id}/workspaces/{ws_id}:
+    delete:
+      tags:
+      - Orgs
+      summary: Delete workspace
+      operationId: deleteV2DeleteWorkspace
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Delete workspace
+    get:
+      tags:
+      - Orgs
+      summary: Get workspace details
+      operationId: getV2GetWorkspaceDetails
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get workspace details
+    patch:
+      tags:
+      - Orgs
+      summary: Update workspace
+      operationId: patchV2UpdateWorkspace
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update workspace
+  /api/orgs/{org_id}/workspaces/{ws_id}/join:
+    post:
+      tags:
+      - Orgs
+      summary: Self-join open workspace
+      operationId: postV2Self-joinOpenWorkspace
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Self-join open workspace
+  /api/orgs/{org_id}/workspaces/{ws_id}/leave:
+    post:
+      tags:
+      - Orgs
+      summary: Leave workspace
+      operationId: postV2LeaveWorkspace
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Leave workspace
+  /api/orgs/{org_id}/workspaces/{ws_id}/members:
+    get:
+      tags:
+      - Orgs
+      summary: List workspace members
+      operationId: getV2ListWorkspaceMembers
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamMemberResponse'
+                title: Response Getv2List Workspace Members
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List workspace members
+    post:
+      tags:
+      - Orgs
+      summary: Add member to workspace
+      operationId: postV2AddMemberToWorkspace
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTeamMemberRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMemberResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Add member to workspace
+  /api/orgs/{org_id}/workspaces/{ws_id}/members/{uid}:
+    delete:
+      tags:
+      - Orgs
+      summary: Remove member from workspace
+      operationId: deleteV2RemoveMemberFromWorkspace
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Uid
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Remove member from workspace
+    patch:
+      tags:
+      - Orgs
+      summary: Update workspace member role
+      operationId: patchV2UpdateWorkspaceMemberRole
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: org_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Org Id
+      - name: ws_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ws Id
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Uid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamMemberRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMemberResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update workspace member role
+components:
+  schemas:
+    TeamMemberResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        email:
+          type: string
+          title: Email
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_admin:
+          type: boolean
+          title: Is Admin
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+        joined_at:
+          type: string
+          format: date-time
+          title: Joined At
+      type: object
+      required:
+      - id
+      - user_id
+      - email
+      - name
+      - is_admin
+      - is_billing_manager
+      - joined_at
+      title: TeamMemberResponse
+    CreateAliasRequest:
+      properties:
+        alias_slug:
+          type: string
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]*$
+          title: Alias Slug
+      type: object
+      required:
+      - alias_slug
+      title: CreateAliasRequest
+    CreateOrgRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        slug:
+          type: string
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]*$
+          title: Slug
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - name
+      - slug
+      title: CreateOrgRequest
+    InvitationCreateResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        email:
+          type: string
+          title: Email
+        is_admin:
+          type: boolean
+          title: Is Admin
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        team_ids:
+          items:
+            type: string
+          type: array
+          title: Team Ids
+        token:
+          type: string
+          title: Token
+      type: object
+      required:
+      - id
+      - email
+      - is_admin
+      - is_billing_manager
+      - expires_at
+      - created_at
+      - team_ids
+      - token
+      title: InvitationCreateResponse
+      description: Extended response returned only from POST /invitations -- includes the token.
+    UpdateMemberRequest:
+      properties:
+        is_admin:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Admin
+        is_billing_manager:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Billing Manager
+      type: object
+      title: UpdateMemberRequest
+    TeamResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        slug:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Slug
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_default:
+          type: boolean
+          title: Is Default
+        join_policy:
+          type: string
+          title: Join Policy
+        org_id:
+          type: string
+          title: Org Id
+        member_count:
+          type: integer
+          title: Member Count
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - slug
+      - description
+      - is_default
+      - join_policy
+      - org_id
+      - member_count
+      - created_at
+      title: TeamResponse
+    OrgResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        slug:
+          type: string
+          title: Slug
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_personal:
+          type: boolean
+          title: Is Personal
+        member_count:
+          type: integer
+          title: Member Count
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - slug
+      - avatar_url
+      - description
+      - is_personal
+      - member_count
+      - created_at
+      title: OrgResponse
+    TransferOwnershipRequest:
+      properties:
+        new_owner_id:
+          type: string
+          title: New Owner Id
+      type: object
+      required:
+      - new_owner_id
+      title: TransferOwnershipRequest
+    OrgAliasResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        alias_slug:
+          type: string
+          title: Alias Slug
+        alias_type:
+          type: string
+          title: Alias Type
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - alias_slug
+      - alias_type
+      - created_at
+      title: OrgAliasResponse
+    InvitationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        email:
+          type: string
+          title: Email
+        is_admin:
+          type: boolean
+          title: Is Admin
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        team_ids:
+          items:
+            type: string
+          type: array
+          title: Team Ids
+      type: object
+      required:
+      - id
+      - email
+      - is_admin
+      - is_billing_manager
+      - expires_at
+      - created_at
+      - team_ids
+      title: InvitationResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CreateTeamRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        join_policy:
+          type: string
+          title: Join Policy
+          default: OPEN
+      type: object
+      required:
+      - name
+      title: CreateTeamRequest
+    UpdateTeamRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        join_policy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Join Policy
+      type: object
+      title: UpdateTeamRequest
+    CreateInvitationRequest:
+      properties:
+        email:
+          type: string
+          title: Email
+        is_admin:
+          type: boolean
+          title: Is Admin
+          default: false
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+          default: false
+        team_ids:
+          items:
+            type: string
+          type: array
+          title: Team Ids
+      type: object
+      required:
+      - email
+      title: CreateInvitationRequest
+    OrgMemberResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        email:
+          type: string
+          title: Email
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_owner:
+          type: boolean
+          title: Is Owner
+        is_admin:
+          type: boolean
+          title: Is Admin
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+        joined_at:
+          type: string
+          format: date-time
+          title: Joined At
+      type: object
+      required:
+      - id
+      - user_id
+      - email
+      - name
+      - is_owner
+      - is_admin
+      - is_billing_manager
+      - joined_at
+      title: OrgMemberResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    UpdateOrgRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        slug:
+          anyOf:
+          - type: string
+            pattern: ^[a-z0-9][a-z0-9-]*$
+          - type: 'null'
+          title: Slug
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+      type: object
+      title: UpdateOrgRequest
+    UpdateTeamMemberRequest:
+      properties:
+        is_admin:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Admin
+        is_billing_manager:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Billing Manager
+      type: object
+      title: UpdateTeamMemberRequest
+    AddTeamMemberRequest:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        is_admin:
+          type: boolean
+          title: Is Admin
+          default: false
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+          default: false
+      type: object
+      required:
+      - user_id
+      title: AddTeamMemberRequest
+    AddMemberRequest:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        is_admin:
+          type: boolean
+          title: Is Admin
+          default: false
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+          default: false
+      type: object
+      required:
+      - user_id
+      title: AddMemberRequest
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

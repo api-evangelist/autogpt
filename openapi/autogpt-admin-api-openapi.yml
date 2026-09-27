@@ -1,0 +1,6679 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Admin API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Admin
+paths:
+  /api/admin/blocks/cost-estimates:
+    get:
+      tags:
+      - Admin
+      summary: Export Block Cost Estimates
+      description: 'Aggregate per-block average credits-per-execution over [start, end].
+
+
+        Capped at ANALYTICS_MAX_DAYS days. Returns only blocks whose current cost
+
+        type is dynamic (SECOND/ITEMS/COST_USD) — static-cost blocks already
+
+        charge correctly pre-flight and don''t need an estimate override. TOKENS
+
+        is excluded because `compute_token_credits` already supplies a per-model
+
+        floor at pre-flight; a per-block historical mean would lose that
+
+        granularity.'
+      operationId: getV2ExportBlockCostEstimates
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: ISO timestamp (inclusive)
+          title: Start
+        description: ISO timestamp (inclusive)
+      - name: end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: ISO timestamp (inclusive)
+          title: End
+        description: ISO timestamp (inclusive)
+      - name: min_samples
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Minimum executions per block to include
+          default: 10
+          title: Min Samples
+        description: Minimum executions per block to include
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockCostEstimatesResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Export block cost estimates
+  /api/admin/bot-analytics/command-usage:
+    get:
+      tags:
+      - Admin
+      summary: Command Usage Breakdown
+      operationId: getV2CommandUsageBreakdown
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: platform
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/Platform'
+          - type: 'null'
+          title: Platform
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 30
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BotCommandUsage'
+                title: Response Getv2Command Usage Breakdown
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Command usage breakdown
+  /api/admin/bot-analytics/guilds:
+    get:
+      tags:
+      - Admin
+      summary: Bot Server Roster
+      operationId: getV2BotServerRoster
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: platform
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/Platform'
+          - type: 'null'
+          title: Platform
+      - name: include_left
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Left
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 2000
+          minimum: 1
+          default: 500
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BotGuildInfo'
+                title: Response Getv2Bot Server Roster
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Bot server roster
+  /api/admin/bot-analytics/server-timeseries:
+    get:
+      tags:
+      - Admin
+      summary: Bot Server-Count Timeseries (sharding curve)
+      operationId: getV2BotServer-countTimeseries(shardingCurve)
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: platform
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/Platform'
+          - type: 'null'
+          title: Platform
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 30
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BotServerCountPoint'
+                title: Response Getv2Bot Server-Count Timeseries (Sharding Curve)
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Bot server-count timeseries (sharding curve)
+  /api/admin/bot-analytics/summary:
+    get:
+      tags:
+      - Admin
+      summary: Bot Usage Summary
+      operationId: getV2BotUsageSummary
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: platform
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/Platform'
+          - type: 'null'
+          title: Platform
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 30
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAnalyticsSummary'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Bot usage summary
+  /api/admin/bot-analytics/timeseries:
+    get:
+      tags:
+      - Admin
+      summary: Bot Message Timeseries
+      operationId: getV2BotMessageTimeseries
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: platform
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/Platform'
+          - type: 'null'
+          title: Platform
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 30
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BotTimeseriesPoint'
+                title: Response Getv2Bot Message Timeseries
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Bot message timeseries
+  /api/admin/bot-analytics/top-servers:
+    get:
+      tags:
+      - Admin
+      summary: Top Servers by Activity
+      operationId: getV2TopServersByActivity
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: platform
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/Platform'
+          - type: 'null'
+          title: Platform
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 30
+          title: Days
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BotServerActivity'
+                title: Response Getv2Top Servers By Activity
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Top servers by activity
+  /api/admin/diagnostics/agents:
+    get:
+      tags:
+      - Admin
+      summary: Get Agent Diagnostics
+      description: 'Get diagnostic information about agents.
+
+
+        Returns:
+
+        - agents_with_active_executions: Number of unique agents with running/queued executions
+
+        - timestamp: Current timestamp'
+      operationId: getV2GetAgentDiagnostics
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentDiagnosticsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get agent diagnostics
+  /api/admin/diagnostics/executions:
+    get:
+      tags:
+      - Admin
+      summary: Get Execution Diagnostics
+      description: 'Get comprehensive diagnostic information about execution status.
+
+
+        Returns all execution metrics including:
+
+        - Current state (running, queued)
+
+        - Orphaned executions (>24h old, likely not in executor)
+
+        - Failure metrics (1h, 24h, rate)
+
+        - Long-running detection (stuck >1h, >24h)
+
+        - Stuck queued detection
+
+        - Throughput metrics (completions/hour)
+
+        - RabbitMQ queue depths'
+      operationId: getV2GetExecutionDiagnostics
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionDiagnosticsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get execution diagnostics
+  /api/admin/diagnostics/executions/cleanup-all-orphaned:
+    post:
+      tags:
+      - Admin
+      summary: Cleanup ALL Orphaned Executions
+      description: 'Cleanup ALL orphaned executions (>24h old) by directly updating DB status.
+
+        Operates on all executions, not just paginated results.
+
+
+        Returns:
+
+        Number of executions cleaned up and success message'
+      operationId: postV2CleanupAllOrphanedExecutions
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Cleanup all orphaned executions
+  /api/admin/diagnostics/executions/cleanup-all-stuck-queued:
+    post:
+      tags:
+      - Admin
+      summary: Cleanup ALL Stuck Queued Executions
+      description: 'Cleanup ALL stuck queued executions (QUEUED >1h) by updating DB status (admin only).
+
+        Operates on entire dataset, not limited to pagination.
+
+
+        Returns:
+
+        Number of executions cleaned up and success message'
+      operationId: postV2CleanupAllStuckQueuedExecutions
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Cleanup all stuck queued executions
+  /api/admin/diagnostics/executions/cleanup-orphaned:
+    post:
+      tags:
+      - Admin
+      summary: Cleanup Orphaned Executions
+      description: 'Cleanup orphaned executions by directly updating DB status (admin only).
+
+        For executions in DB but not actually running in executor (old/stale records).
+
+
+        Args:
+
+        request: Contains list of execution_ids to cleanup
+
+
+        Returns:
+
+        Number of executions cleaned up and success message'
+      operationId: postV2CleanupOrphanedExecutions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopExecutionsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Cleanup orphaned executions
+  /api/admin/diagnostics/executions/failed:
+    get:
+      tags:
+      - Admin
+      summary: List Failed Executions
+      description: 'Get detailed list of failed executions.
+
+
+        Args:
+
+        limit: Maximum number of executions to return (default 100)
+
+        offset: Number of executions to skip (default 0)
+
+        hours: Number of hours to look back (default 24)
+
+
+        Returns:
+
+        List of failed executions with error details'
+      operationId: getV2ListFailedExecutions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      - name: hours
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 24
+          title: Hours
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailedExecutionsListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List failed executions
+  /api/admin/diagnostics/executions/invalid:
+    get:
+      tags:
+      - Admin
+      summary: List Invalid Executions
+      description: 'Get detailed list of executions in invalid states (READ-ONLY).
+
+
+        Invalid states indicate data corruption and require manual investigation:
+
+        - QUEUED but has startedAt (impossible - can''t start while queued)
+
+        - RUNNING but no startedAt (impossible - can''t run without starting)
+
+
+        ⚠️ NO BULK ACTIONS PROVIDED - These need case-by-case investigation.
+
+
+        Each invalid execution likely has a different root cause (crashes, race conditions,
+
+        DB corruption). Investigate the execution history and logs to determine appropriate
+
+        action (manual cleanup, status fix, or leave as-is if system recovered).
+
+
+        Args:
+
+        limit: Maximum number of executions to return (default 100)
+
+        offset: Number of executions to skip (default 0)
+
+
+        Returns:
+
+        List of invalid state executions with details'
+      operationId: getV2ListInvalidExecutions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunningExecutionsListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List invalid executions
+  /api/admin/diagnostics/executions/long-running:
+    get:
+      tags:
+      - Admin
+      summary: List Long-Running Executions
+      description: 'Get detailed list of long-running executions (RUNNING status >24h).
+
+
+        Args:
+
+        limit: Maximum number of executions to return (default 100)
+
+        offset: Number of executions to skip (default 0)
+
+
+        Returns:
+
+        List of long-running executions with details'
+      operationId: getV2ListLong-runningExecutions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunningExecutionsListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List long-running executions
+  /api/admin/diagnostics/executions/orphaned:
+    get:
+      tags:
+      - Admin
+      summary: List Orphaned Executions
+      description: 'Get detailed list of orphaned executions (>24h old, likely not in executor).
+
+
+        Args:
+
+        limit: Maximum number of executions to return (default 100)
+
+        offset: Number of executions to skip (default 0)
+
+
+        Returns:
+
+        List of orphaned executions with details'
+      operationId: getV2ListOrphanedExecutions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunningExecutionsListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List orphaned executions
+  /api/admin/diagnostics/executions/requeue:
+    post:
+      tags:
+      - Admin
+      summary: Requeue Stuck Execution
+      description: 'Requeue a stuck QUEUED execution (admin only).
+
+
+        Uses add_graph_execution with existing graph_exec_id to requeue.
+
+
+        ⚠️ WARNING: Only use for stuck executions. This will re-execute and may cost credits.
+
+
+        Args:
+
+        request: Contains execution_id to requeue
+
+
+        Returns:
+
+        Success status and message'
+      operationId: postV2RequeueStuckExecution
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopExecutionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequeueExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Requeue stuck execution
+  /api/admin/diagnostics/executions/requeue-all-stuck:
+    post:
+      tags:
+      - Admin
+      summary: Requeue ALL Stuck Queued Executions
+      description: 'Requeue ALL stuck queued executions (QUEUED >1h) by publishing to RabbitMQ.
+
+        Operates on all executions, not just paginated results.
+
+
+        Uses add_graph_execution with existing graph_exec_id to requeue.
+
+
+        ⚠️ WARNING: This will re-execute ALL stuck executions and may cost significant credits.
+
+
+        Returns:
+
+        Number of executions requeued and success message'
+      operationId: postV2RequeueAllStuckQueuedExecutions
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequeueExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Requeue all stuck queued executions
+  /api/admin/diagnostics/executions/requeue-bulk:
+    post:
+      tags:
+      - Admin
+      summary: Requeue Multiple Stuck Executions
+      description: 'Requeue multiple stuck QUEUED executions (admin only).
+
+
+        Uses add_graph_execution with existing graph_exec_id to requeue.
+
+
+        ⚠️ WARNING: Only use for stuck executions. This will re-execute and may cost credits.
+
+
+        Args:
+
+        request: Contains list of execution_ids to requeue
+
+
+        Returns:
+
+        Number of executions requeued and success message'
+      operationId: postV2RequeueMultipleStuckExecutions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopExecutionsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequeueExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Requeue multiple stuck executions
+  /api/admin/diagnostics/executions/running:
+    get:
+      tags:
+      - Admin
+      summary: List Running Executions
+      description: 'Get detailed list of running and queued executions (recent, likely active).
+
+
+        Args:
+
+        limit: Maximum number of executions to return (default 100)
+
+        offset: Number of executions to skip (default 0)
+
+
+        Returns:
+
+        List of running executions with details'
+      operationId: getV2ListRunningExecutions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunningExecutionsListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List running executions
+  /api/admin/diagnostics/executions/stop:
+    post:
+      tags:
+      - Admin
+      summary: Stop Single Execution
+      description: 'Stop a single execution (admin only).
+
+
+        Uses robust stop_graph_execution which cascades to children and waits for termination.
+
+
+        Args:
+
+        request: Contains execution_id to stop
+
+
+        Returns:
+
+        Success status and message'
+      operationId: postV2StopSingleExecution
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopExecutionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Stop single execution
+  /api/admin/diagnostics/executions/stop-all-long-running:
+    post:
+      tags:
+      - Admin
+      summary: Stop ALL Long-Running Executions
+      description: 'Stop ALL long-running executions (RUNNING >24h) by sending cancel signals (admin only).
+
+        Operates on entire dataset, not limited to pagination.
+
+
+        Returns:
+
+        Number of executions stopped and success message'
+      operationId: postV2StopAllLong-runningExecutions
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Stop all long-running executions
+  /api/admin/diagnostics/executions/stop-bulk:
+    post:
+      tags:
+      - Admin
+      summary: Stop Multiple Executions
+      description: 'Stop multiple active executions (admin only).
+
+
+        Uses robust stop_graph_execution which cascades to children and waits for termination.
+
+
+        Args:
+
+        request: Contains list of execution_ids to stop
+
+
+        Returns:
+
+        Number of executions stopped and success message'
+      operationId: postV2StopMultipleExecutions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopExecutionsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopExecutionResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Stop multiple executions
+  /api/admin/diagnostics/executions/stuck-queued:
+    get:
+      tags:
+      - Admin
+      summary: List Stuck Queued Executions
+      description: 'Get detailed list of stuck queued executions (QUEUED >1h, never started).
+
+
+        Args:
+
+        limit: Maximum number of executions to return (default 100)
+
+        offset: Number of executions to skip (default 0)
+
+
+        Returns:
+
+        List of stuck queued executions with details'
+      operationId: getV2ListStuckQueuedExecutions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunningExecutionsListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List stuck queued executions
+  /api/admin/diagnostics/schedules:
+    get:
+      tags:
+      - Admin
+      summary: Get Schedule Diagnostics
+      description: 'Get comprehensive diagnostic information about schedule health.
+
+
+        Returns schedule metrics including:
+
+        - Total schedules (user vs system)
+
+        - Orphaned schedules by category
+
+        - Upcoming executions'
+      operationId: getV2GetScheduleDiagnostics
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleHealthMetrics'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get schedule diagnostics
+  /api/admin/diagnostics/schedules/all:
+    get:
+      tags:
+      - Admin
+      summary: List All User Schedules
+      description: 'Get detailed list of all user schedules (excludes system monitoring jobs).
+
+
+        Args:
+
+        limit: Maximum number of schedules to return (default 100)
+
+        offset: Number of schedules to skip (default 0)
+
+
+        Returns:
+
+        List of schedules with details'
+      operationId: getV2ListAllUserSchedules
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulesListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List all user schedules
+  /api/admin/diagnostics/schedules/cleanup-orphaned:
+    post:
+      tags:
+      - Admin
+      summary: Cleanup Orphaned Schedules
+      description: 'Cleanup orphaned schedules by deleting from scheduler (admin only).
+
+
+        Args:
+
+        request: Contains list of schedule_ids to delete
+
+
+        Returns:
+
+        Number of schedules deleted and success message'
+      operationId: postV2CleanupOrphanedSchedules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleCleanupRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleCleanupResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Cleanup orphaned schedules
+  /api/admin/diagnostics/schedules/orphaned:
+    get:
+      tags:
+      - Admin
+      summary: List Orphaned Schedules
+      description: 'Get detailed list of orphaned schedules with orphan reasons.
+
+
+        Returns:
+
+        List of orphaned schedules categorized by orphan type'
+      operationId: getV2ListOrphanedSchedules
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrphanedSchedulesListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List orphaned schedules
+  /api/admin/memory/{user_id}/communities:
+    get:
+      tags:
+      - Admin
+      summary: List Communities
+      description: Communities in the user's account (AutoPilot) memory graph.
+      operationId: getV2ListCommunities
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 2000
+          minimum: 1
+          default: 500
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/communities/rebuild:
+    post:
+      tags:
+      - Admin
+      summary: Rebuild Communities
+      description: 'Fire a community rebuild and return 202 + job_id immediately.
+
+
+        Frontend polls
+
+        ``GET /api/admin/memory/{user_id}/communities/rebuild/{job_id}``
+
+        for progress.'
+      operationId: postV2RebuildCommunities
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: force
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Reserved — the fire-and-forget wrapper currently always honours the activity gate. Kept on the signature so the frontend hook doesn't need a contract change when the force flag is threaded through to the wrapper.
+          default: false
+          title: Force
+        description: Reserved — the fire-and-forget wrapper currently always honours the activity gate. Kept on the signature so the frontend hook doesn't need a contract change when the force flag is threaded through to the wrapper.
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobTriggerResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/communities/rebuild/{job_id}:
+    get:
+      tags:
+      - Admin
+      summary: Get Community Rebuild Status
+      description: Read the current status of a fire-and-forget community rebuild job.
+      operationId: getV2GetCommunityRebuildStatus
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Job id returned by the POST
+          title: Job Id
+        description: Job id returned by the POST
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityRebuildJobStatus'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/dream:
+    post:
+      tags:
+      - Admin
+      summary: Trigger Dream Pass
+      description: 'Fire a dream pass and return 202 + job_id immediately.
+
+
+        Frontend polls ``GET /api/admin/memory/{user_id}/dream/{job_id}``
+
+        for progress. Runs ONLY the dream pass submitter — for the full
+
+        nightly fan-out use ``POST /{user_id}/nightly``.'
+      operationId: postV2TriggerDreamPass
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobTriggerResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/dream/{job_id}:
+    get:
+      tags:
+      - Admin
+      summary: Get Dream Pass Status
+      description: Read the current status of a fire-and-forget dream pass job.
+      operationId: getV2GetDreamPassStatus
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Job id returned by the POST
+          title: Job Id
+        description: Job id returned by the POST
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DreamJobStatus'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/entities:
+    get:
+      tags:
+      - Admin
+      summary: List Entities
+      description: Entities in the user's account (AutoPilot) memory graph.
+      operationId: getV2ListEntities
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          default: 1000
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/experts/{expert_id}/communities:
+    get:
+      tags:
+      - Admin
+      summary: List Expert Communities
+      description: Communities in one expert's isolated memory graph.
+      operationId: getV2ListExpertCommunities
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Expert id owned by the user
+          title: Expert Id
+        description: Expert id owned by the user
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 2000
+          minimum: 1
+          default: 500
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/experts/{expert_id}/entities:
+    get:
+      tags:
+      - Admin
+      summary: List Expert Entities
+      description: Entities in one expert's isolated memory graph.
+      operationId: getV2ListExpertEntities
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Expert id owned by the user
+          title: Expert Id
+        description: Expert id owned by the user
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          default: 1000
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/experts/{expert_id}/facts:
+    get:
+      tags:
+      - Admin
+      summary: List Expert Facts
+      description: Facts (RELATES_TO edges) in one expert's isolated memory graph.
+      operationId: getV2ListExpertFacts
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Expert id owned by the user
+          title: Expert Id
+        description: Expert id owned by the user
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          default: 1000
+          title: Limit
+      - name: status
+        in: query
+        required: false
+        schema:
+          enum:
+          - active
+          - superseded
+          - contradicted
+          - any
+          type: string
+          default: any
+          title: Status
+      - name: scope
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scope
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FactListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/experts/{expert_id}/graph:
+    get:
+      tags:
+      - Admin
+      summary: Get Expert Graph
+      description: Visualizer graph payload for one expert's isolated memory graph.
+      operationId: getV2GetExpertGraph
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Expert id owned by the user
+          title: Expert Id
+        description: Expert id owned by the user
+      - name: node_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 20000
+          minimum: 1
+          default: 5000
+          title: Node Limit
+      - name: edge_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50000
+          minimum: 1
+          default: 10000
+          title: Edge Limit
+      - name: include_episodes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Episodes
+      - name: include_communities
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Include Communities
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/experts/{expert_id}/overview:
+    get:
+      tags:
+      - Admin
+      summary: Get Expert Memory Overview
+      description: Count summary of one expert's isolated memory graph.
+      operationId: getV2GetExpertMemoryOverview
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Expert id owned by the user
+          title: Expert Id
+        description: Expert id owned by the user
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryOverview'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/facts:
+    get:
+      tags:
+      - Admin
+      summary: List Facts
+      description: Facts (RELATES_TO edges) in the user's account (AutoPilot) memory graph.
+      operationId: getV2ListFacts
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          default: 1000
+          title: Limit
+      - name: status
+        in: query
+        required: false
+        schema:
+          enum:
+          - active
+          - superseded
+          - contradicted
+          - any
+          type: string
+          default: any
+          title: Status
+      - name: scope
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scope
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FactListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/graph:
+    get:
+      tags:
+      - Admin
+      summary: Get Graph
+      description: 'Single-shot graph payload for the visualizer canvas (account scope).
+
+
+        Returns nodes + edges in one round-trip so the frontend can hand
+
+        the whole thing to a force-directed layout without N+1 fetches.
+
+
+        Defaults to entities + communities (the "what does my memory know
+
+        about" view). ``include_episodes=True`` adds the temporal
+
+        :Episodic nodes — useful for debugging extraction but noisy for the
+
+        typical inspector view.'
+      operationId: getV2GetGraph
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: node_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 20000
+          minimum: 1
+          default: 5000
+          title: Node Limit
+      - name: edge_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50000
+          minimum: 1
+          default: 10000
+          title: Edge Limit
+      - name: include_episodes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Episodes
+      - name: include_communities
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Include Communities
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/nightly:
+    post:
+      tags:
+      - Admin
+      summary: Trigger Nightly Batch
+      description: 'Fire the full nightly batch fan-out and return 202 + job_id immediately.
+
+
+        Frontend polls ``GET /api/admin/memory/{user_id}/nightly/{job_id}``
+
+        for progress. Same composition as the 03:00 cron — every enabled
+
+        batch-family submitter runs in sequence sharing one ``nightly_id``
+
+        for cost-log attribution.'
+      operationId: postV2TriggerNightlyBatch
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobTriggerResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/nightly/{job_id}:
+    get:
+      tags:
+      - Admin
+      summary: Get Nightly Batch Status
+      description: Read the current status of a fire-and-forget nightly batch job.
+      operationId: getV2GetNightlyBatchStatus
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Job id returned by the POST
+          title: Job Id
+        description: Job id returned by the POST
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NightlyJobStatus'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/overview:
+    get:
+      tags:
+      - Admin
+      summary: Get Memory Overview
+      description: Count summary of the user's account (AutoPilot) memory graph.
+      operationId: getV2GetMemoryOverview
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryOverview'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/memory/{user_id}/ratification:
+    post:
+      tags:
+      - Admin
+      summary: Trigger Ratification Pass
+      description: 'Trigger an on-demand ratification sweep for the user (in isolation).
+
+
+        Forwards to ``Scheduler.execute_ratification_pass_now``. Runs ONLY
+
+        the ratification supersession sweep — does NOT run dream pass or
+
+        community rebuild. Useful for testing ratification behavior
+
+        without the full nightly fan-out.'
+      operationId: postV2TriggerRatificationPass
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: User id or 'me'
+          title: User Id
+        description: User id or 'me'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RatificationResult'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/admin/platform-costs/dashboard:
+    get:
+      tags:
+      - Admin
+      summary: Get Platform Cost Dashboard
+      operationId: getV2GetPlatformCostDashboard
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Start
+      - name: end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: End
+      - name: provider
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - name: model
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+      - name: block_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Block Name
+      - name: tracking_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tracking Type
+      - name: graph_exec_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Exec Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformCostDashboard'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get platform cost dashboard
+  /api/admin/platform-costs/logs:
+    get:
+      tags:
+      - Admin
+      summary: Get Platform Cost Logs
+      operationId: getV2GetPlatformCostLogs
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Start
+      - name: end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: End
+      - name: provider
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Page Size
+      - name: model
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+      - name: block_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Block Name
+      - name: tracking_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tracking Type
+      - name: graph_exec_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Exec Id
+      - name: execution_path
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter on metadata.execution_path (e.g. 'anthropic_batch', 'sync_baseline', 'flex'). Lets admins narrow rows to a single dispatch mode for cost-savings audits.
+          title: Execution Path
+        description: Filter on metadata.execution_path (e.g. 'anthropic_batch', 'sync_baseline', 'flex'). Lets admins narrow rows to a single dispatch mode for cost-savings audits.
+      - name: source
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter on metadata.source (e.g. 'dream_pass', 'copilot'). Distinguishes background/system spend from interactive.
+          title: Source
+        description: Filter on metadata.source (e.g. 'dream_pass', 'copilot'). Distinguishes background/system spend from interactive.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformCostLogsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get platform cost logs
+  /api/admin/platform-costs/logs/export:
+    get:
+      tags:
+      - Admin
+      summary: Export Platform Cost Logs
+      operationId: getV2ExportPlatformCostLogs
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Start
+      - name: end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: End
+      - name: provider
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - name: model
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+      - name: block_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Block Name
+      - name: tracking_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tracking Type
+      - name: graph_exec_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Exec Id
+      - name: execution_path
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Execution Path
+      - name: source
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformCostExportResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Export platform cost logs
+  /api/copilot/admin/rate_limit:
+    get:
+      tags:
+      - Admin
+      summary: Get User Rate Limit
+      description: 'Get a user''s current usage and effective rate limits. Admin-only.
+
+
+        Accepts either ``user_id`` or ``email`` as a query parameter.
+
+        When ``email`` is provided the user is looked up by email first.'
+      operationId: getV2GetUserRateLimit
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - name: email
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRateLimitResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get user rate limit
+  /api/copilot/admin/rate_limit/reset:
+    post:
+      tags:
+      - Admin
+      summary: Reset User Rate Limit Usage
+      description: Reset a user's daily usage counter (and optionally weekly). Admin-only.
+      operationId: postV2ResetUserRateLimitUsage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_postV2Reset_user_rate_limit_usage'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRateLimitResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Reset user rate limit usage
+  /api/copilot/admin/rate_limit/search_users:
+    get:
+      tags:
+      - Admin
+      summary: Search Users by Name or Email
+      description: 'Search users by partial email or name. Admin-only.
+
+
+        Queries the User table directly — returns results even for users
+
+        without credit transaction history.'
+      operationId: getV2SearchUsersByNameOrEmail
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: query
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Query
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSearchResult'
+                title: Response Getv2Search Users By Name Or Email
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Search users by name or email
+  /api/copilot/admin/rate_limit/tier:
+    get:
+      tags:
+      - Admin
+      summary: Get User Rate Limit Tier
+      description: 'Get a user''s current rate-limit tier. Admin-only.
+
+
+        Returns 404 if the user does not exist in the database.'
+      operationId: getV2GetUserRateLimitTier
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: user_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTierResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get user rate limit tier
+    post:
+      tags:
+      - Admin
+      summary: Set User Rate Limit Tier
+      description: 'Set a user''s rate-limit tier. Admin-only.
+
+
+        Returns 404 if the user does not exist in the database.'
+      operationId: postV2SetUserRateLimitTier
+      security:
+      - HTTPBearerJWT: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetUserTierRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTierResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Set user rate limit tier
+  /api/credits/admin/add_credits:
+    post:
+      tags:
+      - Admin
+      summary: Add Credits to User
+      operationId: postV2AddCreditsToUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_postV2Add_credits_to_user'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddUserCreditsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Add credits to user
+  /api/credits/admin/copilot-usage/export:
+    get:
+      tags:
+      - Admin
+      summary: Export Copilot Weekly Usage vs Rate Limit
+      description: 'Export per-(user, ISO week) copilot spend with the user''s tier limit.
+
+
+        Uses the same 90-day window cap and 100k row cap as the credit export.'
+      operationId: getV2ExportCopilotWeeklyUsageVsRateLimit
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: ISO timestamp (inclusive)
+          title: Start
+        description: ISO timestamp (inclusive)
+      - name: end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: ISO timestamp (inclusive)
+          title: End
+        description: ISO timestamp (inclusive)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotUsageExportResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Export copilot weekly usage vs rate limit
+  /api/credits/admin/transactions/export:
+    get:
+      tags:
+      - Admin
+      summary: Export Credit Transactions
+      description: 'Export CreditTransaction rows in [start, end].
+
+
+        Capped at CREDIT_EXPORT_MAX_DAYS days and CREDIT_EXPORT_MAX_ROWS rows;
+
+        over-cap requests fail fast with 400 so callers narrow the window
+
+        instead of receiving silently truncated data.'
+      operationId: getV2ExportCreditTransactions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: ISO timestamp (inclusive)
+          title: Start
+        description: ISO timestamp (inclusive)
+      - name: end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: ISO timestamp (inclusive)
+          title: End
+        description: ISO timestamp (inclusive)
+      - name: transaction_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/CreditTransactionType'
+          - type: 'null'
+          title: Transaction Type
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - name: include_inactive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include inactive rows (e.g. abandoned Stripe checkouts). Off by default so phantom rows aren't surfaced in normal exports.
+          default: false
+          title: Include Inactive
+        description: Include inactive rows (e.g. abandoned Stripe checkouts). Off by default so phantom rows aren't surfaced in normal exports.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditTransactionsExportResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Export credit transactions
+  /api/credits/admin/users_history:
+    get:
+      tags:
+      - Admin
+      summary: Get All Users History
+      operationId: getV2GetAllUsersHistory
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+          title: Page Size
+      - name: transaction_filter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/CreditTransactionType'
+          - type: 'null'
+          title: Transaction Filter
+      - name: include_inactive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Inactive
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserHistoryResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get all users history
+  /api/executions/admin/execution_accuracy_trends:
+    get:
+      tags:
+      - Admin
+      summary: Get Execution Accuracy Trends and Alerts
+      description: 'Get execution accuracy trends with moving averages and alert detection.
+
+        Simple single-query approach.'
+      operationId: getV2GetExecutionAccuracyTrendsAndAlerts
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - name: days_back
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 30
+          title: Days Back
+      - name: drop_threshold
+        in: query
+        required: false
+        schema:
+          type: number
+          default: 10.0
+          title: Drop Threshold
+      - name: include_historical
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Historical
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccuracyTrendsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get execution accuracy trends and alerts
+  /api/executions/admin/execution_analytics:
+    post:
+      tags:
+      - Admin
+      summary: Generate Execution Analytics
+      description: 'Generate activity summaries and correctness scores for graph executions.
+
+
+        This endpoint:
+
+        1. Fetches all terminal executions matching the criteria
+
+        2. Identifies executions missing a complete activity analysis
+
+        3. Generates missing data in batches, using deterministic results where available
+
+        4. Updates the database with new stats
+
+        5. Returns a detailed report of the analytics operation'
+      operationId: postV2GenerateExecutionAnalytics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutionAnalyticsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionAnalyticsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Generate execution analytics
+  /api/executions/admin/execution_analytics/config:
+    get:
+      tags:
+      - Admin
+      summary: Get Execution Analytics Configuration
+      description: 'Get the configuration for execution analytics including:
+
+        - Available AI models with metadata
+
+        - Default system and user prompts
+
+        - Recommended model selection'
+      operationId: getV2GetExecutionAnalyticsConfiguration
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionAnalyticsConfig'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get execution analytics configuration
+  /api/store/admin/listings:
+    get:
+      tags:
+      - Admin
+      summary: Get Admin Listings History
+      description: 'Get store listings with their version history for admins.
+
+
+        This provides a consolidated view of listings with their versions,
+
+        allowing for an expandable UI in the admin dashboard.
+
+
+        Args:
+
+        status: Filter by submission status (PENDING, APPROVED, REJECTED)
+
+        search: Search by name, description, or user email
+
+        page: Page number for pagination
+
+        page_size: Number of items per page
+
+
+        Returns:
+
+        Paginated listings with their versions'
+      operationId: getV2GetAdminListingsHistory
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SubmissionStatus'
+          - type: 'null'
+          title: Status
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreListingsWithVersionsAdminViewResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get admin listings history
+  /api/store/admin/submissions/download/{store_listing_version_id}:
+    get:
+      tags:
+      - Admin
+      summary: Admin Download Agent File
+      description: 'Download the agent file by streaming its content.
+
+
+        Args:
+
+        store_listing_version_id (str): The ID of the agent to download
+
+
+        Returns:
+
+        StreamingResponse: A streaming response containing the agent''s graph data.
+
+
+        Raises:
+
+        HTTPException: If the agent is not found or an unexpected error occurs.'
+      operationId: getV2AdminDownloadAgentFile
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The ID of the agent to download
+          title: Store Listing Version Id
+        description: The ID of the agent to download
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Admin download agent file
+  /api/store/admin/submissions/{store_listing_version_id}/add-to-library:
+    post:
+      tags:
+      - Admin
+      summary: Admin Add Pending Agent to Library
+      description: 'Add a pending marketplace agent to the admin''s library for review.
+
+        Uses admin-level access to bypass marketplace APPROVED-only checks.
+
+
+        The builder can load the graph because get_graph() checks library
+
+        membership as a fallback: "you added it, you keep it."'
+      operationId: postV2AdminAddPendingAgentToLibrary
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Store Listing Version Id
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgent'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Admin add pending agent to library
+  /api/store/admin/submissions/{store_listing_version_id}/preview:
+    get:
+      tags:
+      - Admin
+      summary: Admin Preview Submission Listing
+      description: 'Preview a marketplace submission as it would appear on the listing page.
+
+        Bypasses the APPROVED-only StoreAgent view so admins can preview pending
+
+        submissions before approving.'
+      operationId: getV2AdminPreviewSubmissionListing
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Store Listing Version Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreAgentDetails'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Admin preview submission listing
+  /api/store/admin/submissions/{store_listing_version_id}/review:
+    post:
+      tags:
+      - Admin
+      summary: Review Store Submission
+      description: 'Review a store listing submission.
+
+
+        Args:
+
+        store_listing_version_id: ID of the submission to review
+
+        request: Review details including approval status and comments
+
+        user_id: Authenticated admin user performing the review
+
+
+        Returns:
+
+        StoreSubmissionAdminView with updated review information'
+      operationId: postV2ReviewStoreSubmission
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Store Listing Version Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewSubmissionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreSubmissionAdminView'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Review store submission
+components:
+  schemas:
+    UserRateLimitResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        daily_cost_limit_microdollars:
+          type: integer
+          title: Daily Cost Limit Microdollars
+        weekly_cost_limit_microdollars:
+          type: integer
+          title: Weekly Cost Limit Microdollars
+        daily_cost_used_microdollars:
+          type: integer
+          title: Daily Cost Used Microdollars
+        weekly_cost_used_microdollars:
+          type: integer
+          title: Weekly Cost Used Microdollars
+        tier:
+          $ref: '#/components/schemas/SubscriptionTier'
+        tier_multipliers:
+          additionalProperties:
+            type: number
+          type: object
+          title: Tier Multipliers
+          default: {}
+      type: object
+      required:
+      - user_id
+      - daily_cost_limit_microdollars
+      - weekly_cost_limit_microdollars
+      - daily_cost_used_microdollars
+      - weekly_cost_used_microdollars
+      - tier
+      title: UserRateLimitResponse
+    SetUserTierRequest:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        tier:
+          $ref: '#/components/schemas/SubscriptionTier'
+      type: object
+      required:
+      - user_id
+      - tier
+      title: SetUserTierRequest
+    CreditTransactionType:
+      type: string
+      enum:
+      - TOP_UP
+      - USAGE
+      - GRANT
+      - REFUND
+      - CARD_CHECK
+      - SUBSCRIPTION
+      title: CreditTransactionType
+    PlatformCostLogsResponse:
+      properties:
+        logs:
+          items:
+            $ref: '#/components/schemas/CostLogRow'
+          type: array
+          title: Logs
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - logs
+      - pagination
+      title: PlatformCostLogsResponse
+    SchedulesListResponse:
+      properties:
+        schedules:
+          items:
+            $ref: '#/components/schemas/ScheduleDetail'
+          type: array
+          title: Schedules
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - schedules
+      - total
+      title: SchedulesListResponse
+      description: Response model for list of schedules
+    BlockCostEstimatesResponse:
+      properties:
+        estimates:
+          items:
+            $ref: '#/components/schemas/BlockCostEstimateRow'
+          type: array
+          title: Estimates
+        total_rows:
+          type: integer
+          title: Total Rows
+        window_days:
+          type: integer
+          title: Window Days
+        max_window_days:
+          type: integer
+          title: Max Window Days
+        min_samples:
+          type: integer
+          title: Min Samples
+        generated_at:
+          type: string
+          format: date-time
+          title: Generated At
+      type: object
+      required:
+      - estimates
+      - total_rows
+      - window_days
+      - max_window_days
+      - min_samples
+      - generated_at
+      title: BlockCostEstimatesResponse
+    SubmissionStatus:
+      type: string
+      enum:
+      - DRAFT
+      - PENDING
+      - APPROVED
+      - REJECTED
+      title: SubmissionStatus
+    ExecutionAnalyticsResult:
+      properties:
+        agent_id:
+          type: string
+          title: Agent Id
+        version_id:
+          type: integer
+          title: Version Id
+        user_id:
+          type: string
+          title: User Id
+        exec_id:
+          type: string
+          title: Exec Id
+        summary_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary Text
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Score
+        status:
+          type: string
+          title: Status
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+      type: object
+      required:
+      - agent_id
+      - version_id
+      - user_id
+      - exec_id
+      - summary_text
+      - score
+      - status
+      title: ExecutionAnalyticsResult
+    BotAnalyticsSummary:
+      properties:
+        platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform
+        window_days:
+          type: integer
+          title: Window Days
+        live_servers:
+          type: integer
+          title: Live Servers
+          description: Current count of servers the bot is in right now. Point-in-time gauge — intentionally ignores window_days. Use the server-count timeseries endpoint for the windowed growth curve.
+        messages_received:
+          type: integer
+          title: Messages Received
+        replies_sent:
+          type: integer
+          title: Replies Sent
+        commands_used:
+          type: integer
+          title: Commands Used
+        stream_errors:
+          type: integer
+          title: Stream Errors
+        avg_reply_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Reply Ms
+        error_rate:
+          type: number
+          title: Error Rate
+      type: object
+      required:
+      - platform
+      - window_days
+      - live_servers
+      - messages_received
+      - replies_sent
+      - commands_used
+      - stream_errors
+      - avg_reply_ms
+      - error_rate
+      title: BotAnalyticsSummary
+    DreamPassUsage:
+      properties:
+        phases:
+          items:
+            $ref: '#/components/schemas/PhaseUsage'
+          type: array
+          title: Phases
+        total_input_tokens:
+          type: integer
+          title: Total Input Tokens
+          default: 0
+        total_output_tokens:
+          type: integer
+          title: Total Output Tokens
+          default: 0
+        total_cache_read_tokens:
+          type: integer
+          title: Total Cache Read Tokens
+          default: 0
+        total_cache_creation_tokens:
+          type: integer
+          title: Total Cache Creation Tokens
+          default: 0
+        total_cost_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Total Cost Usd
+        discount_applied:
+          type: number
+          title: Discount Applied
+          default: 0.0
+      type: object
+      title: DreamPassUsage
+      description: 'Aggregate usage across all phases of one dream pass.
+
+
+        Surfaced on ``DreamPassResult.usage`` so eval / admin UI / billing
+
+        can read tokens + cost without recomputing. Written to
+
+        ``PlatformCostLog`` from apply.py with ``provider=''dream_pass''``;
+
+        charged against the user''s rate-limit window via
+
+        ``persist_and_record_usage`` so dream-pass spend rolls into the
+
+        same daily/weekly subscription tier budget as chat-execution
+
+        overage.'
+    NightlyBatchResult:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        nightly_id:
+          type: string
+          title: Nightly Id
+          description: UUID correlating every per-submitter cost-log row for this pass. The dream pass and ratification supersession sweep all share this id.
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        elapsed_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Elapsed Seconds
+        dream:
+          anyOf:
+          - $ref: '#/components/schemas/DreamPassResult'
+          - type: 'null'
+        ratification:
+          anyOf:
+          - $ref: '#/components/schemas/RatificationResult'
+          - type: 'null'
+        dream_in_flight:
+          type: boolean
+          title: Dream In Flight
+          default: false
+        skipped:
+          type: boolean
+          title: Skipped
+          default: false
+        skip_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skip Reason
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - user_id
+      - nightly_id
+      - started_at
+      title: NightlyBatchResult
+      description: 'Structured outcome of one nightly-batch-submit pass.
+
+
+        Surfaced via the scheduler wrapper + admin endpoint so we can
+
+        audit "what fired tonight for this user" without scraping logs.'
+    DreamOperationsSnapshot:
+      properties:
+        writes:
+          items:
+            $ref: '#/components/schemas/WriteSummary'
+          type: array
+          title: Writes
+        proposals:
+          items:
+            $ref: '#/components/schemas/WriteSummary'
+          type: array
+          title: Proposals
+        demotions:
+          items:
+            $ref: '#/components/schemas/DemotionSummary'
+          type: array
+          title: Demotions
+        entity_invalidations:
+          items:
+            $ref: '#/components/schemas/EntityInvalidationSummary'
+          type: array
+          title: Entity Invalidations
+      type: object
+      title: DreamOperationsSnapshot
+      description: "Detailed per-operation rollup of a single dream pass.\n\nShape used by three downstream consumers:\n  1. The admin memory-visualizer UI (renders the per-edge detail).\n  2. AgentProbe eval scorers (read via ``rawExchangeKey``).\n  3. The future chat-stream ``dream.operations`` SSE event (P6 + P9\n     daydreaming, see ``dream/TODO.md``).\n\nKept additive on ``DreamPassResult`` so adding fields here doesn't\nbump the count-only top-level columns existing clients rely on."
+    SubscriptionTier:
+      type: string
+      enum:
+      - NO_TIER
+      - BASIC
+      - PRO
+      - MAX
+      - BUSINESS
+      - ENTERPRISE
+      title: SubscriptionTier
+      description: "Subscription tiers with increasing cost allowances.\n\nMirrors the ``SubscriptionTier`` enum in ``schema.prisma``.\nOnce ``prisma generate`` is run, this can be replaced with::\n\n    from prisma.enums import SubscriptionTier"
+    NightlyJobStatus:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        user_id:
+          type: string
+          title: User Id
+        kind:
+          type: string
+          enum:
+          - nightly
+          - dream_pass
+          - rebuild
+          title: Kind
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - submitted
+          - complete
+          - errored
+          title: State
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        current_phase:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Phase
+          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
+        batch_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Batch Id
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/NightlyBatchResult'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - job_id
+      - user_id
+      - kind
+      - state
+      - started_at
+      - updated_at
+      title: NightlyJobStatus
+      description: JobStatus envelope for ``kind="nightly"``.
+    UserTransaction:
+      properties:
+        transaction_key:
+          type: string
+          title: Transaction Key
+          default: ''
+        transaction_time:
+          type: string
+          format: date-time
+          title: Transaction Time
+          default: '0001-01-01T00:00:00Z'
+        transaction_type:
+          $ref: '#/components/schemas/CreditTransactionType'
+          default: USAGE
+        amount:
+          type: integer
+          title: Amount
+          default: 0
+        running_balance:
+          type: integer
+          title: Running Balance
+          default: 0
+        current_balance:
+          type: integer
+          title: Current Balance
+          default: 0
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        usage_graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usage Graph Id
+        usage_execution_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usage Execution Id
+        usage_node_count:
+          type: integer
+          title: Usage Node Count
+          default: 0
+        usage_start_time:
+          type: string
+          format: date-time
+          title: Usage Start Time
+          default: '9999-12-31T23:59:59.999999Z'
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        admin_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Admin Email
+        extra_data:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Extra Data
+      type: object
+      required:
+      - user_id
+      title: UserTransaction
+    ScheduleHealthMetrics:
+      properties:
+        total_schedules:
+          type: integer
+          title: Total Schedules
+        user_schedules:
+          type: integer
+          title: User Schedules
+        system_schedules:
+          type: integer
+          title: System Schedules
+        orphaned_deleted_graph:
+          type: integer
+          title: Orphaned Deleted Graph
+        orphaned_no_library_access:
+          type: integer
+          title: Orphaned No Library Access
+        orphaned_invalid_credentials:
+          type: integer
+          title: Orphaned Invalid Credentials
+        orphaned_validation_failed:
+          type: integer
+          title: Orphaned Validation Failed
+        total_orphaned:
+          type: integer
+          title: Total Orphaned
+        schedules_next_hour:
+          type: integer
+          title: Schedules Next Hour
+        schedules_next_24h:
+          type: integer
+          title: Schedules Next 24H
+        total_runs_next_hour:
+          type: integer
+          title: Total Runs Next Hour
+        total_runs_next_24h:
+          type: integer
+          title: Total Runs Next 24H
+        timestamp:
+          type: string
+          title: Timestamp
+      type: object
+      required:
+      - total_schedules
+      - user_schedules
+      - system_schedules
+      - orphaned_deleted_graph
+      - orphaned_no_library_access
+      - orphaned_invalid_credentials
+      - orphaned_validation_failed
+      - total_orphaned
+      - schedules_next_hour
+      - schedules_next_24h
+      - total_runs_next_hour
+      - total_runs_next_24h
+      - timestamp
+      title: ScheduleHealthMetrics
+      description: Summary of schedule health diagnostics
+    MarketplaceListing:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        slug:
+          type: string
+          title: Slug
+        creator:
+          $ref: '#/components/schemas/MarketplaceListingCreator'
+      type: object
+      required:
+      - id
+      - name
+      - slug
+      - creator
+      title: MarketplaceListing
+      description: Marketplace listing information for a library agent.
+    CommunityListResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        items:
+          items:
+            $ref: '#/components/schemas/CommunitySummary'
+          type: array
+          title: Items
+      type: object
+      required:
+      - user_id
+      - items
+      title: CommunityListResponse
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    ExecutionDiagnosticsResponse:
+      properties:
+        running_executions:
+          type: integer
+          title: Running Executions
+        queued_executions_db:
+          type: integer
+          title: Queued Executions Db
+        queued_executions_rabbitmq:
+          type: integer
+          title: Queued Executions Rabbitmq
+        cancel_queue_depth:
+          type: integer
+          title: Cancel Queue Depth
+        orphaned_running:
+          type: integer
+          title: Orphaned Running
+        orphaned_queued:
+          type: integer
+          title: Orphaned Queued
+        failed_count_1h:
+          type: integer
+          title: Failed Count 1H
+        failed_count_24h:
+          type: integer
+          title: Failed Count 24H
+        failure_rate_24h:
+          type: number
+          title: Failure Rate 24H
+        stuck_running_24h:
+          type: integer
+          title: Stuck Running 24H
+        stuck_running_1h:
+          type: integer
+          title: Stuck Running 1H
+        oldest_running_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Oldest Running Hours
+        stuck_queued_1h:
+          type: integer
+          title: Stuck Queued 1H
+        queued_never_started:
+          type: integer
+          title: Queued Never Started
+        invalid_queued_with_start:
+          type: integer
+          title: Invalid Queued With Start
+        invalid_running_without_start:
+          type: integer
+          title: Invalid Running Without Start
+        completed_1h:
+          type: integer
+          title: Completed 1H
+        completed_24h:
+          type: integer
+          title: Completed 24H
+        throughput_per_hour:
+          type: number
+          title: Throughput Per Hour
+        timestamp:
+          type: string
+          title: Timestamp
+      type: object
+      required:
+      - running_executions
+      - queued_executions_db
+      - queued_executions_rabbitmq
+      - cancel_queue_depth
+      - orphaned_running
+      - orphaned_queued
+      - failed_count_1h
+      - failed_count_24h
+      - failure_rate_24h
+      - stuck_running_24h
+      - stuck_running_1h
+      - oldest_running_hours
+      - stuck_queued_1h
+      - queued_never_started
+      - invalid_queued_with_start
+      - invalid_running_without_start
+      - completed_1h
+      - completed_24h
+      - throughput_per_hour
+      - timestamp
+      title: ExecutionDiagnosticsResponse
+      description: Response model for execution diagnostics
+    ScheduleDetail:
+      properties:
+        schedule_id:
+          type: string
+          title: Schedule Id
+        schedule_name:
+          type: string
+          title: Schedule Name
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_name:
+          type: string
+          title: Graph Name
+        graph_version:
+          type: integer
+          title: Graph Version
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        cron:
+          type: string
+          title: Cron
+        timezone:
+          type: string
+          title: Timezone
+        next_run_time:
+          type: string
+          title: Next Run Time
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - schedule_id
+      - schedule_name
+      - graph_id
+      - graph_name
+      - graph_version
+      - user_id
+      - user_email
+      - cron
+      - timezone
+      - next_run_time
+      title: ScheduleDetail
+      description: Details about a schedule for admin view
+    LibraryAgentStatus:
+      type: string
+      enum:
+      - COMPLETED
+      - HEALTHY
+      - WAITING
+      - ERROR
+      title: LibraryAgentStatus
+    BlockCostEstimateRow:
+      properties:
+        block_id:
+          type: string
+          title: Block Id
+        block_name:
+          type: string
+          title: Block Name
+        cost_type:
+          type: string
+          title: Cost Type
+        samples:
+          type: integer
+          title: Samples
+        mean_credits:
+          type: integer
+          title: Mean Credits
+        p50_credits:
+          type: integer
+          title: P50 Credits
+        p95_credits:
+          type: integer
+          title: P95 Credits
+      type: object
+      required:
+      - block_id
+      - block_name
+      - cost_type
+      - samples
+      - mean_credits
+      - p50_credits
+      - p95_credits
+      title: BlockCostEstimateRow
+    BotCommandUsage:
+      properties:
+        platform:
+          type: string
+          title: Platform
+        command:
+          type: string
+          title: Command
+        uses:
+          type: integer
+          title: Uses
+      type: object
+      required:
+      - platform
+      - command
+      - uses
+      title: BotCommandUsage
+    ModelInfo:
+      properties:
+        value:
+          type: string
+          title: Value
+        label:
+          type: string
+          title: Label
+        provider:
+          type: string
+          title: Provider
+      type: object
+      required:
+      - value
+      - label
+      - provider
+      title: ModelInfo
+    UserHistoryResponse:
+      properties:
+        history:
+          items:
+            $ref: '#/components/schemas/UserTransaction'
+          type: array
+          title: History
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - history
+      - pagination
+      title: UserHistoryResponse
+      description: Response model for listings with version history
+    RunningExecutionsListResponse:
+      properties:
+        executions:
+          items:
+            $ref: '#/components/schemas/RunningExecutionDetail'
+          type: array
+          title: Executions
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - executions
+      - total
+      title: RunningExecutionsListResponse
+      description: Response model for list of running executions
+    CommunityRebuildJobStatus:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        user_id:
+          type: string
+          title: User Id
+        kind:
+          type: string
+          enum:
+          - nightly
+          - dream_pass
+          - rebuild
+          title: Kind
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - submitted
+          - complete
+          - errored
+          title: State
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        current_phase:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Phase
+          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
+        batch_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Batch Id
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/RebuildResult'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - job_id
+      - user_id
+      - kind
+      - state
+      - started_at
+      - updated_at
+      title: CommunityRebuildJobStatus
+      description: JobStatus envelope for ``kind="rebuild"``.
+    Body_postV2Reset_user_rate_limit_usage:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        reset_weekly:
+          type: boolean
+          title: Reset Weekly
+          default: false
+      type: object
+      required:
+      - user_id
+      title: Body_postV2Reset user rate limit usage
+    Body_postV2Add_credits_to_user:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        amount:
+          type: integer
+          title: Amount
+        comments:
+          type: string
+          title: Comments
+      type: object
+      required:
+      - user_id
+      - amount
+      - comments
+      title: Body_postV2Add credits to user
+    AgentDiagnosticsResponse:
+      properties:
+        agents_with_active_executions:
+          type: integer
+          title: Agents With Active Executions
+        timestamp:
+          type: string
+          title: Timestamp
+      type: object
+      required:
+      - agents_with_active_executions
+      - timestamp
+      title: AgentDiagnosticsResponse
+      description: Response model for agent diagnostics
+    CostLogRow:
+      properties:
+        id:
+          type: string
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        graph_exec_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Exec Id
+        node_exec_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Node Exec Id
+        block_name:
+          type: string
+          title: Block Name
+        provider:
+          type: string
+          title: Provider
+        tracking_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tracking Type
+        cost_microdollars:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Cost Microdollars
+        input_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Input Tokens
+        output_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Output Tokens
+        duration:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        cache_read_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Cache Read Tokens
+        cache_creation_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Cache Creation Tokens
+        execution_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Execution Path
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+      type: object
+      required:
+      - id
+      - created_at
+      - block_name
+      - provider
+      title: CostLogRow
+    BotServerActivity:
+      properties:
+        platform:
+          type: string
+          title: Platform
+        server_id:
+          type: string
+          title: Server Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        messages:
+          type: integer
+          title: Messages
+        commands:
+          type: integer
+          title: Commands
+      type: object
+      required:
+      - platform
+      - server_id
+      - name
+      - messages
+      - commands
+      title: BotServerActivity
+    BotGuildInfo:
+      properties:
+        platform:
+          type: string
+          title: Platform
+        server_id:
+          type: string
+          title: Server Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        joined_at:
+          type: string
+          format: date-time
+          title: Joined At
+        left_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Left At
+        active:
+          type: boolean
+          title: Active
+      type: object
+      required:
+      - platform
+      - server_id
+      - name
+      - joined_at
+      - left_at
+      - active
+      title: BotGuildInfo
+    ExecutionAnalyticsRequest:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+          description: Graph ID to analyze
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+          description: Optional graph version
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+          description: Optional user ID filter
+        created_after:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created After
+          description: Optional created date lower bound
+        model_name:
+          type: string
+          title: Model Name
+          description: Model to use for generation
+          default: gpt-4o-mini
+        batch_size:
+          type: integer
+          maximum: 25.0
+          minimum: 1.0
+          title: Batch Size
+          description: Batch size for concurrent processing
+          default: 10
+        system_prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: System Prompt
+          description: 'Custom system prompt (default: built-in prompt)'
+        user_prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Prompt
+          description: 'Custom user prompt with {{GRAPH_NAME}} and {{EXECUTION_DATA}} placeholders (default: built-in prompt)'
+        skip_existing:
+          type: boolean
+          title: Skip Existing
+          description: Whether to skip executions that already have activity status and correctness score
+          default: true
+      type: object
+      required:
+      - graph_id
+      title: ExecutionAnalyticsRequest
+    WriteSummary:
+      properties:
+        edge_uuid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Edge Uuid
+        content:
+          type: string
+          title: Content
+        scope:
+          type: string
+          title: Scope
+          default: real:global
+        confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Confidence
+        status:
+          type: string
+          enum:
+          - active
+          - tentative
+          title: Status
+          default: active
+        source_episode_uuids:
+          items:
+            type: string
+          type: array
+          title: Source Episode Uuids
+        source_fact_uuids:
+          items:
+            type: string
+          type: array
+          title: Source Fact Uuids
+      type: object
+      required:
+      - content
+      title: WriteSummary
+      description: 'One line per envelope written by apply.py.
+
+
+        Carries the durable Graphiti edge uuid so the eval / admin UI / the
+
+        future inline chat-stream `dream.operations` event (P9 daydreaming)
+
+        can render or audit individual operations. ``edge_uuid`` is None
+
+        when the underlying ``enqueue_episode`` call did not return one
+
+        (FalkorDB unreachable, etc.) — we still record the attempted write.'
+    RequeueExecutionResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        requeued_count:
+          type: integer
+          title: Requeued Count
+          default: 0
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: RequeueExecutionResponse
+      description: Response model for requeue execution operations
+    StopExecutionResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        stopped_count:
+          type: integer
+          title: Stopped Count
+          default: 0
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: StopExecutionResponse
+      description: Response model for stop execution operations
+    DemotionSummary:
+      properties:
+        edge_uuid:
+          type: string
+          title: Edge Uuid
+        reason:
+          type: string
+          title: Reason
+        new_status:
+          type: string
+          enum:
+          - superseded
+          - contradicted
+          title: New Status
+        applied:
+          type: boolean
+          title: Applied
+          default: true
+      type: object
+      required:
+      - edge_uuid
+      - reason
+      - new_status
+      title: DemotionSummary
+      description: One line per demoted RELATES_TO edge.
+    AccuracyAlertData:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+        drop_percent:
+          type: number
+          title: Drop Percent
+        three_day_avg:
+          type: number
+          title: Three Day Avg
+        seven_day_avg:
+          type: number
+          title: Seven Day Avg
+        detected_at:
+          type: string
+          format: date-time
+          title: Detected At
+      type: object
+      required:
+      - graph_id
+      - user_id
+      - drop_percent
+      - three_day_avg
+      - seven_day_avg
+      - detected_at
+      title: AccuracyAlertData
+      description: Alert data when accuracy drops significantly.
+    FactListResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        items:
+          items:
+            $ref: '#/components/schemas/FactSummary'
+          type: array
+          title: Items
+      type: object
+      required:
+      - user_id
+      - items
+      title: FactListResponse
+    OrphanedSchedulesListResponse:
+      properties:
+        schedules:
+          items:
+            $ref: '#/components/schemas/OrphanedScheduleDetail'
+          type: array
+          title: Schedules
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - schedules
+      - total
+      title: OrphanedSchedulesListResponse
+      description: Response model for list of orphaned schedules
+    CreditTransactionsExportResponse:
+      properties:
+        transactions:
+          items:
+            $ref: '#/components/schemas/UserTransaction'
+          type: array
+          title: Transactions
+        total_rows:
+          type: integer
+          title: Total Rows
+        window_days:
+          type: integer
+          title: Window Days
+        max_window_days:
+          type: integer
+          title: Max Window Days
+      type: object
+      required:
+      - transactions
+      - total_rows
+      - window_days
+      - max_window_days
+      title: CreditTransactionsExportResponse
+    StopExecutionRequest:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+      type: object
+      required:
+      - execution_id
+      title: StopExecutionRequest
+      description: Request model for stopping a single execution
+    RunningExecutionDetail:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_name:
+          type: string
+          title: Graph Name
+        graph_version:
+          type: integer
+          title: Graph Version
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        status:
+          type: string
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        queue_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Queue Status
+      type: object
+      required:
+      - execution_id
+      - graph_id
+      - graph_name
+      - graph_version
+      - user_id
+      - user_email
+      - status
+      - created_at
+      - started_at
+      title: RunningExecutionDetail
+      description: Details about a running execution for admin view
+    AccuracyTrendsResponse:
+      properties:
+        latest_data:
+          $ref: '#/components/schemas/AccuracyLatestData'
+        alert:
+          anyOf:
+          - $ref: '#/components/schemas/AccuracyAlertData'
+          - type: 'null'
+        historical_data:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AccuracyLatestData'
+            type: array
+          - type: 'null'
+          title: Historical Data
+      type: object
+      required:
+      - latest_data
+      - alert
+      title: AccuracyTrendsResponse
+      description: Response model for accuracy trends and alerts.
+    ReviewSubmissionRequest:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        is_approved:
+          type: boolean
+          title: Is Approved
+        comments:
+          type: string
+          title: Comments
+        internal_comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Internal Comments
+      type: object
+      required:
+      - store_listing_version_id
+      - is_approved
+      - comments
+      title: ReviewSubmissionRequest
+    GraphNode:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        label:
+          type: string
+          title: Label
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary
+      type: object
+      required:
+      - uuid
+      - label
+      title: GraphNode
+      description: 'A node in the visualizer graph payload.
+
+
+        ``label`` is the primary FalkorDB label (Entity / Episodic /
+
+        Community); ``type`` (if present) is the more-specific custom
+
+        entity type from ``MemoryFact``-typed extraction (Person /
+
+        Organization / Project / Concept / Preference / Rule). The frontend
+
+        uses ``type`` for color-coding when present, falls back to ``label``.'
+    EntityInvalidationSummary:
+      properties:
+        entity_uuid:
+          type: string
+          title: Entity Uuid
+        reason:
+          type: string
+          title: Reason
+        edges_touched:
+          items:
+            type: string
+          type: array
+          title: Edges Touched
+      type: object
+      required:
+      - entity_uuid
+      - reason
+      title: EntityInvalidationSummary
+      description: Per-entity invalidation rollup.
+    BotServerCountPoint:
+      properties:
+        date:
+          type: string
+          format: date-time
+          title: Date
+        server_count:
+          type: integer
+          title: Server Count
+      type: object
+      required:
+      - date
+      - server_count
+      title: BotServerCountPoint
+    Platform:
+      type: string
+      enum:
+      - DISCORD
+      - TELEGRAM
+      - SLACK
+      - TEAMS
+      - WHATSAPP
+      - GITHUB
+      - LINEAR
+      title: Platform
+      description: Mirror of the Prisma PlatformType enum.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    FailedExecutionsListResponse:
+      properties:
+        executions:
+          items:
+            $ref: '#/components/schemas/FailedExecutionDetail'
+          type: array
+          title: Executions
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - executions
+      - total
+      title: FailedExecutionsListResponse
+      description: Response model for list of failed executions
+    CopilotWeeklyUsageRow:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        week_start:
+          type: string
+          format: date-time
+          title: Week Start
+        week_end:
+          type: string
+          format: date-time
+          title: Week End
+        copilot_cost_microdollars:
+          type: integer
+          title: Copilot Cost Microdollars
+        tier:
+          type: string
+          title: Tier
+        weekly_limit_microdollars:
+          type: integer
+          title: Weekly Limit Microdollars
+        percent_used:
+          type: number
+          title: Percent Used
+      type: object
+      required:
+      - user_id
+      - week_start
+      - week_end
+      - copilot_cost_microdollars
+      - tier
+      - weekly_limit_microdollars
+      - percent_used
+      title: CopilotWeeklyUsageRow
+    GraphEdge:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        label:
+          type: string
+          title: Label
+        source:
+          type: string
+          title: Source
+        target:
+          type: string
+          title: Target
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        fact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fact
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        scope:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scope
+      type: object
+      required:
+      - uuid
+      - label
+      - source
+      - target
+      title: GraphEdge
+      description: An edge in the visualizer graph payload.
+    LibraryAgent:
+      properties:
+        id:
+          type: string
+          title: Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        image_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Url
+        creator_name:
+          type: string
+          title: Creator Name
+        creator_image_url:
+          type: string
+          title: Creator Image Url
+        status:
+          $ref: '#/components/schemas/LibraryAgentStatus'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+        credentials_input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Credentials Input Schema
+          description: Input schema for credentials required by the agent
+        has_external_trigger:
+          type: boolean
+          title: Has External Trigger
+          description: Whether the agent has an external trigger (e.g. webhook) node
+        has_human_in_the_loop:
+          type: boolean
+          title: Has Human In The Loop
+          description: Whether the agent has human-in-the-loop blocks
+        has_sensitive_action:
+          type: boolean
+          title: Has Sensitive Action
+          description: Whether the agent has sensitive action blocks
+        trigger_setup_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+        new_output:
+          type: boolean
+          title: New Output
+        execution_count:
+          type: integer
+          title: Execution Count
+          default: 0
+        success_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Success Rate
+        avg_correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Correctness Score
+        recent_executions:
+          items:
+            $ref: '#/components/schemas/RecentExecution'
+          type: array
+          title: Recent Executions
+          description: List of recent executions with status, score, and summary
+        can_access_graph:
+          type: boolean
+          title: Can Access Graph
+          description: Indicates whether the same user owns the corresponding graph
+        is_latest_version:
+          type: boolean
+          title: Is Latest Version
+        is_favorite:
+          type: boolean
+          title: Is Favorite
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+        folder_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Name
+        is_hidden:
+          type: boolean
+          title: Is Hidden
+          default: false
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        is_scheduled:
+          type: boolean
+          title: Is Scheduled
+          description: Whether this agent has active execution schedules
+          default: false
+        next_scheduled_run:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Scheduled Run
+          description: ISO 8601 timestamp of the next scheduled run, if any
+        settings:
+          $ref: '#/components/schemas/GraphSettings'
+        marketplace_listing:
+          anyOf:
+          - $ref: '#/components/schemas/MarketplaceListing'
+          - type: 'null'
+        store_listing_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Store Listing Version Id
+          description: ID of the approved marketplace listing version whose graph snapshot exactly matches this agent's graph_id and graph_version. Install flows can use it directly to install this exact version.
+      type: object
+      required:
+      - id
+      - graph_id
+      - graph_version
+      - image_url
+      - creator_name
+      - creator_image_url
+      - status
+      - created_at
+      - updated_at
+      - name
+      - description
+      - input_schema
+      - output_schema
+      - credentials_input_schema
+      - has_external_trigger
+      - has_human_in_the_loop
+      - has_sensitive_action
+      - new_output
+      - can_access_graph
+      - is_latest_version
+      - is_favorite
+      title: LibraryAgent
+      description: 'Represents an agent in the library, including metadata for display and
+
+        user interaction within the system.'
+    MemoryOverview:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        group_id:
+          type: string
+          title: Group Id
+        entities:
+          type: integer
+          title: Entities
+        episodes:
+          type: integer
+          title: Episodes
+        relates_to_edges:
+          type: integer
+          title: Relates To Edges
+        mentions_edges:
+          type: integer
+          title: Mentions Edges
+        communities:
+          type: integer
+          title: Communities
+      type: object
+      required:
+      - user_id
+      - group_id
+      - entities
+      - episodes
+      - relates_to_edges
+      - mentions_edges
+      - communities
+      title: MemoryOverview
+      description: Counts surfaced in the visualizer's header strip.
+    StoreListingsWithVersionsAdminViewResponse:
+      properties:
+        listings:
+          items:
+            $ref: '#/components/schemas/StoreListingWithVersionsAdminView'
+          type: array
+          title: Listings
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - listings
+      - pagination
+      title: StoreListingsWithVersionsAdminViewResponse
+      description: Response model for listings with version history
+    ExecutionAnalyticsConfig:
+      properties:
+        available_models:
+          items:
+            $ref: '#/components/schemas/ModelInfo'
+          type: array
+          title: Available Models
+        default_system_prompt:
+          type: string
+          title: Default System Prompt
+        default_user_prompt:
+          type: string
+          title: Default User Prompt
+        recommended_model:
+          type: string
+          title: Recommended Model
+      type: object
+      required:
+      - available_models
+      - default_system_prompt
+      - default_user_prompt
+      - recommended_model
+      title: ExecutionAnalyticsConfig
+    RatificationResult:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        examined_count:
+          type: integer
+          title: Examined Count
+          default: 0
+        ratified_count:
+          type: integer
+          title: Ratified Count
+          default: 0
+        superseded_count:
+          type: integer
+          title: Superseded Count
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        skipped:
+          type: boolean
+          title: Skipped
+          default: false
+        skip_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skip Reason
+        per_edge_errors:
+          items:
+            type: string
+          type: array
+          title: Per Edge Errors
+      type: object
+      required:
+      - user_id
+      - started_at
+      title: RatificationResult
+      description: 'Structured outcome of a single ratification pass.
+
+
+        Surfaced via the scheduler wrapper so admin / future metrics can
+
+        read promotion vs. supersession counts without re-scanning Graphiti.'
+    ScheduleCleanupRequest:
+      properties:
+        schedule_ids:
+          items:
+            type: string
+          type: array
+          title: Schedule Ids
+      type: object
+      required:
+      - schedule_ids
+      title: ScheduleCleanupRequest
+      description: Request model for cleaning up schedules
+    MarketplaceListingCreator:
+      properties:
+        name:
+          type: string
+          title: Name
+        id:
+          type: string
+          title: Id
+        slug:
+          type: string
+          title: Slug
+      type: object
+      required:
+      - name
+      - id
+      - slug
+      title: MarketplaceListingCreator
+      description: Creator information for a marketplace listing.
+    UserCostSummary:
+      properties:
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        total_cost_microdollars:
+          type: integer
+          title: Total Cost Microdollars
+        total_input_tokens:
+          type: integer
+          title: Total Input Tokens
+        total_output_tokens:
+          type: integer
+          title: Total Output Tokens
+        total_cache_read_tokens:
+          type: integer
+          title: Total Cache Read Tokens
+          default: 0
+        total_cache_creation_tokens:
+          type: integer
+          title: Total Cache Creation Tokens
+          default: 0
+        request_count:
+          type: integer
+          title: Request Count
+        cost_bearing_request_count:
+          type: integer
+          title: Cost Bearing Request Count
+          default: 0
+      type: object
+      required:
+      - total_cost_microdollars
+      - total_input_tokens
+      - total_output_tokens
+      - request_count
+      title: UserCostSummary
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DreamJobStatus:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        user_id:
+          type: string
+          title: User Id
+        kind:
+          type: string
+          enum:
+          - nightly
+          - dream_pass
+          - rebuild
+          title: Kind
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - submitted
+          - complete
+          - errored
+          title: State
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        current_phase:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Phase
+          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
+        batch_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Batch Id
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/DreamPassResult'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - job_id
+      - user_id
+      - kind
+      - state
+      - started_at
+      - updated_at
+      title: DreamJobStatus
+      description: JobStatus envelope for ``kind="dream_pass"``.
+    CostBucket:
+      properties:
+        bucket:
+          type: string
+          title: Bucket
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+      - bucket
+      - count
+      title: CostBucket
+    CommunitySummary:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary
+        member_count:
+          type: integer
+          title: Member Count
+          default: 0
+      type: object
+      required:
+      - uuid
+      title: CommunitySummary
+    UserSearchResult:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+      type: object
+      required:
+      - user_id
+      title: UserSearchResult
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    GraphSettings:
+      properties:
+        human_in_the_loop_safe_mode:
+          type: boolean
+          title: Human In The Loop Safe Mode
+          default: true
+        sensitive_action_safe_mode:
+          type: boolean
+          title: Sensitive Action Safe Mode
+          default: false
+        builder_chat_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Builder Chat Session Id
+      type: object
+      title: GraphSettings
+    StoreSubmissionAdminView:
+      properties:
+        listing_id:
+          type: string
+          title: Listing Id
+        user_id:
+          type: string
+          title: User Id
+        slug:
+          type: string
+          title: Slug
+        listing_version_id:
+          type: string
+          title: Listing Version Id
+        listing_version:
+          type: integer
+          title: Listing Version
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        name:
+          type: string
+          title: Name
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        image_urls:
+          items:
+            type: string
+          type: array
+          title: Image Urls
+        video_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Url
+        agent_output_demo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Output Demo Url
+        submitted_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Submitted At
+        changes_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Changes Summary
+        status:
+          $ref: '#/components/schemas/SubmissionStatus'
+        reviewed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reviewed At
+        reviewer_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reviewer Id
+        review_comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Review Comments
+        run_count:
+          type: integer
+          title: Run Count
+          default: 0
+        review_count:
+          type: integer
+          title: Review Count
+          default: 0
+        review_avg_rating:
+          type: number
+          title: Review Avg Rating
+          default: 0.0
+        internal_comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Internal Comments
+      type: object
+      required:
+      - listing_id
+      - user_id
+      - slug
+      - listing_version_id
+      - listing_version
+      - graph_id
+      - graph_version
+      - name
+      - sub_heading
+      - description
+      - instructions
+      - categories
+      - image_urls
+      - video_url
+      - agent_output_demo_url
+      - submitted_at
+      - changes_summary
+      - status
+      - internal_comments
+      title: StoreSubmissionAdminView
+    DreamPassResult:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        pass_id:
+          type: string
+          title: Pass Id
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        elapsed_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Elapsed Seconds
+        execution_path:
+          type: string
+          enum:
+          - sync_baseline
+          - anthropic_batch
+          - openai_batch
+          title: Execution Path
+          default: sync_baseline
+        consolidated_count:
+          type: integer
+          title: Consolidated Count
+          default: 0
+        proposal_count:
+          type: integer
+          title: Proposal Count
+          default: 0
+        demotion_count:
+          type: integer
+          title: Demotion Count
+          default: 0
+        entity_invalidation_count:
+          type: integer
+          title: Entity Invalidation Count
+          default: 0
+        summary_for_user:
+          type: string
+          title: Summary For User
+          default: ''
+        dream_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dream Session Id
+        ingestion_drain_status:
+          $ref: '#/components/schemas/IngestionDrainStatus'
+          default: drained
+        operations:
+          anyOf:
+          - $ref: '#/components/schemas/DreamOperationsSnapshot'
+          - type: 'null'
+        usage:
+          anyOf:
+          - $ref: '#/components/schemas/DreamPassUsage'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        skipped:
+          type: boolean
+          title: Skipped
+          default: false
+        skip_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skip Reason
+      type: object
+      required:
+      - user_id
+      - pass_id
+      title: DreamPassResult
+      description: 'Return value of ``execute_dream_pass`` and the admin API.
+
+
+        Mirrors ``RebuildResponse`` from the community-rebuild endpoint so
+
+        the admin frontend can render both with the same toast logic.'
+    OrphanedScheduleDetail:
+      properties:
+        schedule_id:
+          type: string
+          title: Schedule Id
+        schedule_name:
+          type: string
+          title: Schedule Name
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        user_id:
+          type: string
+          title: User Id
+        orphan_reason:
+          type: string
+          title: Orphan Reason
+        error_detail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Detail
+        next_run_time:
+          type: string
+          title: Next Run Time
+      type: object
+      required:
+      - schedule_id
+      - schedule_name
+      - graph_id
+      - graph_version
+      - user_id
+      - orphan_reason
+      - error_detail
+      - next_run_time
+      title: OrphanedScheduleDetail
+      description: Details about an orphaned schedule
+    RebuildResult:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Started At
+        communities_built:
+          title: Communities Built
+        elapsed_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Elapsed Seconds
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        skipped:
+          type: boolean
+          title: Skipped
+          default: false
+        skip_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skip Reason
+        activity:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Activity
+        forced:
+          type: boolean
+          title: Forced
+          default: false
+        execution_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Execution Path
+      type: object
+      required:
+      - user_id
+      title: RebuildResult
+      description: 'Typed envelope around ``rebuild_communities_for_user``''s return dict.
+
+
+        Lives here (admin routes) rather than in ``copilot/graphiti/communities.py``
+
+        because the dict-returning rebuild function predates the admin-API
+
+        typing pass. Hoisting it to ``communities.py`` (and changing the
+
+        function signature) is a follow-up cleanup.'
+    GraphResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        group_id:
+          type: string
+          title: Group Id
+        nodes:
+          items:
+            $ref: '#/components/schemas/GraphNode'
+          type: array
+          title: Nodes
+        edges:
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+          type: array
+          title: Edges
+        truncated:
+          type: boolean
+          title: Truncated
+          description: True when the result was capped by ``node_limit`` / ``edge_limit``. Frontend should surface this so the user knows they're not seeing the full graph.
+          default: false
+      type: object
+      required:
+      - user_id
+      - group_id
+      - nodes
+      - edges
+      title: GraphResponse
+    AddUserCreditsResponse:
+      properties:
+        new_balance:
+          type: integer
+          title: New Balance
+        transaction_key:
+          type: string
+          title: Transaction Key
+      type: object
+      required:
+      - new_balance
+      - transaction_key
+      title: AddUserCreditsResponse
+    ProviderCostSummary:
+      properties:
+        provider:
+          type: string
+          title: Provider
+        tracking_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tracking Type
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        total_cost_microdollars:
+          type: integer
+          title: Total Cost Microdollars
+        total_input_tokens:
+          type: integer
+          title: Total Input Tokens
+        total_output_tokens:
+          type: integer
+          title: Total Output Tokens
+        total_cache_read_tokens:
+          type: integer
+          title: Total Cache Read Tokens
+          default: 0
+        total_cache_creation_tokens:
+          type: integer
+          title: Total Cache Creation Tokens
+          default: 0
+        total_duration_seconds:
+          type: number
+          title: Total Duration Seconds
+          default: 0.0
+        total_tracking_amount:
+          type: number
+          title: Total Tracking Amount
+          default: 0.0
+        request_count:
+          type: integer
+          title: Request Count
+      type: object
+      required:
+      - provider
+      - total_cost_microdollars
+      - total_input_tokens
+      - total_output_tokens
+      - request_count
+      title: ProviderCostSummary
+    AccuracyLatestData:
+      properties:
+        date:
+          type: string
+          format: date-time
+          title: Date
+        daily_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Daily Score
+        three_day_avg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Three Day Avg
+        seven_day_avg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Seven Day Avg
+        fourteen_day_avg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fourteen Day Avg
+      type: object
+      required:
+      - date
+      - daily_score
+      - three_day_avg
+      - seven_day_avg
+      - fourteen_day_avg
+      title: AccuracyLatestData
+      description: Latest execution accuracy data point.
+    JobTriggerResponse:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        user_id:
+          type: string
+          title: User Id
+        kind:
+          type: string
+          enum:
+          - nightly
+          - dream_pass
+          - rebuild
+          title: Kind
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - submitted
+          - complete
+          - errored
+          title: State
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+      type: object
+      required:
+      - job_id
+      - user_id
+      - kind
+      - state
+      - started_at
+      title: JobTriggerResponse
+      description: '202 response from a fire-and-forget admin trigger.
+
+
+        Frontend captures ``job_id`` and polls ``GET .../{job_id}`` for
+
+        progress. ``state`` is always ``"queued"`` at this point — the
+
+        scheduler picks the job up within sub-second and flips it to
+
+        ``running``.'
+    EntityListResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        items:
+          items:
+            $ref: '#/components/schemas/EntitySummary'
+          type: array
+          title: Items
+      type: object
+      required:
+      - user_id
+      - items
+      title: EntityListResponse
+    IngestionDrainStatus:
+      type: string
+      enum:
+      - drained
+      - skipped
+      - timed_out
+      title: IngestionDrainStatus
+      description: "Fate of a dream pass's enqueued graph writes at the moment the pass\nwas reported complete.\n\nThree distinct states, so consumers (and a future Memory Visualizer)\ncan tell a healthy by-design skip from a real failure:\n\n  * ``drained`` — the pass's own episodes were confirmed landed in the\n    graph before the pass returned (sync path), or the pass enqueued\n    nothing to drain. Healthy.\n  * ``skipped`` — the drain was intentionally not run to avoid stalling\n    a shared serial loop (batch path). The episodes process\n    fire-and-forget; healthy by design, NOT a failure signal.\n  * ``timed_out`` — the sync-path drain was attempted but did not finish\n    within its budget. The reported write/proposal counts include\n    episodes still queued in-process, which are lost if the worker's pod\n    restarts. This is the only value that warrants an operator warning."
+    PhaseUsage:
+      properties:
+        phase:
+          type: string
+          enum:
+          - consolidate
+          - recombine
+          - sanitize
+          title: Phase
+        model:
+          type: string
+          title: Model
+        input_tokens:
+          type: integer
+          title: Input Tokens
+          default: 0
+        output_tokens:
+          type: integer
+          title: Output Tokens
+          default: 0
+        cache_read_tokens:
+          type: integer
+          title: Cache Read Tokens
+          default: 0
+        cache_creation_tokens:
+          type: integer
+          title: Cache Creation Tokens
+          default: 0
+        cost_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cost Usd
+      type: object
+      required:
+      - phase
+      - model
+      title: PhaseUsage
+      description: Per-phase token + cost telemetry.
+    PlatformCostDashboard:
+      properties:
+        by_provider:
+          items:
+            $ref: '#/components/schemas/ProviderCostSummary'
+          type: array
+          title: By Provider
+        by_user:
+          items:
+            $ref: '#/components/schemas/UserCostSummary'
+          type: array
+          title: By User
+        total_cost_microdollars:
+          type: integer
+          title: Total Cost Microdollars
+        total_requests:
+          type: integer
+          title: Total Requests
+        total_users:
+          type: integer
+          title: Total Users
+        total_input_tokens:
+          type: integer
+          title: Total Input Tokens
+          default: 0
+        total_output_tokens:
+          type: integer
+          title: Total Output Tokens
+          default: 0
+        avg_input_tokens_per_request:
+          type: number
+          title: Avg Input Tokens Per Request
+          default: 0.0
+        avg_output_tokens_per_request:
+          type: number
+          title: Avg Output Tokens Per Request
+          default: 0.0
+        avg_cost_microdollars_per_request:
+          type: number
+          title: Avg Cost Microdollars Per Request
+          default: 0.0
+        cost_p50_microdollars:
+          type: number
+          title: Cost P50 Microdollars
+          default: 0.0
+        cost_p75_microdollars:
+          type: number
+          title: Cost P75 Microdollars
+          default: 0.0
+        cost_p95_microdollars:
+          type: number
+          title: Cost P95 Microdollars
+          default: 0.0
+        cost_p99_microdollars:
+          type: number
+          title: Cost P99 Microdollars
+          default: 0.0
+        cost_buckets:
+          items:
+            $ref: '#/components/schemas/CostBucket'
+          type: array
+          title: Cost Buckets
+          default: []
+      type: object
+      required:
+      - by_provider
+      - by_user
+      - total_cost_microdollars
+      - total_requests
+      - total_users
+      title: PlatformCostDashboard
+    CopilotUsageExportResponse:
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/CopilotWeeklyUsageRow'
+          type: array
+          title: Rows
+        total_rows:
+          type: integer
+          title: Total Rows
+        window_days:
+          type: integer
+          title: Window Days
+        max_window_days:
+          type: integer
+          title: Max Window Days
+      type: object
+      required:
+      - rows
+      - total_rows
+      - window_days
+      - max_window_days
+      title: CopilotUsageExportResponse
+    StopExecutionsRequest:
+      properties:
+        execution_ids:
+          items:
+            type: string
+          type: array
+          title: Execution Ids
+      type: object
+      required:
+      - execution_ids
+      title: StopExecutionsRequest
+      description: Request model for stopping multiple executions
+    ExecutionAnalyticsResponse:
+      properties:
+        total_executions:
+          type: integer
+          title: Total Executions
+        processed_executions:
+          type: integer
+          title: Processed Executions
+        successful_analytics:
+          type: integer
+          title: Successful Analytics
+        failed_analytics:
+          type: integer
+          title: Failed Analytics
+        skipped_executions:
+          type: integer
+          title: Skipped Executions
+        results:
+          items:
+            $ref: '#/components/schemas/ExecutionAnalyticsResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - total_executions
+      - processed_executions
+      - successful_analytics
+      - failed_analytics
+      - skipped_executions
+      - results
+      title: ExecutionAnalyticsResponse
+    ChangelogEntry:
+      properties:
+        version:
+          type: string
+          title: Version
+        changes_summary:
+          type: string
+          title: Changes Summary
+        date:
+          type: string
+          format: date-time
+          title: Date
+      type: object
+      required:
+      - version
+      - changes_summary
+      - date
+      title: ChangelogEntry
+    StoreAgentDetails:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        slug:
+          type: string
+          title: Slug
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_video:
+          type: string
+          title: Agent Video
+        agent_output_demo:
+          type: string
+          title: Agent Output Demo
+        agent_image:
+          items:
+            type: string
+          type: array
+          title: Agent Image
+        creator:
+          type: string
+          title: Creator
+        creator_avatar:
+          type: string
+          title: Creator Avatar
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        runs:
+          type: integer
+          title: Runs
+        rating:
+          type: number
+          title: Rating
+        versions:
+          items:
+            type: string
+          type: array
+          title: Versions
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_versions:
+          items:
+            type: string
+          type: array
+          title: Graph Versions
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        owning_org_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owning Org Id
+        active_version_id:
+          type: string
+          title: Active Version Id
+        has_approved_version:
+          type: boolean
+          title: Has Approved Version
+        changelog:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChangelogEntry'
+            type: array
+          - type: 'null'
+          title: Changelog
+      type: object
+      required:
+      - store_listing_version_id
+      - slug
+      - agent_name
+      - agent_video
+      - agent_output_demo
+      - agent_image
+      - creator
+      - creator_avatar
+      - sub_heading
+      - description
+      - categories
+      - runs
+      - rating
+      - versions
+      - graph_id
+      - graph_versions
+      - last_updated
+      - active_version_id
+      - has_approved_version
+      title: StoreAgentDetails
+    RecentExecution:
+      properties:
+        status:
+          type: string
+          title: Status
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+        activity_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Summary
+      type: object
+      required:
+      - status
+      title: RecentExecution
+      description: 'Summary of a recent execution for quality assessment.
+
+
+        Used by the LLM to understand the agent''s recent performance with specific examples
+
+        rather than just aggregate statistics.'
+    FactSummary:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        source:
+          type: string
+          title: Source
+        target:
+          type: string
+          title: Target
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        fact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fact
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        scope:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scope
+        confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Confidence
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        expired_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expired At
+      type: object
+      required:
+      - uuid
+      - source
+      - target
+      title: FactSummary
+    EntitySummary:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        name:
+          type: string
+          title: Name
+        summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary
+      type: object
+      required:
+      - uuid
+      - name
+      title: EntitySummary
+    StoreListingWithVersionsAdminView:
+      properties:
+        listing_id:
+          type: string
+          title: Listing Id
+        graph_id:
+          type: string
+          title: Graph Id
+        slug:
+          type: string
+          title: Slug
+        active_listing_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Active Listing Version Id
+        has_approved_version:
+          type: boolean
+          title: Has Approved Version
+          default: false
+        creator_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Creator Email
+        latest_version:
+          anyOf:
+          - $ref: '#/components/schemas/StoreSubmissionAdminView'
+          - type: 'null'
+        versions:
+          items:
+            $ref: '#/components/schemas/StoreSubmissionAdminView'
+          type: array
+          title: Versions
+          default: []
+      type: object
+      required:
+      - listing_id
+      - graph_id
+      - slug
+      title: StoreListingWithVersionsAdminView
+      description: A store listing with its version history
+    ScheduleCleanupResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        deleted_count:
+          type: integer
+          title: Deleted Count
+          default: 0
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: ScheduleCleanupResponse
+      description: Response model for schedule cleanup operations
+    UserTierResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        tier:
+          $ref: '#/components/schemas/SubscriptionTier'
+      type: object
+      required:
+      - user_id
+      - tier
+      title: UserTierResponse
+    BotTimeseriesPoint:
+      properties:
+        date:
+          type: string
+          format: date-time
+          title: Date
+        messages:
+          type: integer
+          title: Messages
+        replies:
+          type: integer
+          title: Replies
+        errors:
+          type: integer
+          title: Errors
+      type: object
+      required:
+      - date
+      - messages
+      - replies
+      - errors
+      title: BotTimeseriesPoint
+    FailedExecutionDetail:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_name:
+          type: string
+          title: Graph Name
+        graph_version:
+          type: integer
+          title: Graph Version
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        status:
+          type: string
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        failed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Failed At
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+      type: object
+      required:
+      - execution_id
+      - graph_id
+      - graph_name
+      - graph_version
+      - user_id
+      - user_email
+      - status
+      - created_at
+      - started_at
+      - failed_at
+      - error_message
+      title: FailedExecutionDetail
+      description: Details about a failed execution for admin view
+    PlatformCostExportResponse:
+      properties:
+        logs:
+          items:
+            $ref: '#/components/schemas/CostLogRow'
+          type: array
+          title: Logs
+        total_rows:
+          type: integer
+          title: Total Rows
+        truncated:
+          type: boolean
+          title: Truncated
+      type: object
+      required:
+      - logs
+      - total_rows
+      - truncated
+      title: PlatformCostExportResponse
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

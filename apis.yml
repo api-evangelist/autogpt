@@ -47,9 +47,9 @@ tags:
   - AI Agents
   - AI Automation
   - Agent Platform
-  - Workflow-Automation
+  - Workflow Automation
   - MCP
-  - Open-Source
+  - Open Source
   - No-Code
   - LLM Orchestration
   - Agent Marketplace
@@ -63,6 +63,8 @@ tags_raw:
   - No-Code
   - LLM Orchestration
   - Agent Marketplace
+  - Workflow-Automation
+  - Open-Source
 url: >-
   https://raw.githubusercontent.com/api-evangelist/autogpt/refs/heads/main/apis.yml
 created: '2026-03-27'
@@ -401,42 +403,6 @@ apis:
     url: sandbox/autogpt-sandbox.yml
   - type: Documentation
     url: https://agpt.co/docs
-- aid: autogpt:autogpt-v1-api
-  name: AutoGPT V1 API
-  description: The v1 API from AutoGPT — 77 operation(s) for v1.
-  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
-  baseURL: https://backend.agpt.co/external-api
-  tags:
-  - v1
-  properties:
-  - type: OpenAPI
-    url: openapi/autogpt-v1-api-openapi.yml
-  - type: Documentation
-    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
-  - type: APIReference
-    url: https://backend.agpt.co/external-api/docs
-  - type: Sandbox
-    url: sandbox/autogpt-sandbox.yml
-  - type: Documentation
-    url: https://agpt.co/docs
-- aid: autogpt:autogpt-v2-api
-  name: AutoGPT V2 API
-  description: The v2 API from AutoGPT — 174 operation(s) for v2.
-  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
-  baseURL: https://backend.agpt.co/external-api
-  tags:
-  - v2
-  properties:
-  - type: OpenAPI
-    url: openapi/autogpt-v2-api-openapi.yml
-  - type: Documentation
-    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
-  - type: APIReference
-    url: https://backend.agpt.co/external-api/docs
-  - type: Sandbox
-    url: sandbox/autogpt-sandbox.yml
-  - type: Documentation
-    url: https://agpt.co/docs
 - aid: autogpt:autogpt-workspace-api
   name: AutoGPT Workspace API
   description: The workspace API from AutoGPT — 9 operation(s) for workspace.
@@ -469,6 +435,402 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/autogpt-oauth-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-admin-api
+  name: AutoGPT Admin API
+  description: The admin API from AutoGPT — 64 operation(s) for admin.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - admin
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-admin-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-api-keys-api
+  name: AutoGPT API Keys API
+  description: The api-keys API from AutoGPT — 4 operation(s) for api-keys.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - api-keys
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-api-keys-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-auth-api
+  name: AutoGPT Auth API
+  description: The auth API from AutoGPT — 5 operation(s) for auth.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - auth
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-auth-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-builder-api
+  name: AutoGPT Builder API
+  description: The Builder API from AutoGPT — 6 operation(s) for builder.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - Builder
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-builder-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-chat-api
+  name: AutoGPT Chat API
+  description: The chat API from AutoGPT — 20 operation(s) for chat.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - chat
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-chat-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-credits-api
+  name: AutoGPT Credits API
+  description: The credits API from AutoGPT — 9 operation(s) for credits.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - credits
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-credits-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-email-api
+  name: AutoGPT Email API
+  description: The email API from AutoGPT — 2 operation(s) for email.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - email
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-email-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-executions-api
+  name: AutoGPT Executions API
+  description: The executions API from AutoGPT — 3 operation(s) for executions.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - executions
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-executions-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-experts-api
+  name: AutoGPT Experts API
+  description: The experts API from AutoGPT — 12 operation(s) for experts.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - experts
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-experts-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-files-api
+  name: AutoGPT Files API
+  description: The files API from AutoGPT — 1 operation(s) for files.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - files
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-files-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-invitations-api
+  name: AutoGPT Invitations API
+  description: The invitations API from AutoGPT — 3 operation(s) for invitations.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - invitations
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-invitations-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-library-api
+  name: AutoGPT Library API
+  description: The library API from AutoGPT — 12 operation(s) for library.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - library
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-library-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-mcp-api
+  name: AutoGPT MCP API
+  description: The mcp API from AutoGPT — 4 operation(s) for mcp.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - mcp
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-mcp-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-memory-api
+  name: AutoGPT Memory API
+  description: The memory API from AutoGPT — 8 operation(s) for memory.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - memory
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-memory-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-onboarding-api
+  name: AutoGPT Onboarding API
+  description: The onboarding API from AutoGPT — 14 operation(s) for onboarding.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - onboarding
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-onboarding-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-orgs-api
+  name: AutoGPT Orgs API
+  description: The orgs API from AutoGPT — 15 operation(s) for orgs.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - orgs
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-orgs-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-otto-api
+  name: AutoGPT Otto API
+  description: The otto API from AutoGPT — 1 operation(s) for otto.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - otto
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-otto-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-presets-api
+  name: AutoGPT Presets API
+  description: The presets API from AutoGPT — 4 operation(s) for presets.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - presets
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-presets-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-public-api
+  name: AutoGPT Public API
+  description: The Public API from AutoGPT — 1 operation(s) for public.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - Public
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-public-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-schedules-api
+  name: AutoGPT Schedules API
+  description: The schedules API from AutoGPT — 4 operation(s) for schedules.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - schedules
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-schedules-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-skills-api
+  name: AutoGPT Skills API
+  description: The skills API from AutoGPT — 2 operation(s) for skills.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - skills
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-skills-api-openapi.yml
+  - type: Documentation
+    url: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  - type: APIReference
+    url: https://backend.agpt.co/external-api/docs
+  - type: Sandbox
+    url: sandbox/autogpt-sandbox.yml
+  - type: Documentation
+    url: https://agpt.co/docs
+- aid: autogpt:autogpt-transfers-api
+  name: AutoGPT Transfers API
+  description: The transfers API from AutoGPT — 4 operation(s) for transfers.
+  humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
+  baseURL: https://backend.agpt.co/external-api
+  tags:
+  - transfers
+  properties:
+  - type: OpenAPI
+    url: openapi/autogpt-transfers-api-openapi.yml
   - type: Documentation
     url: https://agpt.co/docs/platform/api-and-integrations/api-guide
   - type: APIReference

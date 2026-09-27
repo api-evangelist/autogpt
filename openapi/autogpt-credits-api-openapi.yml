@@ -1,0 +1,763 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Credits API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Credits
+paths:
+  /api/credits:
+    get:
+      tags:
+      - Credits
+      summary: Get user credits
+      operationId: getV1GetUserCredits
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: integer
+                type: object
+                title: Response Getv1Get User Credits
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get user credits
+    patch:
+      tags:
+      - Credits
+      summary: Fulfill checkout session
+      operationId: patchV1FulfillCheckoutSession
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV1Fulfill checkout session
+    post:
+      tags:
+      - Credits
+      summary: Request credit top up
+      operationId: postV1RequestCreditTopUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTopUp'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Request credit top up
+  /api/credits/auto-top-up:
+    get:
+      tags:
+      - Credits
+      summary: Get auto top up
+      operationId: getV1GetAutoTopUp
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoTopUpConfig'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get auto top up
+    post:
+      tags:
+      - Credits
+      summary: Configure auto top up
+      description: 'Configure auto top-up settings and perform an immediate top-up if needed.
+
+
+        Raises HTTPException(422) if the request parameters are invalid or if
+
+        the credit top-up fails.'
+      operationId: postV1ConfigureAutoTopUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoTopUpConfig'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: string
+                title: Response Postv1Configure Auto Top Up
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Configure auto top up
+  /api/credits/invoices:
+    get:
+      tags:
+      - Credits
+      summary: List Stripe invoices
+      description: 'Recent Stripe invoices for the current user.
+
+
+        Each item includes ``hosted_invoice_url`` (Stripe-hosted view) and
+
+        ``invoice_pdf_url`` (direct PDF download). Returns an empty list when
+
+        the credit system is disabled or the user has no Stripe customer yet.'
+      operationId: getV1ListStripeInvoices
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 24
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceListItem'
+                title: Response Getv1List Stripe Invoices
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1List stripe invoices
+  /api/credits/manage:
+    get:
+      tags:
+      - Credits
+      summary: Manage payment methods
+      operationId: getV1ManagePaymentMethods
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Getv1Manage Payment Methods
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Manage payment methods
+  /api/credits/refunds:
+    get:
+      tags:
+      - Credits
+      summary: Get refund requests
+      operationId: getV1GetRefundRequests
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RefundRequest'
+                type: array
+                title: Response Getv1Get Refund Requests
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get refund requests
+  /api/credits/stripe_webhook:
+    post:
+      tags:
+      - Credits
+      summary: Handle Stripe webhooks
+      operationId: postV1HandleStripeWebhooks
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Handle stripe webhooks
+  /api/credits/subscription:
+    get:
+      tags:
+      - Credits
+      summary: Get subscription tier, current cost, and all tier costs
+      operationId: getSubscriptionStatus
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatusResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+    post:
+      tags:
+      - Credits
+      summary: Update subscription tier or start a Stripe Checkout session
+      operationId: updateSubscriptionTier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionTierRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatusResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/credits/transactions:
+    get:
+      tags:
+      - Credits
+      summary: Get credit history
+      operationId: getV1GetCreditHistory
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: transaction_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Transaction Time
+      - name: transaction_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transaction Type
+      - name: transaction_count_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Transaction Count Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionHistory'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get credit history
+  /api/credits/{transaction_key}/refund:
+    post:
+      tags:
+      - Credits
+      summary: Refund credit transaction
+      operationId: postV1RefundCreditTransaction
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: transaction_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Transaction Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+              title: Metadata
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: integer
+                title: Response Postv1Refund Credit Transaction
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Refund credit transaction
+components:
+  schemas:
+    CreditTransactionItem:
+      properties:
+        transaction_key:
+          type: string
+          title: Transaction Key
+          default: ''
+        transaction_time:
+          type: string
+          format: date-time
+          title: Transaction Time
+          default: '0001-01-01T00:00:00Z'
+        transaction_type:
+          $ref: '#/components/schemas/CreditTransactionType'
+          default: USAGE
+        amount:
+          type: integer
+          title: Amount
+          default: 0
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        usage_graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usage Graph Id
+        usage_execution_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usage Execution Id
+        usage_node_count:
+          type: integer
+          title: Usage Node Count
+          default: 0
+        usage_start_time:
+          type: string
+          format: date-time
+          title: Usage Start Time
+          default: '9999-12-31T23:59:59.999999Z'
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - user_id
+      title: CreditTransactionItem
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SubscriptionStatusResponse:
+      properties:
+        tier:
+          type: string
+          enum:
+          - NO_TIER
+          - BASIC
+          - PRO
+          - MAX
+          - BUSINESS
+          - ENTERPRISE
+          title: Tier
+        monthly_cost:
+          type: integer
+          title: Monthly Cost
+        tier_costs:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Tier Costs
+        tier_costs_yearly:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Tier Costs Yearly
+          description: Tier → yearly amount in cents. Populated only for tiers with a yearly Stripe price configured in LaunchDarkly. Empty for monthly-only configurations.
+        billing_cycle:
+          type: string
+          enum:
+          - monthly
+          - yearly
+          title: Billing Cycle
+          description: Billing cycle of the user's active Stripe subscription. Defaults to ``monthly`` for users without an active sub. ``monthly_cost`` above reflects this cycle's actual price (so a yearly subscriber sees their yearly amount, not the monthly equivalent).
+          default: monthly
+        tier_multipliers:
+          additionalProperties:
+            type: number
+          type: object
+          title: Tier Multipliers
+          description: Tier → rate-limit multiplier. Covers the same tiers listed in ``tier_costs`` so the frontend can render rate-limit badges relative to the lowest visible tier without knowing backend defaults.
+        proration_credit_cents:
+          type: integer
+          title: Proration Credit Cents
+        has_active_stripe_subscription:
+          type: boolean
+          title: Has Active Stripe Subscription
+          description: 'True when the user has an active/trialing Stripe subscription. The frontend uses this to branch upgrade UX: modify-in-place + saved-card auto-charge when True, redirect to Stripe Checkout when False.'
+          default: false
+        current_period_end:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Current Period End
+          description: Unix timestamp of the active subscription's current_period_end. Used to show the date Stripe will issue the next invoice (with prorated upgrade charges, if any). None when no active sub.
+        pending_tier:
+          anyOf:
+          - type: string
+            enum:
+            - NO_TIER
+            - BASIC
+            - PRO
+            - MAX
+            - BUSINESS
+          - type: 'null'
+          title: Pending Tier
+        pending_tier_effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Pending Tier Effective At
+        pending_billing_cycle:
+          anyOf:
+          - type: string
+            enum:
+            - monthly
+            - yearly
+          - type: 'null'
+          title: Pending Billing Cycle
+          description: Billing cycle of the queued change, when resolvable. Set alongside ``pending_tier`` for tier downgrades and same-tier cycle switches (yearly→monthly). The frontend uses this to differentiate a cycle-only schedule (``pending_tier == current tier``) from a real tier downgrade so the UI copy can describe the actual change. ``None`` for cancellations and unconfigured legacy prices.
+        url:
+          type: string
+          title: Url
+          description: Populated only when POST /credits/subscription starts a Stripe Checkout Session (BASIC → paid upgrade). Empty string in all other branches — the client redirects to this URL when non-empty.
+          default: ''
+      type: object
+      required:
+      - tier
+      - monthly_cost
+      - tier_costs
+      - proration_credit_cents
+      title: SubscriptionStatusResponse
+    TransactionHistory:
+      properties:
+        transactions:
+          items:
+            $ref: '#/components/schemas/CreditTransactionItem'
+          type: array
+          title: Transactions
+        next_transaction_time:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Next Transaction Time
+      type: object
+      required:
+      - transactions
+      - next_transaction_time
+      title: TransactionHistory
+    CreditTransactionType:
+      type: string
+      enum:
+      - TOP_UP
+      - USAGE
+      - GRANT
+      - REFUND
+      - CARD_CHECK
+      - SUBSCRIPTION
+      title: CreditTransactionType
+    InvoiceListItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        total_cents:
+          type: integer
+          title: Total Cents
+        amount_paid_cents:
+          type: integer
+          title: Amount Paid Cents
+        currency:
+          type: string
+          title: Currency
+          default: usd
+        status:
+          type: string
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        hosted_invoice_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hosted Invoice Url
+        invoice_pdf_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Pdf Url
+      type: object
+      required:
+      - id
+      - created_at
+      - total_cents
+      - amount_paid_cents
+      - status
+      title: InvoiceListItem
+      description: 'A single invoice surfaced from Stripe for the billing UI.
+
+
+        Mirrors the subset of `stripe.Invoice` we expose to the client. ``hosted_invoice_url``
+
+        opens the Stripe-hosted view; ``invoice_pdf_url`` lets users download the PDF directly.
+
+
+        ``total_cents`` is the invoice total (what the user owes / will be charged); use it
+
+        for the displayed amount. ``amount_paid_cents`` is what Stripe has actually settled
+
+        so far — `0` for ``open``/``draft`` invoices — and is kept for callers that need to
+
+        show outstanding balances separately.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    RefundRequest:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        transaction_key:
+          type: string
+          title: Transaction Key
+        amount:
+          type: integer
+          title: Amount
+        reason:
+          type: string
+          title: Reason
+        result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Result
+        status:
+          type: string
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - user_id
+      - transaction_key
+      - amount
+      - reason
+      - status
+      - created_at
+      - updated_at
+      title: RefundRequest
+    AutoTopUpConfig:
+      properties:
+        amount:
+          type: integer
+          title: Amount
+        threshold:
+          type: integer
+          title: Threshold
+      type: object
+      required:
+      - amount
+      - threshold
+      title: AutoTopUpConfig
+    RequestTopUp:
+      properties:
+        credit_amount:
+          type: integer
+          title: Credit Amount
+      type: object
+      required:
+      - credit_amount
+      title: RequestTopUp
+    SubscriptionTierRequest:
+      properties:
+        tier:
+          type: string
+          enum:
+          - NO_TIER
+          - BASIC
+          - PRO
+          - MAX
+          - BUSINESS
+          title: Tier
+        success_url:
+          type: string
+          title: Success Url
+          default: ''
+        cancel_url:
+          type: string
+          title: Cancel Url
+          default: ''
+        billing_cycle:
+          type: string
+          enum:
+          - monthly
+          - yearly
+          title: Billing Cycle
+          default: monthly
+      type: object
+      required:
+      - tier
+      title: SubscriptionTierRequest
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

@@ -1,0 +1,397 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server MCP API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: MCP
+paths:
+  /api/mcp/discover-tools:
+    post:
+      tags:
+      - MCP
+      summary: Discover available tools on an MCP server
+      description: 'Connect to an MCP server and return its available tools.
+
+
+        If the user has a stored MCP credential for this server URL, it will be
+
+        used automatically — no need to pass an explicit auth token.'
+      operationId: postV2DiscoverAvailableToolsOnAnMcpServer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscoverToolsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscoverToolsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Discover available tools on an mcp server
+  /api/mcp/oauth/callback:
+    post:
+      tags:
+      - MCP
+      summary: Exchange OAuth code for MCP tokens
+      description: 'Exchange the authorization code for tokens and store the credential.
+
+
+        The frontend calls this after receiving the OAuth code from the popup.
+
+        On success, subsequent ``/discover-tools`` calls for the same server URL
+
+        will automatically use the stored credential.'
+      operationId: postV2ExchangeOauthCodeForMcpTokens
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MCPOAuthCallbackRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialsMetaResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Exchange oauth code for mcp tokens
+  /api/mcp/oauth/login:
+    post:
+      tags:
+      - MCP
+      summary: Initiate OAuth login for an MCP server
+      description: 'Discover OAuth metadata from the MCP server and return a login URL.
+
+
+        1. Discovers the protected-resource metadata (RFC 9728)
+
+        2. Fetches the authorization server metadata (RFC 8414)
+
+        3. Performs Dynamic Client Registration (RFC 7591) if available
+
+        4. Returns the authorization URL for the frontend to open in a popup'
+      operationId: postV2InitiateOauthLoginForAnMcpServer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MCPOAuthLoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPOAuthLoginResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Initiate oauth login for an mcp server
+  /api/mcp/token:
+    post:
+      tags:
+      - MCP
+      summary: Store a bearer token for an MCP server
+      description: 'Store a manually provided bearer token as an MCP credential.
+
+
+        Used by the Copilot MCPSetupCard when the server doesn''t support the MCP
+
+        OAuth discovery flow (returns 400 from /oauth/login). Subsequent
+
+        ``run_mcp_tool`` calls will automatically pick up the token via
+
+        ``_auto_lookup_credential``.'
+      operationId: postV2StoreABearerTokenForAnMcpServer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MCPStoreTokenRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialsMetaResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Store a bearer token for an mcp server
+components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MCPOAuthLoginRequest:
+      properties:
+        server_url:
+          type: string
+          title: Server Url
+          description: URL of the MCP server that requires OAuth
+      type: object
+      required:
+      - server_url
+      title: MCPOAuthLoginRequest
+      description: Request to start an OAuth flow for an MCP server.
+    MCPOAuthLoginResponse:
+      properties:
+        login_url:
+          type: string
+          title: Login Url
+        state_token:
+          type: string
+          title: State Token
+      type: object
+      required:
+      - login_url
+      - state_token
+      title: MCPOAuthLoginResponse
+      description: Response with the OAuth login URL for the user to authenticate.
+    MCPOAuthCallbackRequest:
+      properties:
+        code:
+          type: string
+          title: Code
+          description: Authorization code from OAuth callback
+        state_token:
+          type: string
+          title: State Token
+          description: State token for CSRF verification
+      type: object
+      required:
+      - code
+      - state_token
+      title: MCPOAuthCallbackRequest
+      description: Request to exchange an OAuth code for tokens.
+    DiscoverToolsResponse:
+      properties:
+        tools:
+          items:
+            $ref: '#/components/schemas/MCPToolResponse'
+          type: array
+          title: Tools
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Name
+        protocol_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Protocol Version
+      type: object
+      required:
+      - tools
+      title: DiscoverToolsResponse
+      description: Response containing the list of tools available on an MCP server.
+    MCPStoreTokenRequest:
+      properties:
+        server_url:
+          type: string
+          title: Server Url
+          description: MCP server URL the token authenticates against
+        token:
+          type: string
+          minLength: 1
+          format: password
+          title: Token
+          description: Bearer token / API key for the MCP server
+          writeOnly: true
+      type: object
+      required:
+      - server_url
+      - token
+      title: MCPStoreTokenRequest
+      description: Request to store a bearer token for an MCP server that doesn't support OAuth.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CredentialsMetaResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        provider:
+          type: string
+          title: Provider
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        scopes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Scopes
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Username
+        host:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Host
+          description: Host pattern for host-scoped or MCP server URL for MCP credentials
+        is_managed:
+          type: boolean
+          title: Is Managed
+          default: false
+      type: object
+      required:
+      - id
+      - provider
+      - type
+      - title
+      - scopes
+      - username
+      title: CredentialsMetaResponse
+    DiscoverToolsRequest:
+      properties:
+        server_url:
+          type: string
+          title: Server Url
+          description: URL of the MCP server
+        auth_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Auth Token
+          description: Optional Bearer token for authenticated MCP servers
+      type: object
+      required:
+      - server_url
+      title: DiscoverToolsRequest
+      description: Request to discover tools on an MCP server.
+    MCPToolResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      title: MCPToolResponse
+      description: A single MCP tool returned by discovery.
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

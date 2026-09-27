@@ -1,0 +1,409 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server API Keys API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: API Keys
+paths:
+  /api/api-keys:
+    get:
+      tags:
+      - API Keys
+      summary: List user API keys
+      description: List all API keys for the user
+      operationId: getV1ListUserApiKeys
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/APIKeyInfo'
+                type: array
+                title: Response Getv1List User Api Keys
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1List user api keys
+    post:
+      tags:
+      - API Keys
+      summary: Create new API key
+      description: Create a new API key
+      operationId: postV1CreateNewApiKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAPIKeyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAPIKeyResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Create new api key
+  /api/api-keys/{key_id}:
+    delete:
+      tags:
+      - API Keys
+      summary: Revoke API key
+      description: Revoke an API key
+      operationId: deleteV1RevokeApiKey
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKeyInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV1Revoke api key
+    get:
+      tags:
+      - API Keys
+      summary: Get specific API key
+      description: Get a specific API key
+      operationId: getV1GetSpecificApiKey
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKeyInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1Get specific api key
+  /api/api-keys/{key_id}/permissions:
+    put:
+      tags:
+      - API Keys
+      summary: Update key permissions
+      description: Update API key permissions
+      operationId: putV1UpdateKeyPermissions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePermissionsRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKeyInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: putV1Update key permissions
+  /api/api-keys/{key_id}/suspend:
+    post:
+      tags:
+      - API Keys
+      summary: Suspend API key
+      description: Suspend an API key
+      operationId: postV1SuspendApiKey
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKeyInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Suspend api key
+components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateAPIKeyResponse:
+      properties:
+        api_key:
+          $ref: '#/components/schemas/APIKeyInfo'
+        plain_text_key:
+          type: string
+          title: Plain Text Key
+      type: object
+      required:
+      - api_key
+      - plain_text_key
+      title: CreateAPIKeyResponse
+    UpdatePermissionsRequest:
+      properties:
+        permissions:
+          items:
+            $ref: '#/components/schemas/APIKeyPermission'
+          type: array
+          title: Permissions
+      type: object
+      required:
+      - permissions
+      title: UpdatePermissionsRequest
+    APIKeyInfo:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        scopes:
+          items:
+            $ref: '#/components/schemas/APIKeyPermission'
+          type: array
+          title: Scopes
+        type:
+          type: string
+          const: api_key
+          title: Type
+          default: api_key
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
+        last_used_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Used At
+        revoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Revoked At
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id_restriction:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id Restriction
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        head:
+          type: string
+          title: Head
+          description: The first 8 characters of the key
+        tail:
+          type: string
+          title: Tail
+          description: The last 8 characters of the key
+        status:
+          $ref: '#/components/schemas/APIKeyStatus'
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Type
+      type: object
+      required:
+      - user_id
+      - scopes
+      - created_at
+      - id
+      - name
+      - head
+      - tail
+      - status
+      title: APIKeyInfo
+    APIKeyPermission:
+      type: string
+      enum:
+      - IDENTITY
+      - EXECUTE_GRAPH
+      - READ_GRAPH
+      - WRITE_GRAPH
+      - EXECUTE_BLOCK
+      - READ_BLOCK
+      - READ_STORE
+      - WRITE_LIBRARY
+      - USE_TOOLS
+      - MANAGE_INTEGRATIONS
+      - READ_INTEGRATIONS
+      - DELETE_INTEGRATIONS
+      title: APIKeyPermission
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    APIKeyStatus:
+      type: string
+      enum:
+      - ACTIVE
+      - REVOKED
+      - SUSPENDED
+      title: APIKeyStatus
+    CreateAPIKeyRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        permissions:
+          items:
+            $ref: '#/components/schemas/APIKeyPermission'
+          type: array
+          title: Permissions
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - name
+      - permissions
+      title: CreateAPIKeyRequest
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

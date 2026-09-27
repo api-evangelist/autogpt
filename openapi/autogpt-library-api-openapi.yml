@@ -1,0 +1,1522 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Library API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Library
+paths:
+  /api/library/agents:
+    get:
+      tags:
+      - Library
+      summary: List Library Agents
+      description: Get all agents in the user's library (both created and saved).
+      operationId: getV2ListLibraryAgents
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: search_term
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search term to filter agents
+          title: Search Term
+        description: Search term to filter agents
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/LibraryAgentSort'
+          description: Criteria to sort results by
+          default: updatedAt
+        description: Criteria to sort results by
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Page number to retrieve (must be >= 1)
+          default: 1
+          title: Page
+        description: Page number to retrieve (must be >= 1)
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Number of agents per page (must be >= 1)
+          default: 15
+          title: Page Size
+        description: Number of agents per page (must be >= 1)
+      - name: folder_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by folder ID
+          title: Folder Id
+        description: Filter by folder ID
+      - name: include_root_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Only return agents without a folder (root-level agents)
+          default: false
+          title: Include Root Only
+        description: Only return agents without a folder (root-level agents)
+      - name: is_hidden
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by hidden status. True = only hidden, False = only non-hidden, omit = all agents.
+          title: Is Hidden
+        description: Filter by hidden status. True = only hidden, False = only non-hidden, omit = all agents.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgentResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List library agents
+    post:
+      tags:
+      - Library
+      summary: Add Marketplace Agent
+      description: Add an agent from the marketplace to the user's library.
+      operationId: postV2AddMarketplaceAgent
+      security:
+      - HTTPBearerJWT: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_postV2Add_marketplace_agent'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgent'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Add marketplace agent
+  /api/library/agents/by-graph/{graph_id}:
+    get:
+      tags:
+      - Library
+      summary: Get Library Agent By Graph Id
+      operationId: getV2GetLibraryAgentByGraphId
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: version
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Version
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgent'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/library/agents/favorites:
+    get:
+      tags:
+      - Library
+      summary: List Favorite Library Agents
+      description: Get all favorite agents in the user's library.
+      operationId: getV2ListFavoriteLibraryAgents
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Page number to retrieve (must be >= 1)
+          default: 1
+          title: Page
+        description: Page number to retrieve (must be >= 1)
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Number of agents per page (must be >= 1)
+          default: 15
+          title: Page Size
+        description: Number of agents per page (must be >= 1)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgentResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List favorite library agents
+  /api/library/agents/marketplace/{store_listing_version_id}:
+    get:
+      tags:
+      - Library
+      summary: Get Agent By Store ID
+      description: Get Library Agent from Store Listing Version ID.
+      operationId: getV2GetAgentByStoreId
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Store Listing Version Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/LibraryAgent'
+                - type: 'null'
+                title: Response Getv2Get Agent By Store Id
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get agent by store id
+  /api/library/agents/{library_agent_id}:
+    delete:
+      tags:
+      - Library
+      summary: Delete Library Agent
+      description: Soft-delete the specified library agent.
+      operationId: deleteV2DeleteLibraryAgent
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: library_agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Library Agent Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Delete library agent
+    get:
+      tags:
+      - Library
+      summary: Get Library Agent
+      operationId: getV2GetLibraryAgent
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: library_agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Library Agent Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgent'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get library agent
+    patch:
+      tags:
+      - Library
+      summary: Update Library Agent
+      description: Update the library agent with the given fields.
+      operationId: patchV2UpdateLibraryAgent
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: library_agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Library Agent Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LibraryAgentUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgent'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update library agent
+  /api/library/agents/{library_agent_id}/fork:
+    post:
+      tags:
+      - Library
+      summary: Fork Library Agent
+      operationId: postV2ForkLibraryAgent
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: library_agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Library Agent Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgent'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Fork library agent
+  /api/library/agents/{library_agent_id}/triggers:
+    get:
+      tags:
+      - Library
+      summary: List Trigger Agents
+      description: List trigger agents linked to the given parent agent.
+      operationId: getV2ListTriggerAgents
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: library_agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Library Agent Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LibraryAgent'
+                title: Response Getv2List Trigger Agents
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List trigger agents
+  /api/library/folders:
+    get:
+      tags:
+      - Library
+      summary: List Library Folders
+      description: 'List folders for the authenticated user.
+
+
+        Args:
+
+        user_id: ID of the authenticated user.
+
+        parent_id: Optional parent folder ID to filter by.
+
+        include_relations: Whether to include agent and subfolder relations for counts.
+
+
+        Returns:
+
+        A FolderListResponse containing folders.'
+      operationId: getV2ListLibraryFolders
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: parent_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by parent folder ID. If not provided, returns root-level folders.
+          title: Parent Id
+        description: Filter by parent folder ID. If not provided, returns root-level folders.
+      - name: include_relations
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include agent and subfolder relations (for counts)
+          default: true
+          title: Include Relations
+        description: Include agent and subfolder relations (for counts)
+      responses:
+        '200':
+          description: List of folders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderListResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List library folders
+    post:
+      tags:
+      - Library
+      summary: Create Folder
+      description: 'Create a new folder.
+
+
+        Args:
+
+        payload: The folder creation request.
+
+        user_id: ID of the authenticated user.
+
+
+        Returns:
+
+        The created LibraryFolder.'
+      operationId: postV2CreateFolder
+      security:
+      - HTTPBearerJWT: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderCreateRequest'
+      responses:
+        '201':
+          description: Folder created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryFolder'
+        '400':
+          description: Validation error
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Parent folder not found
+        '409':
+          description: Folder name conflict
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Create folder
+  /api/library/folders/agents/bulk-move:
+    post:
+      tags:
+      - Library
+      summary: Bulk Move Agents
+      description: 'Move multiple agents to a folder.
+
+
+        Args:
+
+        payload: The bulk move request with agent IDs and target folder.
+
+        user_id: ID of the authenticated user.
+
+
+        Returns:
+
+        The updated LibraryAgents.'
+      operationId: postV2BulkMoveAgents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkMoveAgentsRequest'
+        required: true
+      responses:
+        '200':
+          description: Agents moved successfully
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LibraryAgent'
+                type: array
+                title: Response Postv2Bulk Move Agents
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Folder not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Bulk move agents
+  /api/library/folders/tree:
+    get:
+      tags:
+      - Library
+      summary: Get Folder Tree
+      description: 'Get the full folder tree for the authenticated user.
+
+
+        Args:
+
+        user_id: ID of the authenticated user.
+
+
+        Returns:
+
+        A FolderTreeResponse containing the nested folder structure.'
+      operationId: getV2GetFolderTree
+      responses:
+        '200':
+          description: Folder tree structure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderTreeResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '500':
+          description: Server error
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get folder tree
+  /api/library/folders/{folder_id}:
+    delete:
+      tags:
+      - Library
+      summary: Delete Folder
+      description: 'Soft-delete a folder and all its contents.
+
+
+        Args:
+
+        folder_id: ID of the folder to delete.
+
+        user_id: ID of the authenticated user.
+
+
+        Returns:
+
+        204 No Content if successful.'
+      operationId: deleteV2DeleteFolder
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Folder Id
+      responses:
+        '204':
+          description: Folder deleted successfully
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Folder not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Delete folder
+    get:
+      tags:
+      - Library
+      summary: Get Folder
+      description: 'Get a specific folder.
+
+
+        Args:
+
+        folder_id: ID of the folder to retrieve.
+
+        user_id: ID of the authenticated user.
+
+
+        Returns:
+
+        The requested LibraryFolder.'
+      operationId: getV2GetFolder
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Folder Id
+      responses:
+        '200':
+          description: Folder details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryFolder'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Folder not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get folder
+    patch:
+      tags:
+      - Library
+      summary: Update Folder
+      description: 'Update a folder''s properties.
+
+
+        Args:
+
+        folder_id: ID of the folder to update.
+
+        payload: The folder update request.
+
+        user_id: ID of the authenticated user.
+
+
+        Returns:
+
+        The updated LibraryFolder.'
+      operationId: patchV2UpdateFolder
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Folder Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderUpdateRequest'
+      responses:
+        '200':
+          description: Folder updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryFolder'
+        '400':
+          description: Validation error
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Folder not found
+        '409':
+          description: Folder name conflict
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update folder
+  /api/library/folders/{folder_id}/move:
+    post:
+      tags:
+      - Library
+      summary: Move Folder
+      description: 'Move a folder to a new parent.
+
+
+        Args:
+
+        folder_id: ID of the folder to move.
+
+        payload: The move request with target parent.
+
+        user_id: ID of the authenticated user.
+
+
+        Returns:
+
+        The moved LibraryFolder.'
+      operationId: postV2MoveFolder
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Folder Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderMoveRequest'
+      responses:
+        '200':
+          description: Folder moved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryFolder'
+        '400':
+          description: Validation error (circular reference)
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Folder or target parent not found
+        '409':
+          description: Folder name conflict in target location
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Server error
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Move folder
+components:
+  schemas:
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    GraphSettings:
+      properties:
+        human_in_the_loop_safe_mode:
+          type: boolean
+          title: Human In The Loop Safe Mode
+          default: true
+        sensitive_action_safe_mode:
+          type: boolean
+          title: Sensitive Action Safe Mode
+          default: false
+        builder_chat_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Builder Chat Session Id
+      type: object
+      title: GraphSettings
+    LibraryAgentStatus:
+      type: string
+      enum:
+      - COMPLETED
+      - HEALTHY
+      - WAITING
+      - ERROR
+      title: LibraryAgentStatus
+    Body_postV2Add_marketplace_agent:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        source:
+          type: string
+          enum:
+          - onboarding
+          - marketplace
+          title: Source
+          default: marketplace
+      type: object
+      required:
+      - store_listing_version_id
+      title: Body_postV2Add marketplace agent
+    FolderCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        color:
+          anyOf:
+          - type: string
+            pattern: ^#[0-9A-Fa-f]{6}$
+          - type: 'null'
+          title: Color
+          description: Hex color code (#RRGGBB)
+        parent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Id
+      type: object
+      required:
+      - name
+      title: FolderCreateRequest
+      description: Request model for creating a folder.
+    FolderMoveRequest:
+      properties:
+        target_parent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Parent Id
+      type: object
+      title: FolderMoveRequest
+      description: Request model for moving a folder to a new parent.
+    FolderListResponse:
+      properties:
+        folders:
+          items:
+            $ref: '#/components/schemas/LibraryFolder'
+          type: array
+          title: Folders
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - folders
+      - pagination
+      title: FolderListResponse
+      description: Response schema for a list of folders.
+    LibraryFolderTree:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        name:
+          type: string
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
+        parent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        agent_count:
+          type: integer
+          title: Agent Count
+          default: 0
+        subfolder_count:
+          type: integer
+          title: Subfolder Count
+          default: 0
+        children:
+          items:
+            $ref: '#/components/schemas/LibraryFolderTree'
+          type: array
+          title: Children
+          default: []
+      type: object
+      required:
+      - id
+      - user_id
+      - name
+      - created_at
+      - updated_at
+      title: LibraryFolderTree
+      description: Folder with nested children for tree view.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    FolderUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
+      type: object
+      title: FolderUpdateRequest
+      description: Request model for updating a folder.
+    BulkMoveAgentsRequest:
+      properties:
+        agent_ids:
+          items:
+            type: string
+          type: array
+          title: Agent Ids
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+      type: object
+      required:
+      - agent_ids
+      title: BulkMoveAgentsRequest
+      description: Request model for moving multiple agents to a folder.
+    LibraryAgentSort:
+      type: string
+      enum:
+      - createdAt
+      - updatedAt
+      - lastRunAt
+      title: LibraryAgentSort
+      description: Possible sort options for sorting library agents.
+    LibraryAgent:
+      properties:
+        id:
+          type: string
+          title: Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        image_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Url
+        creator_name:
+          type: string
+          title: Creator Name
+        creator_image_url:
+          type: string
+          title: Creator Image Url
+        status:
+          $ref: '#/components/schemas/LibraryAgentStatus'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+        credentials_input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Credentials Input Schema
+          description: Input schema for credentials required by the agent
+        has_external_trigger:
+          type: boolean
+          title: Has External Trigger
+          description: Whether the agent has an external trigger (e.g. webhook) node
+        has_human_in_the_loop:
+          type: boolean
+          title: Has Human In The Loop
+          description: Whether the agent has human-in-the-loop blocks
+        has_sensitive_action:
+          type: boolean
+          title: Has Sensitive Action
+          description: Whether the agent has sensitive action blocks
+        trigger_setup_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+        new_output:
+          type: boolean
+          title: New Output
+        execution_count:
+          type: integer
+          title: Execution Count
+          default: 0
+        success_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Success Rate
+        avg_correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Correctness Score
+        recent_executions:
+          items:
+            $ref: '#/components/schemas/RecentExecution'
+          type: array
+          title: Recent Executions
+          description: List of recent executions with status, score, and summary
+        can_access_graph:
+          type: boolean
+          title: Can Access Graph
+          description: Indicates whether the same user owns the corresponding graph
+        is_latest_version:
+          type: boolean
+          title: Is Latest Version
+        is_favorite:
+          type: boolean
+          title: Is Favorite
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+        folder_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Name
+        is_hidden:
+          type: boolean
+          title: Is Hidden
+          default: false
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        is_scheduled:
+          type: boolean
+          title: Is Scheduled
+          description: Whether this agent has active execution schedules
+          default: false
+        next_scheduled_run:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Scheduled Run
+          description: ISO 8601 timestamp of the next scheduled run, if any
+        settings:
+          $ref: '#/components/schemas/GraphSettings'
+        marketplace_listing:
+          anyOf:
+          - $ref: '#/components/schemas/MarketplaceListing'
+          - type: 'null'
+        store_listing_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Store Listing Version Id
+          description: ID of the approved marketplace listing version whose graph snapshot exactly matches this agent's graph_id and graph_version. Install flows can use it directly to install this exact version.
+      type: object
+      required:
+      - id
+      - graph_id
+      - graph_version
+      - image_url
+      - creator_name
+      - creator_image_url
+      - status
+      - created_at
+      - updated_at
+      - name
+      - description
+      - input_schema
+      - output_schema
+      - credentials_input_schema
+      - has_external_trigger
+      - has_human_in_the_loop
+      - has_sensitive_action
+      - new_output
+      - can_access_graph
+      - is_latest_version
+      - is_favorite
+      title: LibraryAgent
+      description: 'Represents an agent in the library, including metadata for display and
+
+        user interaction within the system.'
+    RecentExecution:
+      properties:
+        status:
+          type: string
+          title: Status
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+        activity_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Summary
+      type: object
+      required:
+      - status
+      title: RecentExecution
+      description: 'Summary of a recent execution for quality assessment.
+
+
+        Used by the LLM to understand the agent''s recent performance with specific examples
+
+        rather than just aggregate statistics.'
+    FolderTreeResponse:
+      properties:
+        tree:
+          items:
+            $ref: '#/components/schemas/LibraryFolderTree'
+          type: array
+          title: Tree
+      type: object
+      required:
+      - tree
+      title: FolderTreeResponse
+      description: Response schema for folder tree structure.
+    LibraryAgentUpdateRequest:
+      properties:
+        auto_update_version:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Auto Update Version
+          description: Auto-update the agent version
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+          description: Specific graph version to update to
+        is_favorite:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Favorite
+          description: Mark the agent as a favorite
+        is_archived:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Archived
+          description: Archive the agent
+        is_hidden:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Hidden
+          description: Whether to hide the agent from the library listing
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/GraphSettings'
+          - type: 'null'
+          description: User-specific settings for this library agent
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+          description: Folder ID to move agent to (None to move to root)
+      type: object
+      title: LibraryAgentUpdateRequest
+      description: 'Schema for updating a library agent via PUT.
+
+
+        Includes flags for auto-updating version, marking as favorite,
+
+        archiving, or deleting.'
+    MarketplaceListingCreator:
+      properties:
+        name:
+          type: string
+          title: Name
+        id:
+          type: string
+          title: Id
+        slug:
+          type: string
+          title: Slug
+      type: object
+      required:
+      - name
+      - id
+      - slug
+      title: MarketplaceListingCreator
+      description: Creator information for a marketplace listing.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MarketplaceListing:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        slug:
+          type: string
+          title: Slug
+        creator:
+          $ref: '#/components/schemas/MarketplaceListingCreator'
+      type: object
+      required:
+      - id
+      - name
+      - slug
+      - creator
+      title: MarketplaceListing
+      description: Marketplace listing information for a library agent.
+    LibraryAgentResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/LibraryAgent'
+          type: array
+          title: Agents
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - agents
+      - pagination
+      title: LibraryAgentResponse
+      description: Response schema for a list of library agents and pagination info.
+    LibraryFolder:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        name:
+          type: string
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
+        parent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        agent_count:
+          type: integer
+          title: Agent Count
+          default: 0
+        subfolder_count:
+          type: integer
+          title: Subfolder Count
+          default: 0
+      type: object
+      required:
+      - id
+      - user_id
+      - name
+      - created_at
+      - updated_at
+      title: LibraryFolder
+      description: Represents a folder for organizing library agents.
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

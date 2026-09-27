@@ -1,30 +1,34 @@
 openapi: 3.2.0
 info:
-  title: AutoGPT Agent Server Analytics API
+  title: AutoGPT Agent Server Otto API
   summary: AutoGPT Agent Server
   description: This server is used to execute agents that are created by the AutoGPT system.
   version: '0.1'
 tags:
-- name: Analytics
+- name: otto
 paths:
-  /api/analytics/log_raw_analytics:
+  /api/otto/ask:
     post:
       tags:
-      - Analytics
-      summary: Log Raw Analytics
-      operationId: postAnalyticsLogRawAnalytics
+      - otto
+      summary: Proxy Otto Chat Request
+      description: 'Proxy requests to Otto API while adding necessary security headers and logging.
+
+        Requires an authenticated user.'
+      operationId: postV2ProxyOttoChatRequest
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Body_postAnalyticsLogRawAnalytics'
+              $ref: '#/components/schemas/ChatRequest'
         required: true
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         '401':
           $ref: '#/components/responses/HTTP401NotAuthenticatedError'
         '422':
@@ -35,34 +39,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
       - HTTPBearerJWT: []
-  /api/analytics/log_raw_metric:
-    post:
-      tags:
-      - Analytics
-      summary: Log Raw Metric
-      operationId: postAnalyticsLogRawMetric
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LogRawMetricRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '401':
-          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Proxy otto chat request
 components:
   responses:
     HTTP401NotAuthenticatedError:
@@ -101,6 +79,66 @@ components:
       - msg
       - type
       title: ValidationError
+    Message:
+      properties:
+        query:
+          type: string
+          title: Query
+        response:
+          type: string
+          title: Response
+      type: object
+      required:
+      - query
+      - response
+      title: Message
+    ChatRequest:
+      properties:
+        query:
+          type: string
+          title: Query
+        conversation_history:
+          items:
+            $ref: '#/components/schemas/Message'
+          type: array
+          title: Conversation History
+        message_id:
+          type: string
+          title: Message Id
+        include_graph_data:
+          type: boolean
+          title: Include Graph Data
+          default: false
+        graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Id
+      type: object
+      required:
+      - query
+      - conversation_history
+      - message_id
+      title: ChatRequest
+    ApiResponse:
+      properties:
+        answer:
+          type: string
+          title: Answer
+        documents:
+          items:
+            $ref: '#/components/schemas/Document'
+          type: array
+          title: Documents
+        success:
+          type: boolean
+          title: Success
+      type: object
+      required:
+      - answer
+      - documents
+      - success
+      title: ApiResponse
     HTTPValidationError:
       properties:
         detail:
@@ -110,45 +148,19 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    Body_postAnalyticsLogRawAnalytics:
+    Document:
       properties:
-        type:
+        url:
           type: string
-          title: Type
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-          description: The data to log
-        data_index:
-          type: string
-          title: Data Index
-          description: Indexable field for any count based analytical measures like page order clicking, tutorial step completion, etc.
-      type: object
-      required:
-      - type
-      - data
-      - data_index
-      title: Body_postAnalyticsLogRawAnalytics
-    LogRawMetricRequest:
-      properties:
-        metric_name:
-          type: string
-          minLength: 1
-          title: Metric Name
-        metric_value:
+          title: Url
+        relevance_score:
           type: number
-          title: Metric Value
-        data_string:
-          type: string
-          minLength: 1
-          title: Data String
+          title: Relevance Score
       type: object
       required:
-      - metric_name
-      - metric_value
-      - data_string
-      title: LogRawMetricRequest
+      - url
+      - relevance_score
+      title: Document
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

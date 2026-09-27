@@ -1,0 +1,460 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Schedules API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Schedules
+paths:
+  /api/graphs/{graph_id}/schedules:
+    get:
+      tags:
+      - Schedules
+      summary: List execution schedules for a graph
+      operationId: getV1ListExecutionSchedulesForAGraph
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GraphExecutionJobInfo'
+                title: Response Getv1List Execution Schedules For A Graph
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1List execution schedules for a graph
+    post:
+      tags:
+      - Schedules
+      summary: Create execution schedule
+      operationId: postV1CreateExecutionSchedule
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: ID of the graph to schedule
+          title: Graph Id
+        description: ID of the graph to schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleCreationRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphExecutionJobInfo'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Create execution schedule
+  /api/schedules:
+    get:
+      tags:
+      - Schedules
+      summary: List execution schedules for a user
+      operationId: getV1ListExecutionSchedulesForAUser
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GraphExecutionJobInfo'
+                type: array
+                title: Response Getv1List Execution Schedules For A User
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV1List execution schedules for a user
+  /api/schedules/followups:
+    get:
+      tags:
+      - Schedules
+      summary: List copilot follow-up schedules for a user
+      description: 'Return only copilot-turn schedules for the current user.
+
+
+        Sibling of :func:`list_all_graphs_execution_schedules`; one route per kind
+
+        keeps the generated frontend client typed to a single concrete return type
+
+        instead of a discriminated union.'
+      operationId: listCopilotFollowupSchedules
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CopilotTurnJobInfo'
+                type: array
+                title: Response Listcopilotfollowupschedules
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/schedules/{schedule_id}:
+    delete:
+      tags:
+      - Schedules
+      summary: Delete execution schedule
+      operationId: deleteV1DeleteExecutionSchedule
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: schedule_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: ID of the schedule to delete
+          title: Schedule Id
+        description: ID of the schedule to delete
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Deletev1Delete Execution Schedule
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV1Delete execution schedule
+components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CredentialsMetaInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
+      type: object
+      required:
+      - id
+      - provider
+      - type
+      title: CredentialsMetaInput
+      credentials_provider: []
+      credentials_types: []
+    CopilotTurnJobInfo:
+      properties:
+        kind:
+          type: string
+          const: copilot_turn
+          title: Kind
+          default: copilot_turn
+        schedule_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schedule Id
+        user_id:
+          type: string
+          title: User Id
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        message:
+          type: string
+          title: Message
+        cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cron
+        run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Run At
+        cap_retry_count:
+          type: integer
+          title: Cap Retry Count
+          default: 0
+        expert_lookup_retry_count:
+          type: integer
+          title: Expert Lookup Retry Count
+          default: 0
+        user_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Timezone
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        next_run_time:
+          type: string
+          title: Next Run Time
+        timezone:
+          type: string
+          title: Timezone
+          description: Timezone used for scheduling
+          default: UTC
+      type: object
+      required:
+      - user_id
+      - message
+      - id
+      - name
+      - next_run_time
+      title: CopilotTurnJobInfo
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ScheduleCreationRequest:
+      properties:
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+        name:
+          type: string
+          title: Name
+        cron:
+          type: string
+          title: Cron
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credentials:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Credentials
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timezone
+          description: User's timezone for scheduling (e.g., 'America/New_York'). If not provided, will use user's saved timezone or UTC.
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+          description: Attribute this schedule (and every run it fires) to a hired expert owned by the caller. If omitted, resolved automatically when exactly one active hired expert has this graph installed as a workflow.
+      type: object
+      required:
+      - name
+      - cron
+      - inputs
+      title: ScheduleCreationRequest
+    GraphExecutionJobInfo:
+      properties:
+        kind:
+          type: string
+          const: graph
+          title: Kind
+          default: graph
+        schedule_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schedule Id
+        user_id:
+          type: string
+          title: User Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        agent_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Name
+        cron:
+          type: string
+          title: Cron
+        input_data:
+          additionalProperties: true
+          type: object
+          title: Input Data
+        input_credentials:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Input Credentials
+        organization_id:
+          type: string
+          title: Organization Id
+          default: ''
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        next_run_time:
+          type: string
+          title: Next Run Time
+        timezone:
+          type: string
+          title: Timezone
+          description: Timezone used for scheduling
+          default: UTC
+      type: object
+      required:
+      - user_id
+      - graph_id
+      - graph_version
+      - cron
+      - input_data
+      - id
+      - name
+      - next_run_time
+      title: GraphExecutionJobInfo
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

@@ -1,0 +1,566 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Email API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Email
+paths:
+  /api/email/:
+    post:
+      tags:
+      - Email
+      summary: Handle Postmark Email Webhooks
+      operationId: postV1HandlePostmarkEmailWebhooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/PostmarkDeliveryWebhook'
+              - $ref: '#/components/schemas/PostmarkBounceWebhook'
+              - $ref: '#/components/schemas/PostmarkSpamComplaintWebhook'
+              - $ref: '#/components/schemas/PostmarkOpenWebhook'
+              - $ref: '#/components/schemas/PostmarkClickWebhook'
+              - $ref: '#/components/schemas/PostmarkSubscriptionChangeWebhook'
+              title: Webhook
+              discriminator:
+                propertyName: RecordType
+                mapping:
+                  Delivery: '#/components/schemas/PostmarkDeliveryWebhook'
+                  Bounce: '#/components/schemas/PostmarkBounceWebhook'
+                  SpamComplaint: '#/components/schemas/PostmarkSpamComplaintWebhook'
+                  Open: '#/components/schemas/PostmarkOpenWebhook'
+                  Click: '#/components/schemas/PostmarkClickWebhook'
+                  SubscriptionChange: '#/components/schemas/PostmarkSubscriptionChangeWebhook'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - APIKeyAuthenticator-X-Postmark-Webhook-Token: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1Handle postmark email webhooks
+  /api/email/unsubscribe:
+    post:
+      tags:
+      - Email
+      summary: One Click Email Unsubscribe
+      operationId: postV1OneClickEmailUnsubscribe
+      parameters:
+      - name: token
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV1One click email unsubscribe
+components:
+  schemas:
+    PostmarkSpamComplaintWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: SpamComplaint
+          title: Recordtype
+          default: SpamComplaint
+        ID:
+          type: integer
+          title: Id
+        Type:
+          type: string
+          title: Type
+        TypeCode:
+          type: integer
+          title: Typecode
+        Tag:
+          type: string
+          title: Tag
+        MessageID:
+          type: string
+          title: Messageid
+        Details:
+          type: string
+          title: Details
+        Email:
+          type: string
+          title: Email
+        From:
+          type: string
+          title: From
+        BouncedAt:
+          type: string
+          title: Bouncedat
+        Inactive:
+          type: boolean
+          title: Inactive
+        DumpAvailable:
+          type: boolean
+          title: Dumpavailable
+        CanActivate:
+          type: boolean
+          title: Canactivate
+        Subject:
+          type: string
+          title: Subject
+        ServerID:
+          type: integer
+          title: Serverid
+        MessageStream:
+          type: string
+          title: Messagestream
+        Content:
+          type: string
+          title: Content
+        Name:
+          type: string
+          title: Name
+        Description:
+          type: string
+          title: Description
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - ID
+      - Type
+      - TypeCode
+      - Tag
+      - MessageID
+      - Details
+      - Email
+      - From
+      - BouncedAt
+      - Inactive
+      - DumpAvailable
+      - CanActivate
+      - Subject
+      - ServerID
+      - MessageStream
+      - Content
+      - Name
+      - Description
+      - Metadata
+      title: PostmarkSpamComplaintWebhook
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PostmarkOpenWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: Open
+          title: Recordtype
+          default: Open
+        MessageStream:
+          type: string
+          title: Messagestream
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+        FirstOpen:
+          type: boolean
+          title: Firstopen
+        Recipient:
+          type: string
+          title: Recipient
+        MessageID:
+          type: string
+          title: Messageid
+        ReceivedAt:
+          type: string
+          title: Receivedat
+        Platform:
+          type: string
+          title: Platform
+        ReadSeconds:
+          type: integer
+          title: Readseconds
+        Tag:
+          type: string
+          title: Tag
+        UserAgent:
+          type: string
+          title: Useragent
+        OS:
+          additionalProperties:
+            type: string
+          type: object
+          title: Os
+        Client:
+          additionalProperties:
+            type: string
+          type: object
+          title: Client
+        Geo:
+          additionalProperties:
+            type: string
+          type: object
+          title: Geo
+      type: object
+      required:
+      - MessageStream
+      - Metadata
+      - FirstOpen
+      - Recipient
+      - MessageID
+      - ReceivedAt
+      - Platform
+      - ReadSeconds
+      - Tag
+      - UserAgent
+      - OS
+      - Client
+      - Geo
+      title: PostmarkOpenWebhook
+    PostmarkBounceWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: Bounce
+          title: Recordtype
+          default: Bounce
+        ID:
+          type: integer
+          title: Id
+        Type:
+          type: string
+          title: Type
+        TypeCode:
+          $ref: '#/components/schemas/PostmarkBounceEnum'
+        Tag:
+          type: string
+          title: Tag
+        MessageID:
+          type: string
+          title: Messageid
+        Details:
+          type: string
+          title: Details
+        Email:
+          type: string
+          title: Email
+        From:
+          type: string
+          title: From
+        BouncedAt:
+          type: string
+          title: Bouncedat
+        Inactive:
+          type: boolean
+          title: Inactive
+        DumpAvailable:
+          type: boolean
+          title: Dumpavailable
+        CanActivate:
+          type: boolean
+          title: Canactivate
+        Subject:
+          type: string
+          title: Subject
+        ServerID:
+          type: integer
+          title: Serverid
+        MessageStream:
+          type: string
+          title: Messagestream
+        Content:
+          type: string
+          title: Content
+        Name:
+          type: string
+          title: Name
+        Description:
+          type: string
+          title: Description
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - ID
+      - Type
+      - TypeCode
+      - Tag
+      - MessageID
+      - Details
+      - Email
+      - From
+      - BouncedAt
+      - Inactive
+      - DumpAvailable
+      - CanActivate
+      - Subject
+      - ServerID
+      - MessageStream
+      - Content
+      - Name
+      - Description
+      - Metadata
+      title: PostmarkBounceWebhook
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PostmarkClickWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: Click
+          title: Recordtype
+          default: Click
+        MessageStream:
+          type: string
+          title: Messagestream
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+        Recipient:
+          type: string
+          title: Recipient
+        MessageID:
+          type: string
+          title: Messageid
+        ReceivedAt:
+          type: string
+          title: Receivedat
+        Platform:
+          type: string
+          title: Platform
+        ClickLocation:
+          type: string
+          title: Clicklocation
+        OriginalLink:
+          type: string
+          title: Originallink
+        Tag:
+          type: string
+          title: Tag
+        UserAgent:
+          type: string
+          title: Useragent
+        OS:
+          additionalProperties:
+            type: string
+          type: object
+          title: Os
+        Client:
+          additionalProperties:
+            type: string
+          type: object
+          title: Client
+        Geo:
+          additionalProperties:
+            type: string
+          type: object
+          title: Geo
+      type: object
+      required:
+      - MessageStream
+      - Metadata
+      - Recipient
+      - MessageID
+      - ReceivedAt
+      - Platform
+      - ClickLocation
+      - OriginalLink
+      - Tag
+      - UserAgent
+      - OS
+      - Client
+      - Geo
+      title: PostmarkClickWebhook
+    PostmarkBounceEnum:
+      type: integer
+      enum:
+      - 1
+      - 2
+      - 16
+      - 32
+      - 64
+      - 128
+      - 256
+      - 512
+      - 1024
+      - 2048
+      - 4096
+      - 8192
+      - 16384
+      - 100000
+      - 100001
+      - 100002
+      - 100003
+      - 100006
+      - 100007
+      - 100008
+      - 100009
+      - 100010
+      title: PostmarkBounceEnum
+    PostmarkDeliveryWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: Delivery
+          title: Recordtype
+          default: Delivery
+        ServerID:
+          type: integer
+          title: Serverid
+        MessageStream:
+          type: string
+          title: Messagestream
+        MessageID:
+          type: string
+          title: Messageid
+        Recipient:
+          type: string
+          title: Recipient
+        Tag:
+          type: string
+          title: Tag
+        DeliveredAt:
+          type: string
+          title: Deliveredat
+        Details:
+          type: string
+          title: Details
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - ServerID
+      - MessageStream
+      - MessageID
+      - Recipient
+      - Tag
+      - DeliveredAt
+      - Details
+      - Metadata
+      title: PostmarkDeliveryWebhook
+    PostmarkSubscriptionChangeWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: SubscriptionChange
+          title: Recordtype
+          default: SubscriptionChange
+        MessageID:
+          type: string
+          title: Messageid
+        ServerID:
+          type: integer
+          title: Serverid
+        MessageStream:
+          type: string
+          title: Messagestream
+        ChangedAt:
+          type: string
+          title: Changedat
+        Recipient:
+          type: string
+          title: Recipient
+        Origin:
+          type: string
+          title: Origin
+        SuppressSending:
+          type: boolean
+          title: Suppresssending
+        SuppressionReason:
+          type: string
+          title: Suppressionreason
+        Tag:
+          type: string
+          title: Tag
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - MessageID
+      - ServerID
+      - MessageStream
+      - ChangedAt
+      - Recipient
+      - Origin
+      - SuppressSending
+      - SuppressionReason
+      - Tag
+      - Metadata
+      title: PostmarkSubscriptionChangeWebhook
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

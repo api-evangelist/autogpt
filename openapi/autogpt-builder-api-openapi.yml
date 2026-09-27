@@ -1,0 +1,611 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Builder API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: Builder
+paths:
+  /api/builder/blocks:
+    get:
+      tags:
+      - Builder
+      summary: Get Builder blocks
+      description: Get blocks based on either category, type, or provider.
+      operationId: getV2GetBuilderBlocks
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - all
+            - input
+            - action
+            - output
+            type: string
+          - type: 'null'
+          title: Type
+      - name: provider
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            description: Provider name for integrations. Can be any string value, including custom provider names.
+          - type: 'null'
+          title: Provider
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get builder blocks
+  /api/builder/blocks/batch:
+    get:
+      tags:
+      - Builder
+      summary: Get specific blocks
+      description: Get specific blocks by their IDs.
+      operationId: getV2GetSpecificBlocks
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: block_ids
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+          title: Block Ids
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlockInfo'
+                title: Response Getv2Get Specific Blocks
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get specific blocks
+  /api/builder/categories:
+    get:
+      tags:
+      - Builder
+      summary: Get Builder block categories
+      description: Get all block categories with a specified number of blocks per category.
+      operationId: getV2GetBuilderBlockCategories
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: blocks_per_category
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 3
+          title: Blocks Per Category
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlockCategoryResponse'
+                title: Response Getv2Get Builder Block Categories
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get builder block categories
+  /api/builder/counts:
+    get:
+      tags:
+      - Builder
+      summary: Get Builder item counts
+      description: Get item counts for the menu categories in the Blocks Menu.
+      operationId: getV2GetBuilderItemCounts
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get builder item counts
+  /api/builder/providers:
+    get:
+      tags:
+      - Builder
+      summary: Get Builder integration providers
+      description: Get all integration providers with their block counts.
+      operationId: getV2GetBuilderIntegrationProviders
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get builder integration providers
+  /api/builder/suggestions:
+    get:
+      tags:
+      - Builder
+      summary: Get Builder suggestions
+      description: Get all suggestions for the Blocks Menu.
+      operationId: getV2GetBuilderSuggestions
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get builder suggestions
+components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    BlockCost:
+      properties:
+        cost_amount:
+          type: integer
+          title: Cost Amount
+        cost_filter:
+          additionalProperties: true
+          type: object
+          title: Cost Filter
+        cost_type:
+          $ref: '#/components/schemas/BlockCostType'
+        cost_divisor:
+          type: integer
+          title: Cost Divisor
+          default: 1
+        token_rate:
+          anyOf:
+          - $ref: '#/components/schemas/TokenRateDisplay'
+          - type: 'null'
+      type: object
+      required:
+      - cost_amount
+      - cost_filter
+      - cost_type
+      title: BlockCost
+    BlockCostType:
+      type: string
+      enum:
+      - run
+      - byte
+      - second
+      - items
+      - cost_usd
+      - tokens
+      title: BlockCostType
+    SuggestionsResponse:
+      properties:
+        recent_searches:
+          items:
+            $ref: '#/components/schemas/SearchEntry'
+          type: array
+          title: Recent Searches
+        providers:
+          items:
+            type: string
+            description: Provider name for integrations. Can be any string value, including custom provider names.
+          type: array
+          title: Providers
+        top_blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfo'
+          type: array
+          title: Top Blocks
+      type: object
+      required:
+      - recent_searches
+      - providers
+      - top_blocks
+      title: SuggestionsResponse
+    CountResponse:
+      properties:
+        all_blocks:
+          type: integer
+          title: All Blocks
+        input_blocks:
+          type: integer
+          title: Input Blocks
+        action_blocks:
+          type: integer
+          title: Action Blocks
+        output_blocks:
+          type: integer
+          title: Output Blocks
+        integrations:
+          type: integer
+          title: Integrations
+        marketplace_agents:
+          type: integer
+          title: Marketplace Agents
+        my_agents:
+          type: integer
+          title: My Agents
+      type: object
+      required:
+      - all_blocks
+      - input_blocks
+      - action_blocks
+      - output_blocks
+      - integrations
+      - marketplace_agents
+      - my_agents
+      title: CountResponse
+    TokenRateDisplay:
+      properties:
+        input_usd_per_1m:
+          type: number
+          minimum: 0.0
+          title: Input Usd Per 1M
+        output_usd_per_1m:
+          type: number
+          minimum: 0.0
+          title: Output Usd Per 1M
+        cache_read_usd_per_1m:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Cache Read Usd Per 1M
+        cache_creation_usd_per_1m:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Cache Creation Usd Per 1M
+      type: object
+      required:
+      - input_usd_per_1m
+      - output_usd_per_1m
+      title: TokenRateDisplay
+      description: 'Public per-1M-token USD rates surfaced to the builder UI.
+
+
+        Populated only on LLM block costs whose model has a TOKEN_COST rate.
+
+        cache_* fields are set only when the provider publishes a distinct
+
+        cached-token rate (Anthropic). Display-only — billing always uses the
+
+        internal credit math in `BlockCost.cost_amount`.'
+    BlockCategoryResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        total_blocks:
+          type: integer
+          title: Total Blocks
+        blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfo'
+          type: array
+          title: Blocks
+      type: object
+      required:
+      - name
+      - total_blocks
+      - blocks
+      title: BlockCategoryResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BlockResponse:
+      properties:
+        blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfo'
+          type: array
+          title: Blocks
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - blocks
+      - pagination
+      title: BlockResponse
+    BlockInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        inputSchema:
+          additionalProperties: true
+          type: object
+          title: Inputschema
+        outputSchema:
+          additionalProperties: true
+          type: object
+          title: Outputschema
+        costs:
+          items:
+            $ref: '#/components/schemas/BlockCost'
+          type: array
+          title: Costs
+        description:
+          type: string
+          title: Description
+        categories:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Categories
+        contributors:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Contributors
+        staticOutput:
+          type: boolean
+          title: Staticoutput
+        uiType:
+          type: string
+          title: Uitype
+      type: object
+      required:
+      - id
+      - name
+      - inputSchema
+      - outputSchema
+      - costs
+      - description
+      - categories
+      - contributors
+      - staticOutput
+      - uiType
+      title: BlockInfo
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    SearchEntry:
+      properties:
+        search_query:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search Query
+        filter:
+          anyOf:
+          - items:
+              type: string
+              enum:
+              - blocks
+              - integrations
+              - marketplace_agents
+              - my_agents
+            type: array
+          - type: 'null'
+          title: Filter
+        by_creator:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: By Creator
+        search_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search Id
+      type: object
+      title: SearchEntry
+    Provider:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        description:
+          type: string
+          title: Description
+        integration_count:
+          type: integer
+          title: Integration Count
+      type: object
+      required:
+      - name
+      - description
+      - integration_count
+      title: Provider
+    ProviderResponse:
+      properties:
+        providers:
+          items:
+            $ref: '#/components/schemas/Provider'
+          type: array
+          title: Providers
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - providers
+      - pagination
+      title: ProviderResponse
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

@@ -1,0 +1,1080 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Experts API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: experts
+paths:
+  /api/experts:
+    get:
+      tags:
+      - experts
+      summary: List Experts
+      description: List the user's active hired experts.
+      operationId: list_experts
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Expert'
+                type: array
+                title: Response List Experts
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+    post:
+      tags:
+      - experts
+      summary: Hire Expert
+      operationId: hire_expert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HireRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HireResult'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert or expert template not found
+        '409':
+          description: Active expert limit reached
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '503':
+          description: Expert workspace unavailable
+      security:
+      - HTTPBearerJWT: []
+  /api/experts/identities:
+    get:
+      tags:
+      - experts
+      summary: List Expert Identities
+      description: List the lightweight active and archived identity projection for chat.
+      operationId: list_expert_identities
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExpertIdentity'
+                type: array
+                title: Response List Expert Identities
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/experts/pods:
+    get:
+      tags:
+      - experts
+      summary: List Expert Pods
+      operationId: list_expert_pods
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExpertPod'
+                type: array
+                title: Response List Expert Pods
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+    post:
+      tags:
+      - experts
+      summary: Create Expert Pod
+      operationId: create_expert_pod
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePodRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpertPod'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '409':
+          description: Duplicate pod name, or the pod limit is reached
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/experts/raise:
+    post:
+      tags:
+      - experts
+      summary: Create Raised Expert
+      operationId: create_raised_expert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRaisedExpertRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RaiseResult'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Attachment not found or unavailable
+        '409':
+          description: Active expert limit reached
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/experts/templates:
+    get:
+      tags:
+      - experts
+      summary: List Expert Templates
+      operationId: list_expert_templates
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Expert'
+                type: array
+                title: Response List Expert Templates
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+  /api/experts/{expert_id}:
+    delete:
+      tags:
+      - experts
+      summary: Archive Expert
+      operationId: archive_expert
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Expert Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - experts
+      summary: Get Expert
+      operationId: get_expert
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Expert Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expert'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/experts/{expert_id}/detach-preview:
+    get:
+      tags:
+      - experts
+      summary: Get Expert Detach Preview
+      description: 'What archiving this expert would pause — schedules and triggers —
+
+        so the client can show a clear confirmation prompt.'
+      operationId: get_expert_detach_preview
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Expert Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpertDetachPreview'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/experts/{expert_id}/pod:
+    patch:
+      tags:
+      - experts
+      summary: Assign Expert Pod
+      operationId: assign_expert_pod
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Expert Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignPodRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expert'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert or pod not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/experts/{expert_id}/runs:
+    get:
+      tags:
+      - experts
+      summary: List Expert Runs
+      description: 'Recent executions attributed to this expert, with a classified output
+
+        type for the Work surface''s typed viewer.'
+      operationId: list_expert_runs
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Expert Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpertRun'
+                title: Response List Expert Runs
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/experts/{expert_id}/schedules/resume:
+    post:
+      tags:
+      - experts
+      summary: Resume Expert Schedules
+      description: One-click reversal of a budget/archive pause.
+      operationId: resume_expert_schedules
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Expert Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expert'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/experts/{expert_id}/soul:
+    patch:
+      tags:
+      - experts
+      summary: Update Expert Soul
+      operationId: update_expert_soul
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Expert Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpertSoulUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expert'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/experts/{expert_id}/workflows:
+    post:
+      tags:
+      - experts
+      summary: Install Expert Workflow
+      operationId: install_expert_workflow
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: expert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Expert Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstallWorkflowRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpertWorkflowRef'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '404':
+          description: Expert not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ExpertPod:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - created_at
+      title: ExpertPod
+      description: A named group of hired experts, scoped to the owner.
+    HireResult:
+      properties:
+        expert:
+          $ref: '#/components/schemas/Expert'
+        failed_preloads:
+          items:
+            type: string
+          type: array
+          title: Failed Preloads
+      type: object
+      required:
+      - expert
+      - failed_preloads
+      title: HireResult
+    AssignPodRequest:
+      properties:
+        pod_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pod Id
+      type: object
+      required:
+      - pod_id
+      title: AssignPodRequest
+    RaiseAttachment:
+      properties:
+        kind:
+          type: string
+          enum:
+          - workflow
+          - skill
+          title: Kind
+        source:
+          type: string
+          enum:
+          - marketplace
+          - library
+          title: Source
+        id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Id
+      type: object
+      required:
+      - kind
+      - source
+      - id
+      title: RaiseAttachment
+      description: 'One workflow or skill to attach while raising an expert.
+
+
+        ``id`` is a store listing version UUID (marketplace), a library agent
+
+        UUID (library workflow), or a copilot skill slug (library skill).
+
+        Marketplace skills use a store listing version UUID; the listing''s
+
+        public name is stored on ``Expert.skills``.'
+    RaiseResult:
+      properties:
+        expert:
+          $ref: '#/components/schemas/Expert'
+        failed_attachments:
+          items:
+            $ref: '#/components/schemas/RaiseAttachmentFailure'
+          type: array
+          title: Failed Attachments
+          default: []
+      type: object
+      required:
+      - expert
+      title: RaiseResult
+      description: 'Result of raising a blank expert.
+
+
+        Attachments are validated before the expert row is created. A later
+
+        install failure is non-fatal and listed in ``failed_attachments`` so
+
+        the client can surface partial success.'
+    ExpertRun:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        agent_name:
+          type: string
+          title: Agent Name
+        library_agent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Library Agent Id
+        status:
+          type: string
+          enum:
+          - incomplete
+          - queued
+          - running
+          - completed
+          - terminated
+          - failed
+          - review
+          title: Status
+        output_type:
+          type: string
+          enum:
+          - table
+          - doc
+          - image
+          - unknown
+          title: Output Type
+        output_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Output Key
+        needs_review:
+          type: boolean
+          title: Needs Review
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+        link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Link
+      type: object
+      required:
+      - execution_id
+      - graph_id
+      - agent_name
+      - library_agent_id
+      - status
+      - output_type
+      - output_key
+      - needs_review
+      - started_at
+      - ended_at
+      - link
+      title: ExpertRun
+      description: One expert-attributed execution, for the /team Work surface.
+    InstallWorkflowRequest:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+      type: object
+      required:
+      - store_listing_version_id
+      title: InstallWorkflowRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ExpertSoulUpdate:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        identity:
+          type: string
+          maxLength: 10000
+          minLength: 1
+          title: Identity
+        voice_preferences:
+          type: string
+          maxLength: 4000
+          title: Voice Preferences
+        boundaries:
+          type: string
+          maxLength: 4000
+          title: Boundaries
+      type: object
+      required:
+      - name
+      - identity
+      - voice_preferences
+      - boundaries
+      title: ExpertSoulUpdate
+    CreateRaisedExpertRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        role:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Role
+        avatar_url:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Avatar Url
+        color:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Color
+        voice_preferences:
+          anyOf:
+          - type: string
+            maxLength: 4000
+          - type: 'null'
+          title: Voice Preferences
+        about:
+          anyOf:
+          - type: string
+            maxLength: 10000
+          - type: 'null'
+          title: About
+        weekly_budget:
+          anyOf:
+          - type: integer
+            maximum: 1000000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Weekly Budget
+        attachments:
+          items:
+            $ref: '#/components/schemas/RaiseAttachment'
+          type: array
+          maxItems: 20
+          title: Attachments
+      type: object
+      required:
+      - name
+      title: CreateRaisedExpertRequest
+    RaiseAttachmentFailure:
+      properties:
+        kind:
+          type: string
+          enum:
+          - workflow
+          - skill
+          title: Kind
+        source:
+          type: string
+          enum:
+          - marketplace
+          - library
+          title: Source
+        id:
+          type: string
+          title: Id
+        reason:
+          type: string
+          enum:
+          - unavailable
+          - installation_failed
+          title: Reason
+      type: object
+      required:
+      - kind
+      - source
+      - id
+      - reason
+      title: RaiseAttachmentFailure
+    Expert:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        color:
+          type: string
+          title: Color
+          default: ''
+        role:
+          type: string
+          title: Role
+        tagline:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tagline
+        bio:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bio
+        skills:
+          items:
+            type: string
+          type: array
+          title: Skills
+        identity:
+          type: string
+          title: Identity
+        voice_preferences:
+          type: string
+          title: Voice Preferences
+        voice_samples:
+          items:
+            $ref: '#/components/schemas/VoiceSample'
+          type: array
+          title: Voice Samples
+          default: []
+        boundaries:
+          type: string
+          title: Boundaries
+        protected_soul_rules:
+          items:
+            type: string
+          type: array
+          title: Protected Soul Rules
+        is_template:
+          type: boolean
+          title: Is Template
+        source_template_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Template Id
+        is_archived:
+          type: boolean
+          title: Is Archived
+        workflows:
+          items:
+            $ref: '#/components/schemas/ExpertWorkflowRef'
+          type: array
+          title: Workflows
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        last_run_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Run Status
+        weekly_budget:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Weekly Budget
+        weekly_spend:
+          type: integer
+          title: Weekly Spend
+          default: 0
+        schedules_paused_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Schedules Paused At
+        pod_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pod Id
+      type: object
+      required:
+      - id
+      - name
+      - avatar_url
+      - role
+      - tagline
+      - bio
+      - skills
+      - identity
+      - voice_preferences
+      - boundaries
+      - protected_soul_rules
+      - is_template
+      - source_template_id
+      - is_archived
+      - workflows
+      title: Expert
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreatePodRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: CreatePodRequest
+    ExpertWorkflowRef:
+      properties:
+        id:
+          type: string
+          title: Id
+        store_listing_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Store Listing Version Id
+        library_agent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Library Agent Id
+        graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schedule Cron
+        schedule_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schedule Id
+      type: object
+      required:
+      - id
+      - store_listing_version_id
+      - library_agent_id
+      - graph_id
+      - name
+      - description
+      title: ExpertWorkflowRef
+    ExpertDetachPreview:
+      properties:
+        schedule_names:
+          items:
+            type: string
+          type: array
+          title: Schedule Names
+        trigger_names:
+          items:
+            type: string
+          type: array
+          title: Trigger Names
+      type: object
+      required:
+      - schedule_names
+      - trigger_names
+      title: ExpertDetachPreview
+      description: What archiving the expert would pause — drives the confirm dialog.
+    HireRequest:
+      properties:
+        template_id:
+          type: string
+          title: Template Id
+        name:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Name
+      type: object
+      required:
+      - template_id
+      title: HireRequest
+    ExpertIdentity:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        role:
+          type: string
+          title: Role
+        is_archived:
+          type: boolean
+          title: Is Archived
+      type: object
+      required:
+      - id
+      - name
+      - avatar_url
+      - role
+      - is_archived
+      title: ExpertIdentity
+    VoiceSample:
+      properties:
+        label:
+          type: string
+          title: Label
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+      - label
+      - text
+      title: VoiceSample
+      description: 'A short writing sample in a persona''s own voice, offered as a pick in
+
+        the hire or raise flow. The first sample is choice "a", the second choice
+
+        "b".'
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

@@ -1,0 +1,874 @@
+openapi: 3.2.0
+info:
+  title: AutoGPT Agent Server Presets API
+  summary: AutoGPT Agent Server
+  description: This server is used to execute agents that are created by the AutoGPT system.
+  version: '0.1'
+tags:
+- name: presets
+paths:
+  /api/library/presets:
+    get:
+      tags:
+      - presets
+      summary: List presets
+      description: Retrieve a paginated list of presets for the current user.
+      operationId: getV2ListPresets
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 10
+          title: Page Size
+      - name: graph_id
+        in: query
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Allows to filter presets by a specific agent graph
+          title: Graph Id
+        description: Allows to filter presets by a specific agent graph
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgentPresetResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List presets
+    post:
+      tags:
+      - presets
+      summary: Create a new preset
+      description: Create a new preset for the current user.
+      operationId: postV2CreateANewPreset
+      security:
+      - HTTPBearerJWT: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/LibraryAgentPresetCreatable'
+              - $ref: '#/components/schemas/LibraryAgentPresetCreatableFromGraphExecution'
+              title: Preset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgentPreset'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Create a new preset
+  /api/library/presets/setup-trigger:
+    post:
+      tags:
+      - presets
+      summary: Setup Trigger
+      description: 'Sets up a webhook-triggered `LibraryAgentPreset` for a `LibraryAgent`.
+
+        Returns the correspondingly created `LibraryAgentPreset` with `webhook_id` set.'
+      operationId: postV2SetupTrigger
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggeredPresetSetupRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgentPreset'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+  /api/library/presets/{preset_id}:
+    delete:
+      tags:
+      - presets
+      summary: Delete a preset
+      description: Delete an existing preset by its ID.
+      operationId: deleteV2DeleteAPreset
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: preset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Preset Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Delete a preset
+    get:
+      tags:
+      - presets
+      summary: Get a specific preset
+      description: Retrieve details for a specific preset by its ID.
+      operationId: getV2GetASpecificPreset
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: preset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Preset Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgentPreset'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get a specific preset
+    patch:
+      tags:
+      - presets
+      summary: Update an existing preset
+      description: Update an existing preset by its ID.
+      operationId: patchV2UpdateAnExistingPreset
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: preset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Preset Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LibraryAgentPresetUpdatable'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryAgentPreset'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: patchV2Update an existing preset
+  /api/library/presets/{preset_id}/execute:
+    post:
+      tags:
+      - presets
+      summary: Execute a preset
+      description: Execute a preset with the given graph and node input for the current user.
+      operationId: postV2ExecuteAPreset
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: preset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Preset Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_postV2Execute_a_preset'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphExecutionMeta'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '402':
+          description: Subscription required (NO_TIER user, paywall on)
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '503':
+          description: Subscription state temporarily unavailable
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Execute a preset
+components:
+  schemas:
+    Webhook:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        credentials_id:
+          type: string
+          title: Credentials Id
+        webhook_type:
+          type: string
+          title: Webhook Type
+        resource:
+          type: string
+          title: Resource
+        events:
+          items:
+            type: string
+          type: array
+          title: Events
+        config:
+          additionalProperties: true
+          type: object
+          title: Config
+        secret:
+          type: string
+          title: Secret
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        provider_webhook_id:
+          type: string
+          title: Provider Webhook Id
+        url:
+          type: string
+          title: Url
+          readOnly: true
+      type: object
+      required:
+      - user_id
+      - provider
+      - credentials_id
+      - webhook_type
+      - resource
+      - events
+      - secret
+      - provider_webhook_id
+      - url
+      title: Webhook
+    LibraryAgentPreset:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credentials:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Credentials
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        webhook_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Webhook Id
+        webhook:
+          anyOf:
+          - $ref: '#/components/schemas/Webhook'
+          - type: 'null'
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+      type: object
+      required:
+      - graph_id
+      - graph_version
+      - inputs
+      - credentials
+      - name
+      - description
+      - id
+      - user_id
+      - created_at
+      - updated_at
+      - webhook
+      title: LibraryAgentPreset
+      description: Represents a preset configuration for a library agent.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CredentialsMetaInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
+      type: object
+      required:
+      - id
+      - provider
+      - type
+      title: CredentialsMetaInput
+      credentials_provider: []
+      credentials_types: []
+    LibraryAgentPresetUpdatable:
+      properties:
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+        credentials:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/CredentialsMetaInput'
+            type: object
+          - type: 'null'
+          title: Credentials
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: LibraryAgentPresetUpdatable
+      description: Request model used when updating a preset for a library agent.
+    AgentExecutionStatus:
+      type: string
+      enum:
+      - INCOMPLETE
+      - QUEUED
+      - RUNNING
+      - COMPLETED
+      - TERMINATED
+      - FAILED
+      - REVIEW
+      title: AgentExecutionStatus
+    TriggeredPresetSetupRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        trigger_config:
+          additionalProperties: true
+          type: object
+          title: Trigger Config
+        agent_credentials:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Agent Credentials
+      type: object
+      required:
+      - name
+      - graph_id
+      - graph_version
+      - trigger_config
+      title: TriggeredPresetSetupRequest
+    Body_postV2Execute_a_preset:
+      properties:
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credential_inputs:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Credential Inputs
+      type: object
+      title: Body_postV2Execute a preset
+    LibraryAgentPresetResponse:
+      properties:
+        presets:
+          items:
+            $ref: '#/components/schemas/LibraryAgentPreset'
+          type: array
+          title: Presets
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - presets
+      - pagination
+      title: LibraryAgentPresetResponse
+      description: Response schema for a list of agent presets and pagination info.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    ExecutionFailureReason:
+      type: string
+      enum:
+      - insufficient_balance
+      - entitlement_required
+      title: ExecutionFailureReason
+      description: Structured reasons for terminal graph execution failures.
+    LibraryAgentPresetCreatable:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credentials:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Credentials
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - graph_id
+      - graph_version
+      - inputs
+      - credentials
+      - name
+      - description
+      title: LibraryAgentPresetCreatable
+      description: 'Request model used when creating a new preset for a library agent.
+
+
+        A preset''s webhook is never caller-specified here; webhook-triggered presets
+
+        are created through ``POST /presets/setup-trigger``, which provisions a
+
+        webhook owned by the caller server-side.'
+    GraphExecutionMeta:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+        credential_inputs:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/CredentialsMetaInput'
+            type: object
+          - type: 'null'
+          title: Credential Inputs
+        nodes_input_masks:
+          anyOf:
+          - additionalProperties:
+              additionalProperties: true
+              type: object
+            type: object
+          - type: 'null'
+          title: Nodes Input Masks
+        preset_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Preset Id
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: When execution started running. Null if not yet started (QUEUED).
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+          description: When execution finished. Null if not yet completed (QUEUED, RUNNING, INCOMPLETE, REVIEW).
+        is_shared:
+          type: boolean
+          title: Is Shared
+          default: false
+        share_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Share Token
+        is_dry_run:
+          type: boolean
+          title: Is Dry Run
+          default: false
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        stats:
+          anyOf:
+          - $ref: '#/components/schemas/Stats'
+          - type: 'null'
+      type: object
+      required:
+      - id
+      - user_id
+      - graph_id
+      - graph_version
+      - inputs
+      - credential_inputs
+      - nodes_input_masks
+      - preset_id
+      - status
+      - stats
+      title: GraphExecutionMeta
+    Stats:
+      properties:
+        cost:
+          type: integer
+          title: Cost
+          description: Execution cost (cents)
+          default: 0
+        duration:
+          type: number
+          title: Duration
+          description: Seconds from start to end of run
+          default: 0
+        duration_cpu_only:
+          type: number
+          title: Duration Cpu Only
+          description: CPU sec of duration
+          default: 0
+        node_exec_time:
+          type: number
+          title: Node Exec Time
+          description: Seconds of total node runtime
+          default: 0
+        node_exec_time_cpu_only:
+          type: number
+          title: Node Exec Time Cpu Only
+          description: CPU sec of node_exec_time
+          default: 0
+        node_exec_count:
+          type: integer
+          title: Node Exec Count
+          description: Number of node executions
+          default: 0
+        node_error_count:
+          type: integer
+          title: Node Error Count
+          description: Number of node errors
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if any
+        failure_reason:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionFailureReason'
+          - type: 'null'
+          description: Structured reason for a terminal execution failure
+        activity_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Status
+          description: AI-generated summary of what the agent did
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+          description: AI-generated score (0.0-1.0) indicating how well the execution achieved its intended purpose
+      additionalProperties: true
+      type: object
+      title: Stats
+    LibraryAgentPresetCreatableFromGraphExecution:
+      properties:
+        graph_execution_id:
+          type: string
+          title: Graph Execution Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - graph_execution_id
+      - name
+      - description
+      title: LibraryAgentPresetCreatableFromGraphExecution
+      description: Request model used when creating a new preset for a library agent.
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+  securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

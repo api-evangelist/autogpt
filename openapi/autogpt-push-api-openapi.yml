@@ -12,7 +12,7 @@ paths:
       tags:
       - Push
       summary: Register a push subscription for the current user
-      operationId: postPushRegister a push subscription for the current user
+      operationId: postPushRegisterAPushSubscriptionForTheCurrentUser
       requestBody:
         content:
           application/json:
@@ -32,12 +32,14 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
       - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postPushRegister a push subscription for the current user
   /api/push/unsubscribe:
     post:
       tags:
       - Push
       summary: Remove a push subscription
-      operationId: postPushRemove a push subscription
+      operationId: postPushRemoveAPushSubscription
       requestBody:
         content:
           application/json:
@@ -57,12 +59,14 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
       - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postPushRemove a push subscription
   /api/push/vapid-key:
     get:
       tags:
       - Push
       summary: Get VAPID public key for push subscription
-      operationId: getPushGet vapid public key for push subscription
+      operationId: getPushGetVapidPublicKeyForPushSubscription
       responses:
         '200':
           description: Successful Response
@@ -70,6 +74,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VapidPublicKeyResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: getPushGet vapid public key for push subscription
 components:
   responses:
     HTTP401NotAuthenticatedError:
@@ -128,17 +134,6 @@ components:
       - endpoint
       - keys
       title: PushSubscribeRequest
-    PushUnsubscribeRequest:
-      properties:
-        endpoint:
-          type: string
-          maxLength: 2048
-          minLength: 1
-          title: Endpoint
-      type: object
-      required:
-      - endpoint
-      title: PushUnsubscribeRequest
     PushSubscriptionKeys:
       properties:
         p256dh:
@@ -174,6 +169,17 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    PushUnsubscribeRequest:
+      properties:
+        endpoint:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Endpoint
+      type: object
+      required:
+      - endpoint
+      title: PushUnsubscribeRequest
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

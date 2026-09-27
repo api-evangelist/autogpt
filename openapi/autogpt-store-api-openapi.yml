@@ -1,13 +1,920 @@
 openapi: 3.2.0
 info:
-  title: AutoGPT External Store API
-  description: External API for AutoGPT integrations
+  title: Autogpt Store API
   version: '1.0'
+  description: 'Operations tagged store across 2 of this provider''s published API definitions: autogpt-agent-server-openapi.json, autogpt-external-api-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /external-api
 tags:
 - name: Store
 paths:
+  /api/builder/search:
+    get:
+      tags:
+      - Store
+      summary: Builder search
+      description: Search for blocks (including integrations), marketplace agents, and user library agents.
+      operationId: getV2BuilderSearch
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: search_query
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search Query
+      - name: filter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter
+      - name: search_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search Id
+      - name: by_creator
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              type: string
+          - type: 'null'
+          title: By Creator
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Builder search
+  /api/store/agents:
+    get:
+      tags:
+      - Store
+      summary: List store agents
+      description: 'Get a paginated list of agents from the marketplace,
+
+        with optional filtering and sorting.
+
+
+        Used for:
+
+        - Home Page Featured Agents
+
+        - Home Page Top Agents
+
+        - Search Results
+
+        - Agent Details - Other Agents By Creator
+
+        - Agent Details - Similar Agents
+
+        - Creator Details - Agents By Creator'
+      operationId: getV2ListStoreAgents
+      parameters:
+      - name: featured
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Filter to only show featured agents
+          default: false
+          title: Featured
+        description: Filter to only show featured agents
+      - name: creator
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter agents by creator username
+          title: Creator
+        description: Filter agents by creator username
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter agents by category
+          title: Category
+        description: Filter agents by category
+      - name: search_query
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Literal + semantic search on names and descriptions
+          title: Search Query
+        description: Literal + semantic search on names and descriptions
+      - name: sorted_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/StoreAgentsSortOptions'
+          - type: 'null'
+          description: Property to sort results by. Ignored if search_query is provided.
+          title: Sorted By
+        description: Property to sort results by. Ignored if search_query is provided.
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreAgentsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List store agents
+  /api/store/agents/{username}/{agent_name}:
+    get:
+      tags:
+      - Store
+      summary: Get specific agent
+      description: Get details of a marketplace agent
+      operationId: getV2GetSpecificAgent
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Username
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Name
+      - name: include_changelog
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Changelog
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreAgentDetails'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get specific agent
+  /api/store/agents/{username}/{agent_name}/review:
+    post:
+      tags:
+      - Store
+      summary: Create agent review
+      description: Post a user review on a marketplace agent listing
+      operationId: postV2CreateAgentReview
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Username
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreReviewCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreReview'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Create agent review
+  /api/store/creators:
+    get:
+      tags:
+      - Store
+      summary: List store creators
+      description: List or search marketplace creators
+      operationId: getV2ListStoreCreators
+      parameters:
+      - name: featured
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Filter to only show featured creators
+          default: false
+          title: Featured
+        description: Filter to only show featured creators
+      - name: search_query
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Literal + semantic search on names and descriptions
+          title: Search Query
+        description: Literal + semantic search on names and descriptions
+      - name: sorted_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/StoreCreatorsSortOptions'
+          - type: 'null'
+          title: Sorted By
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatorsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List store creators
+  /api/store/creators/{username}:
+    get:
+      tags:
+      - Store
+      summary: Get creator details
+      description: Get details on a marketplace creator
+      operationId: getV2GetCreatorDetails
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Username
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatorDetails'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get creator details
+  /api/store/listings/versions/{store_listing_version_id}:
+    get:
+      tags:
+      - Store
+      summary: Get agent by version
+      operationId: getV2GetAgentByVersion
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Store Listing Version Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreAgentDetails'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get agent by version
+  /api/store/listings/versions/{store_listing_version_id}/graph:
+    get:
+      tags:
+      - Store
+      summary: Get agent graph
+      description: Get outline of graph belonging to a specific marketplace listing version
+      operationId: getV2GetAgentGraph
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Store Listing Version Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphModelWithoutNodes'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get agent graph
+  /api/store/listings/versions/{store_listing_version_id}/graph/download:
+    get:
+      tags:
+      - Store
+      summary: Download agent file
+      description: Download agent graph file for a specific marketplace listing version
+      operationId: getV2DownloadAgentFile
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Store Listing Version Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Download agent file
+  /api/store/metrics/cache:
+    get:
+      tags:
+      - Store
+      summary: Get cache metrics in Prometheus format
+      description: 'Get cache metrics in Prometheus text format.
+
+
+        Returns Prometheus-compatible metrics for monitoring cache performance.
+
+        Metrics include size, maxsize, TTL, and hit rate for each cache.
+
+
+        Returns:
+
+        str: Prometheus-formatted metrics text'
+      operationId: getV2GetCacheMetricsInPrometheusFormat
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            text/plain:
+              schema:
+                type: string
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get cache metrics in prometheus format
+  /api/store/my-unpublished-agents:
+    get:
+      tags:
+      - Store
+      summary: Get my agents
+      description: List the authenticated user's unpublished agents
+      operationId: getV2GetMyAgents
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+          title: Page Size
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/MyAgentsSortBy'
+          default: most_recent
+      - name: search_query
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Search Query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyUnpublishedAgentsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get my agents
+  /api/store/profile:
+    get:
+      tags:
+      - Store
+      summary: Get user profile
+      description: Get the profile details for the authenticated user.
+      operationId: getV2GetUserProfile
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileDetails'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Get user profile
+    post:
+      tags:
+      - Store
+      summary: Update user profile
+      description: Update the store profile for the authenticated user.
+      operationId: postV2UpdateUserProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileDetails'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Update user profile
+  /api/store/search:
+    get:
+      tags:
+      - Store
+      summary: Unified search across all content types
+      description: 'Search across all content types (marketplace agents, blocks, documentation)
+
+        using hybrid search.
+
+
+        Combines semantic (embedding-based) and lexical (text-based) search for best results.'
+      operationId: getV2UnifiedSearchAcrossAllContentTypes
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: query
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Query
+      - name: content_types
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/ContentType'
+          - type: 'null'
+          description: Content types to search. If not specified, searches all.
+          title: Content Types
+        description: Content types to search. If not specified, searches all.
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnifiedSearchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2Unified search across all content types
+  /api/store/submissions:
+    get:
+      tags:
+      - Store
+      summary: List my submissions
+      description: List the authenticated user's marketplace listing submissions
+      operationId: getV2ListMySubmissions
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+          title: Page Size
+      - name: search_query
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Search Query
+      - name: statuses
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Statuses
+      - name: sort_key
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - submitted
+            - runs
+            type: string
+          - type: 'null'
+          title: Sort Key
+      - name: sort_dir
+        in: query
+        required: false
+        schema:
+          enum:
+          - asc
+          - desc
+          type: string
+          default: desc
+          title: Sort Dir
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreSubmissionsResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: getV2List my submissions
+    post:
+      tags:
+      - Store
+      summary: Create store submission
+      description: Submit a new marketplace listing for review
+      operationId: postV2CreateStoreSubmission
+      security:
+      - HTTPBearerJWT: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreSubmissionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreSubmission'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Create store submission
+  /api/store/submissions/generate_image:
+    post:
+      tags:
+      - Store
+      summary: Generate submission image
+      description: 'Generate an image for a marketplace listing submission based on the properties
+
+        of a given graph.'
+      operationId: postV2GenerateSubmissionImage
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: graph_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageURLResponse'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Generate submission image
+  /api/store/submissions/media:
+    post:
+      tags:
+      - Store
+      summary: Upload submission media
+      description: Upload media for a marketplace listing submission
+      operationId: postV2UploadSubmissionMedia
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_postV2Upload_submission_media'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: string
+                title: Response Postv2Upload Submission Media
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearerJWT: []
+      x-operation-id-source: normalized
+      x-operation-id-original: postV2Upload submission media
+  /api/store/submissions/{store_listing_version_id}:
+    put:
+      tags:
+      - Store
+      summary: Edit store submission
+      description: Update a pending marketplace listing submission
+      operationId: putV2EditStoreSubmission
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: store_listing_version_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Store Listing Version Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreSubmissionEditRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreSubmission'
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: putV2Edit store submission
+  /api/store/submissions/{submission_id}:
+    delete:
+      tags:
+      - Store
+      summary: Delete store submission
+      description: Delete a marketplace listing submission
+      operationId: deleteV2DeleteStoreSubmission
+      security:
+      - HTTPBearerJWT: []
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: boolean
+                title: Response Deletev2Delete Store Submission
+        '401':
+          $ref: '#/components/responses/HTTP401NotAuthenticatedError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteV2Delete store submission
   /v1/store/agents:
     get:
       tags:
@@ -107,6 +1014,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    servers:
+    - url: /external-api
   /v1/store/agents/{username}/{agent_name}:
     get:
       tags:
@@ -155,6 +1064,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    servers:
+    - url: /external-api
   /v1/store/creators:
     get:
       tags:
@@ -234,6 +1145,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    servers:
+    - url: /external-api
   /v1/store/creators/{username}:
     get:
       tags:
@@ -274,8 +1187,422 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    servers:
+    - url: /external-api
 components:
   schemas:
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    MyUnpublishedAgentsResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/MyUnpublishedAgent'
+          type: array
+          title: Agents
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - agents
+      - pagination
+      title: MyUnpublishedAgentsResponse
+    GraphSettings:
+      properties:
+        human_in_the_loop_safe_mode:
+          type: boolean
+          title: Human In The Loop Safe Mode
+          default: true
+        sensitive_action_safe_mode:
+          type: boolean
+          title: Sensitive Action Safe Mode
+          default: false
+        builder_chat_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Builder Chat Session Id
+      type: object
+      title: GraphSettings
+    LibraryAgentStatus:
+      type: string
+      enum:
+      - COMPLETED
+      - HEALTHY
+      - WAITING
+      - ERROR
+      title: LibraryAgentStatus
+    ContentType:
+      type: string
+      enum:
+      - STORE_AGENT
+      - BLOCK
+      - INTEGRATION
+      - DOCUMENTATION
+      - LIBRARY_AGENT
+      - WORKSPACE_FILE
+      - CHAT_SESSION
+      title: ContentType
+    ImageURLResponse:
+      properties:
+        image_url:
+          type: string
+          title: Image Url
+      type: object
+      required:
+      - image_url
+      title: ImageURLResponse
+    SubmissionStatus:
+      type: string
+      enum:
+      - DRAFT
+      - PENDING
+      - APPROVED
+      - REJECTED
+      title: SubmissionStatus
+    MyUnpublishedAgent:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_image:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Image
+        description:
+          type: string
+          title: Description
+        last_edited:
+          type: string
+          format: date-time
+          title: Last Edited
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+      type: object
+      required:
+      - graph_id
+      - graph_version
+      - agent_name
+      - description
+      - last_edited
+      title: MyUnpublishedAgent
+    ProfileDetails:
+      properties:
+        username:
+          type: string
+          title: Username
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        links:
+          items:
+            type: string
+          type: array
+          title: Links
+        is_featured:
+          type: boolean
+          title: Is Featured
+      type: object
+      required:
+      - username
+      - name
+      - description
+      - avatar_url
+      - links
+      - is_featured
+      title: ProfileDetails
+      description: Marketplace user profile (including read-only fields)
+    BlockCost:
+      properties:
+        cost_amount:
+          type: integer
+          title: Cost Amount
+        cost_filter:
+          additionalProperties: true
+          type: object
+          title: Cost Filter
+        cost_type:
+          $ref: '#/components/schemas/BlockCostType'
+        cost_divisor:
+          type: integer
+          title: Cost Divisor
+          default: 1
+        token_rate:
+          anyOf:
+          - $ref: '#/components/schemas/TokenRateDisplay'
+          - type: 'null'
+      type: object
+      required:
+      - cost_amount
+      - cost_filter
+      - cost_type
+      title: BlockCost
+    SearchResponse:
+      properties:
+        items:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/BlockInfo'
+            - $ref: '#/components/schemas/LibraryAgent'
+            - $ref: '#/components/schemas/StoreAgent'
+          type: array
+          title: Items
+        search_id:
+          type: string
+          title: Search Id
+        total_items:
+          additionalProperties:
+            type: integer
+          propertyNames:
+            enum:
+            - blocks
+            - integrations
+            - marketplace_agents
+            - my_agents
+          type: object
+          title: Total Items
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - items
+      - search_id
+      - total_items
+      - pagination
+      title: SearchResponse
+    StoreSubmissionsResponse:
+      properties:
+        submissions:
+          items:
+            $ref: '#/components/schemas/StoreSubmission'
+          type: array
+          title: Submissions
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        stats:
+          $ref: '#/components/schemas/SubmissionStats'
+      type: object
+      required:
+      - submissions
+      - pagination
+      - stats
+      title: StoreSubmissionsResponse
+    StoreCreatorsSortOptions:
+      type: string
+      enum:
+      - agent_rating
+      - agent_runs
+      - num_agents
+      title: StoreCreatorsSortOptions
+    TokenRateDisplay:
+      properties:
+        input_usd_per_1m:
+          type: number
+          minimum: 0.0
+          title: Input Usd Per 1M
+        output_usd_per_1m:
+          type: number
+          minimum: 0.0
+          title: Output Usd Per 1M
+        cache_read_usd_per_1m:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Cache Read Usd Per 1M
+        cache_creation_usd_per_1m:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Cache Creation Usd Per 1M
+      type: object
+      required:
+      - input_usd_per_1m
+      - output_usd_per_1m
+      title: TokenRateDisplay
+      description: 'Public per-1M-token USD rates surfaced to the builder UI.
+
+
+        Populated only on LLM block costs whose model has a TOKEN_COST rate.
+
+        cache_* fields are set only when the provider publishes a distinct
+
+        cached-token rate (Anthropic). Display-only — billing always uses the
+
+        internal credit math in `BlockCost.cost_amount`.'
+    UnifiedSearchResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/UnifiedSearchResult'
+          type: array
+          title: Results
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - results
+      - pagination
+      title: UnifiedSearchResponse
+      description: Response model for unified search across all content types.
+    CreatorsResponse:
+      properties:
+        creators:
+          items:
+            $ref: '#/components/schemas/CreatorDetails'
+          type: array
+          title: Creators
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - creators
+      - pagination
+      title: CreatorsResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SubmissionStats:
+      properties:
+        total:
+          type: integer
+          title: Total
+        approved:
+          type: integer
+          title: Approved
+        pending:
+          type: integer
+          title: Pending
+        total_runs:
+          type: integer
+          title: Total Runs
+        average_rating:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Rating
+      type: object
+      required:
+      - total
+      - approved
+      - pending
+      - total_runs
+      - average_rating
+      title: SubmissionStats
+      description: 'Creator-wide aggregates over a user''s non-deleted submissions.
+
+
+        Computed server-side so values stay accurate regardless of pagination —
+
+        summing client-side over the current page silently undercounts once the
+
+        creator has more submissions than fit on one page.'
+    Body_postV2Upload_submission_media:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_postV2Upload submission media
+    MyAgentsSortBy:
+      type: string
+      enum:
+      - most_recent
+      - name
+      title: MyAgentsSortBy
+    StoreAgent:
+      properties:
+        slug:
+          type: string
+          title: Slug
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_image:
+          type: string
+          title: Agent Image
+        creator:
+          type: string
+          title: Creator
+        creator_avatar:
+          type: string
+          title: Creator Avatar
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        runs:
+          type: integer
+          title: Runs
+        rating:
+          type: number
+          title: Rating
+        agent_graph_id:
+          type: string
+          title: Agent Graph Id
+      type: object
+      required:
+      - slug
+      - agent_name
+      - agent_image
+      - creator
+      - creator_avatar
+      - sub_heading
+      - description
+      - runs
+      - rating
+      - agent_graph_id
+      title: StoreAgent
     CreatorDetails:
       properties:
         username:
@@ -328,60 +1655,78 @@ components:
       - top_categories
       title: CreatorDetails
       description: Marketplace creator profile details, including aggregated stats
-    ValidationError:
+    ChangelogEntry:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        version:
           type: string
-          title: Message
-        type:
+          title: Version
+        changes_summary:
           type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Changes Summary
+        date:
+          type: string
+          format: date-time
+          title: Date
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    StoreAgentsResponse:
+      - version
+      - changes_summary
+      - date
+      title: ChangelogEntry
+    StoreSubmissionEditRequest:
       properties:
-        agents:
+        name:
+          type: string
+          title: Name
+        sub_heading:
+          type: string
+          title: Sub Heading
+        video_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Url
+        agent_output_demo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Output Demo Url
+        image_urls:
           items:
-            $ref: '#/components/schemas/StoreAgent'
+            type: string
           type: array
-          title: Agents
-        pagination:
-          $ref: '#/components/schemas/Pagination'
+          title: Image Urls
+          default: []
+        description:
+          type: string
+          title: Description
+          default: ''
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+          default: []
+        changes_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Changes Summary
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
       type: object
       required:
-      - agents
-      - pagination
-      title: StoreAgentsResponse
-    CreatorsResponse:
-      properties:
-        creators:
-          items:
-            $ref: '#/components/schemas/CreatorDetails'
-          type: array
-          title: Creators
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - creators
-      - pagination
-      title: CreatorsResponse
+      - name
+      - sub_heading
+      title: StoreSubmissionEditRequest
     StoreAgentDetails:
       properties:
         store_listing_version_id:
@@ -494,85 +1839,407 @@ components:
       - active_version_id
       - has_approved_version
       title: StoreAgentDetails
-    StoreCreatorsSortOptions:
+    BlockCostType:
       type: string
       enum:
-      - agent_rating
-      - agent_runs
-      - num_agents
-      title: StoreCreatorsSortOptions
-    ChangelogEntry:
+      - run
+      - byte
+      - second
+      - items
+      - cost_usd
+      - tokens
+      title: BlockCostType
+    LibraryAgent:
       properties:
-        version:
+        id:
           type: string
-          title: Version
-        changes_summary:
+          title: Id
+        graph_id:
           type: string
-          title: Changes Summary
-        date:
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        image_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Url
+        creator_name:
+          type: string
+          title: Creator Name
+        creator_image_url:
+          type: string
+          title: Creator Image Url
+        status:
+          $ref: '#/components/schemas/LibraryAgentStatus'
+        created_at:
           type: string
           format: date-time
-          title: Date
-      type: object
-      required:
-      - version
-      - changes_summary
-      - date
-      title: ChangelogEntry
-    StoreAgent:
-      properties:
-        slug:
+          title: Created At
+        updated_at:
           type: string
-          title: Slug
-        agent_name:
+          format: date-time
+          title: Updated At
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        name:
           type: string
-          title: Agent Name
-        agent_image:
-          type: string
-          title: Agent Image
-        creator:
-          type: string
-          title: Creator
-        creator_avatar:
-          type: string
-          title: Creator Avatar
-        sub_heading:
-          type: string
-          title: Sub Heading
+          title: Name
         description:
           type: string
           title: Description
-        runs:
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+        credentials_input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Credentials Input Schema
+          description: Input schema for credentials required by the agent
+        has_external_trigger:
+          type: boolean
+          title: Has External Trigger
+          description: Whether the agent has an external trigger (e.g. webhook) node
+        has_human_in_the_loop:
+          type: boolean
+          title: Has Human In The Loop
+          description: Whether the agent has human-in-the-loop blocks
+        has_sensitive_action:
+          type: boolean
+          title: Has Sensitive Action
+          description: Whether the agent has sensitive action blocks
+        trigger_setup_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+        new_output:
+          type: boolean
+          title: New Output
+        execution_count:
           type: integer
-          title: Runs
-        rating:
-          type: number
-          title: Rating
-        agent_graph_id:
-          type: string
-          title: Agent Graph Id
+          title: Execution Count
+          default: 0
+        success_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Success Rate
+        avg_correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Correctness Score
+        recent_executions:
+          items:
+            $ref: '#/components/schemas/RecentExecution'
+          type: array
+          title: Recent Executions
+          description: List of recent executions with status, score, and summary
+        can_access_graph:
+          type: boolean
+          title: Can Access Graph
+          description: Indicates whether the same user owns the corresponding graph
+        is_latest_version:
+          type: boolean
+          title: Is Latest Version
+        is_favorite:
+          type: boolean
+          title: Is Favorite
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+        folder_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Name
+        is_hidden:
+          type: boolean
+          title: Is Hidden
+          default: false
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        is_scheduled:
+          type: boolean
+          title: Is Scheduled
+          description: Whether this agent has active execution schedules
+          default: false
+        next_scheduled_run:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Scheduled Run
+          description: ISO 8601 timestamp of the next scheduled run, if any
+        settings:
+          $ref: '#/components/schemas/GraphSettings'
+        marketplace_listing:
+          anyOf:
+          - $ref: '#/components/schemas/MarketplaceListing'
+          - type: 'null'
+        store_listing_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Store Listing Version Id
+          description: ID of the approved marketplace listing version whose graph snapshot exactly matches this agent's graph_id and graph_version. Install flows can use it directly to install this exact version.
       type: object
       required:
-      - slug
-      - agent_name
-      - agent_image
-      - creator
-      - creator_avatar
-      - sub_heading
+      - id
+      - graph_id
+      - graph_version
+      - image_url
+      - creator_name
+      - creator_image_url
+      - status
+      - created_at
+      - updated_at
+      - name
       - description
-      - runs
-      - rating
-      - agent_graph_id
-      title: StoreAgent
-    HTTPValidationError:
+      - input_schema
+      - output_schema
+      - credentials_input_schema
+      - has_external_trigger
+      - has_human_in_the_loop
+      - has_sensitive_action
+      - new_output
+      - can_access_graph
+      - is_latest_version
+      - is_favorite
+      title: LibraryAgent
+      description: 'Represents an agent in the library, including metadata for display and
+
+        user interaction within the system.'
+    StoreSubmissionRequest:
       properties:
-        detail:
+        graph_id:
+          type: string
+          minLength: 1
+          title: Graph Id
+          description: Graph ID cannot be empty
+        graph_version:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Graph Version
+          description: Graph version must be greater than 0
+        slug:
+          type: string
+          title: Slug
+        name:
+          type: string
+          title: Name
+        sub_heading:
+          type: string
+          title: Sub Heading
+        video_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Url
+        agent_output_demo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Output Demo Url
+        image_urls:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            type: string
           type: array
-          title: Detail
+          title: Image Urls
+          default: []
+        description:
+          type: string
+          title: Description
+          default: ''
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+          default: []
+        changes_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Changes Summary
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
       type: object
-      title: HTTPValidationError
+      required:
+      - graph_id
+      - graph_version
+      - slug
+      - name
+      - sub_heading
+      title: StoreSubmissionRequest
+    StoreReview:
+      properties:
+        score:
+          type: integer
+          title: Score
+        comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comments
+      type: object
+      required:
+      - score
+      title: StoreReview
+    RecentExecution:
+      properties:
+        status:
+          type: string
+          title: Status
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+        activity_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Summary
+      type: object
+      required:
+      - status
+      title: RecentExecution
+      description: 'Summary of a recent execution for quality assessment.
+
+
+        Used by the LLM to understand the agent''s recent performance with specific examples
+
+        rather than just aggregate statistics.'
+    Profile:
+      properties:
+        username:
+          type: string
+          title: Username
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        links:
+          items:
+            type: string
+          type: array
+          title: Links
+      type: object
+      required:
+      - username
+      - name
+      - description
+      - avatar_url
+      - links
+      title: Profile
+      description: Marketplace user profile (only attributes that the user can update)
+    BlockInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        inputSchema:
+          additionalProperties: true
+          type: object
+          title: Inputschema
+        outputSchema:
+          additionalProperties: true
+          type: object
+          title: Outputschema
+        costs:
+          items:
+            $ref: '#/components/schemas/BlockCost'
+          type: array
+          title: Costs
+        description:
+          type: string
+          title: Description
+        categories:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Categories
+        contributors:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Contributors
+        staticOutput:
+          type: boolean
+          title: Staticoutput
+        uiType:
+          type: string
+          title: Uitype
+      type: object
+      required:
+      - id
+      - name
+      - inputSchema
+      - outputSchema
+      - costs
+      - description
+      - categories
+      - contributors
+      - staticOutput
+      - uiType
+      title: BlockInfo
+    StoreAgentsResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/StoreAgent'
+          type: array
+          title: Agents
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - agents
+      - pagination
+      title: StoreAgentsResponse
     StoreAgentsSortOptions:
       type: string
       enum:
@@ -581,6 +2248,363 @@ components:
       - name
       - updated_at
       title: StoreAgentsSortOptions
+    StoreSubmission:
+      properties:
+        listing_id:
+          type: string
+          title: Listing Id
+        user_id:
+          type: string
+          title: User Id
+        slug:
+          type: string
+          title: Slug
+        listing_version_id:
+          type: string
+          title: Listing Version Id
+        listing_version:
+          type: integer
+          title: Listing Version
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        name:
+          type: string
+          title: Name
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        image_urls:
+          items:
+            type: string
+          type: array
+          title: Image Urls
+        video_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Url
+        agent_output_demo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Output Demo Url
+        submitted_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Submitted At
+        changes_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Changes Summary
+        status:
+          $ref: '#/components/schemas/SubmissionStatus'
+        reviewed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reviewed At
+        reviewer_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reviewer Id
+        review_comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Review Comments
+        run_count:
+          type: integer
+          title: Run Count
+          default: 0
+        review_count:
+          type: integer
+          title: Review Count
+          default: 0
+        review_avg_rating:
+          type: number
+          title: Review Avg Rating
+          default: 0.0
+      type: object
+      required:
+      - listing_id
+      - user_id
+      - slug
+      - listing_version_id
+      - listing_version
+      - graph_id
+      - graph_version
+      - name
+      - sub_heading
+      - description
+      - instructions
+      - categories
+      - image_urls
+      - video_url
+      - agent_output_demo_url
+      - submitted_at
+      - changes_summary
+      - status
+      title: StoreSubmission
+    MarketplaceListingCreator:
+      properties:
+        name:
+          type: string
+          title: Name
+        id:
+          type: string
+          title: Id
+        slug:
+          type: string
+          title: Slug
+      type: object
+      required:
+      - name
+      - id
+      - slug
+      title: MarketplaceListingCreator
+      description: Creator information for a marketplace listing.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    UnifiedSearchResult:
+      properties:
+        content_type:
+          type: string
+          title: Content Type
+        content_id:
+          type: string
+          title: Content Id
+        searchable_text:
+          type: string
+          title: Searchable Text
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        combined_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Combined Score
+        semantic_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Semantic Score
+        lexical_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lexical Score
+      type: object
+      required:
+      - content_type
+      - content_id
+      - searchable_text
+      title: UnifiedSearchResult
+      description: A single result from unified hybrid search across all content types.
+    StoreReviewCreate:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        score:
+          type: integer
+          title: Score
+        comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comments
+      type: object
+      required:
+      - store_listing_version_id
+      - score
+      title: StoreReviewCreate
+    MarketplaceListing:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        slug:
+          type: string
+          title: Slug
+        creator:
+          $ref: '#/components/schemas/MarketplaceListingCreator'
+      type: object
+      required:
+      - id
+      - name
+      - slug
+      - creator
+      title: MarketplaceListing
+      description: Marketplace listing information for a library agent.
+    GraphModelWithoutNodes:
+      properties:
+        id:
+          type: string
+          title: Id
+        version:
+          type: integer
+          title: Version
+          default: 1
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        user_id:
+          type: string
+          title: User Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          readOnly: true
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+          readOnly: true
+        has_external_trigger:
+          type: boolean
+          title: Has External Trigger
+          readOnly: true
+        has_human_in_the_loop:
+          type: boolean
+          title: Has Human In The Loop
+          readOnly: true
+        has_sensitive_action:
+          type: boolean
+          title: Has Sensitive Action
+          readOnly: true
+        trigger_setup_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+          readOnly: true
+        credentials_input_schema:
+          additionalProperties: true
+          type: object
+          title: Credentials Input Schema
+          readOnly: true
+      type: object
+      required:
+      - name
+      - description
+      - user_id
+      - created_at
+      - input_schema
+      - output_schema
+      - has_external_trigger
+      - has_human_in_the_loop
+      - has_sensitive_action
+      - trigger_setup_info
+      - credentials_input_schema
+      title: GraphModelWithoutNodes
+      description: 'GraphModel variant that excludes nodes, links, and sub-graphs from serialization.
+
+
+        Used in contexts like the store where exposing internal graph structure
+
+        is not desired. Inherits all computed fields from GraphModel but marks
+
+        nodes and links as excluded from JSON output.'
     Pagination:
       properties:
         total_items:
@@ -614,11 +2638,32 @@ components:
       - current_page
       - page_size
       title: Pagination
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
+    APIKeyAuthenticator-X-Postmark-Webhook-Token:
+      type: apiKey
+      in: header
+      name: X-Postmark-Webhook-Token
+    HTTPBearer:
+      type: http
+      scheme: bearer
+    HTTPBearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
     APIKeyHeader:
       type: apiKey
       in: header
       name: X-API-Key
-    HTTPBearer:
-      type: http
-      scheme: bearer
+x-refined-from:
+- autogpt-agent-server-openapi.json
+- autogpt-external-api-openapi.json
