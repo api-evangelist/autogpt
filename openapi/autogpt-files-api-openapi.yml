@@ -66,17 +66,51 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: postV1Upload file to cloud storage
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
+    backend__api__model__UploadFileResponse:
+      properties:
+        file_uri:
+          type: string
+          title: File Uri
+        file_name:
+          type: string
+          title: File Name
+        size:
+          type: integer
+          title: Size
+        content_type:
+          type: string
+          title: Content Type
+        expires_in_hours:
+          type: integer
+          title: Expires In Hours
+      type: object
+      required:
+      - file_uri
+      - file_name
+      - size
+      - content_type
+      - expires_in_hours
+      title: UploadFileResponse
+    Body_postV1Upload_file_to_cloud_storage:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_postV1Upload file to cloud storage
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -103,50 +137,16 @@ components:
       - msg
       - type
       title: ValidationError
-    backend__api__model__UploadFileResponse:
-      properties:
-        file_uri:
-          type: string
-          title: File Uri
-        file_name:
-          type: string
-          title: File Name
-        size:
-          type: integer
-          title: Size
-        content_type:
-          type: string
-          title: Content Type
-        expires_in_hours:
-          type: integer
-          title: Expires In Hours
-      type: object
-      required:
-      - file_uri
-      - file_name
-      - size
-      - content_type
-      - expires_in_hours
-      title: UploadFileResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    Body_postV1Upload_file_to_cloud_storage:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-      type: object
-      required:
-      - file
-      title: Body_postV1Upload file to cloud storage
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

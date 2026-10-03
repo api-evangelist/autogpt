@@ -92,16 +92,6 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: postV2Decline invitation
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
     HTTPValidationError:
       properties:
@@ -175,6 +165,16 @@ components:
       - msg
       - type
       title: ValidationError
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

@@ -233,100 +233,6 @@ components:
         Each review item can individually specify whether to auto-approve future executions
 
         of the same block via the `auto_approve_future` field on ReviewItem.'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    ReviewResponse:
-      properties:
-        approved_count:
-          type: integer
-          title: Approved Count
-          description: Number of reviews successfully approved
-        rejected_count:
-          type: integer
-          title: Rejected Count
-          description: Number of reviews successfully rejected
-        failed_count:
-          type: integer
-          title: Failed Count
-          description: Number of reviews that failed processing
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-          description: Error message if operation failed
-      type: object
-      required:
-      - approved_count
-      - rejected_count
-      - failed_count
-      title: ReviewResponse
-      description: Response from review endpoint.
-    ReviewItem:
-      properties:
-        node_exec_id:
-          type: string
-          title: Node Exec Id
-          description: Node execution ID to review
-        approved:
-          type: boolean
-          title: Approved
-          description: Whether this review is approved (True) or rejected (False)
-        message:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Message
-          description: Optional review message
-        reviewed_data:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - items: {}
-            type: array
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          - type: 'null'
-          title: Reviewed Data
-          description: Optional edited data (ignored if approved=False)
-        auto_approve_future:
-          type: boolean
-          title: Auto Approve Future
-          description: If true and this review is approved, future executions of this same block (node) will be automatically approved. This only affects approved reviews.
-          default: false
-      type: object
-      required:
-      - node_exec_id
-      - approved
-      title: ReviewItem
-      description: Single review item for processing.
     PendingHumanReviewModel:
       properties:
         node_exec_id:
@@ -463,6 +369,13 @@ components:
       - created_at
       title: PendingHumanReviewModel
       description: "Response model for pending human review data.\n\nRepresents a human review request that is awaiting user action.\nContains all necessary information for a user to review and approve\nor reject data from a Human-in-the-Loop block execution.\n\nAttributes:\n    id: Unique identifier for the review record\n    user_id: ID of the user who must perform the review\n    node_exec_id: ID of the node execution that created this review\n    node_id: ID of the node definition (for grouping reviews from same node)\n    graph_exec_id: ID of the graph execution containing the node\n    graph_id: ID of the graph template being executed\n    graph_version: Version number of the graph template\n    payload: The actual data payload awaiting review\n    instructions: Instructions or message for the reviewer\n    editable: Whether the reviewer can edit the data\n    status: Current review status (WAITING, APPROVED, or REJECTED)\n    review_message: Optional message from the reviewer\n    created_at: Timestamp when review was created\n    updated_at: Timestamp when review was last modified\n    reviewed_at: Timestamp when review was completed (if applicable)"
+    ReviewStatus:
+      type: string
+      enum:
+      - WAITING
+      - APPROVED
+      - REJECTED
+      title: ReviewStatus
     HTTPValidationError:
       properties:
         detail:
@@ -472,13 +385,100 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    ReviewStatus:
-      type: string
-      enum:
-      - WAITING
-      - APPROVED
-      - REJECTED
-      title: ReviewStatus
+    ReviewItem:
+      properties:
+        node_exec_id:
+          type: string
+          title: Node Exec Id
+          description: Node execution ID to review
+        approved:
+          type: boolean
+          title: Approved
+          description: Whether this review is approved (True) or rejected (False)
+        message:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Message
+          description: Optional review message
+        reviewed_data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - items: {}
+            type: array
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Reviewed Data
+          description: Optional edited data (ignored if approved=False)
+        auto_approve_future:
+          type: boolean
+          title: Auto Approve Future
+          description: If true and this review is approved, future executions of this same block (node) will be automatically approved. This only affects approved reviews.
+          default: false
+      type: object
+      required:
+      - node_exec_id
+      - approved
+      title: ReviewItem
+      description: Single review item for processing.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ReviewResponse:
+      properties:
+        approved_count:
+          type: integer
+          title: Approved Count
+          description: Number of reviews successfully approved
+        rejected_count:
+          type: integer
+          title: Rejected Count
+          description: Number of reviews successfully rejected
+        failed_count:
+          type: integer
+          title: Failed Count
+          description: Number of reviews that failed processing
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if operation failed
+      type: object
+      required:
+      - approved_count
+      - rejected_count
+      - failed_count
+      title: ReviewResponse
+      description: Response from review endpoint.
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

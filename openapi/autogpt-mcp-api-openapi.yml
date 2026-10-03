@@ -166,43 +166,7 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: postV2Store a bearer token for an mcp server
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     MCPOAuthLoginRequest:
       properties:
         server_url:
@@ -214,86 +178,25 @@ components:
       - server_url
       title: MCPOAuthLoginRequest
       description: Request to start an OAuth flow for an MCP server.
-    MCPOAuthLoginResponse:
+    MCPToolResponse:
       properties:
-        login_url:
+        name:
           type: string
-          title: Login Url
-        state_token:
+          title: Name
+        description:
           type: string
-          title: State Token
+          title: Description
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
       type: object
       required:
-      - login_url
-      - state_token
-      title: MCPOAuthLoginResponse
-      description: Response with the OAuth login URL for the user to authenticate.
-    MCPOAuthCallbackRequest:
-      properties:
-        code:
-          type: string
-          title: Code
-          description: Authorization code from OAuth callback
-        state_token:
-          type: string
-          title: State Token
-          description: State token for CSRF verification
-      type: object
-      required:
-      - code
-      - state_token
-      title: MCPOAuthCallbackRequest
-      description: Request to exchange an OAuth code for tokens.
-    DiscoverToolsResponse:
-      properties:
-        tools:
-          items:
-            $ref: '#/components/schemas/MCPToolResponse'
-          type: array
-          title: Tools
-        server_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Server Name
-        protocol_version:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Protocol Version
-      type: object
-      required:
-      - tools
-      title: DiscoverToolsResponse
-      description: Response containing the list of tools available on an MCP server.
-    MCPStoreTokenRequest:
-      properties:
-        server_url:
-          type: string
-          title: Server Url
-          description: MCP server URL the token authenticates against
-        token:
-          type: string
-          minLength: 1
-          format: password
-          title: Token
-          description: Bearer token / API key for the MCP server
-          writeOnly: true
-      type: object
-      required:
-      - server_url
-      - token
-      title: MCPStoreTokenRequest
-      description: Request to store a bearer token for an MCP server that doesn't support OAuth.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - name
+      - description
+      - input_schema
+      title: MCPToolResponse
+      description: A single MCP tool returned by discovery.
     CredentialsMetaResponse:
       properties:
         id:
@@ -347,6 +250,77 @@ components:
       - scopes
       - username
       title: CredentialsMetaResponse
+    DiscoverToolsResponse:
+      properties:
+        tools:
+          items:
+            $ref: '#/components/schemas/MCPToolResponse'
+          type: array
+          title: Tools
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Name
+        protocol_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Protocol Version
+      type: object
+      required:
+      - tools
+      title: DiscoverToolsResponse
+      description: Response containing the list of tools available on an MCP server.
+    MCPOAuthCallbackRequest:
+      properties:
+        code:
+          type: string
+          title: Code
+          description: Authorization code from OAuth callback
+        state_token:
+          type: string
+          title: State Token
+          description: State token for CSRF verification
+      type: object
+      required:
+      - code
+      - state_token
+      title: MCPOAuthCallbackRequest
+      description: Request to exchange an OAuth code for tokens.
+    MCPOAuthLoginResponse:
+      properties:
+        login_url:
+          type: string
+          title: Login Url
+        state_token:
+          type: string
+          title: State Token
+      type: object
+      required:
+      - login_url
+      - state_token
+      title: MCPOAuthLoginResponse
+      description: Response with the OAuth login URL for the user to authenticate.
+    MCPStoreTokenRequest:
+      properties:
+        server_url:
+          type: string
+          title: Server Url
+          description: MCP server URL the token authenticates against
+        token:
+          type: string
+          minLength: 1
+          format: password
+          title: Token
+          description: Bearer token / API key for the MCP server
+          writeOnly: true
+      type: object
+      required:
+      - server_url
+      - token
+      title: MCPStoreTokenRequest
+      description: Request to store a bearer token for an MCP server that doesn't support OAuth.
     DiscoverToolsRequest:
       properties:
         server_url:
@@ -364,25 +338,51 @@ components:
       - server_url
       title: DiscoverToolsRequest
       description: Request to discover tools on an MCP server.
-    MCPToolResponse:
+    HTTPValidationError:
       properties:
-        name:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          title: Name
-        description:
+          title: Message
+        type:
           type: string
-          title: Description
-        input_schema:
-          additionalProperties: true
+          title: Error Type
+        input:
+          title: Input
+        ctx:
           type: object
-          title: Input Schema
+          title: Context
       type: object
       required:
-      - name
-      - description
-      - input_schema
-      title: MCPToolResponse
-      description: A single MCP tool returned by discovery.
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

@@ -36,80 +36,6 @@ components:
               detail:
                 type: string
   schemas:
-    HomeUpcomingTask:
-      properties:
-        id:
-          type: string
-          title: Id
-        title:
-          type: string
-          title: Title
-        kind:
-          type: string
-          enum:
-          - agent
-          - followup
-          title: Kind
-        expert:
-          anyOf:
-          - $ref: '#/components/schemas/HomeExpert'
-          - type: 'null'
-        next_run_time:
-          type: string
-          format: date-time
-          title: Next Run Time
-      type: object
-      required:
-      - id
-      - title
-      - kind
-      - next_run_time
-      title: HomeUpcomingTask
-    HomeWeekSummary:
-      properties:
-        run_count:
-          type: integer
-          title: Run Count
-        completed_count:
-          type: integer
-          title: Completed Count
-        review_count:
-          type: integer
-          title: Review Count
-        failed_count:
-          type: integer
-          title: Failed Count
-        total_runtime_seconds:
-          type: number
-          title: Total Runtime Seconds
-        timed_run_count:
-          type: integer
-          title: Timed Run Count
-        total_cost_cents:
-          type: integer
-          title: Total Cost Cents
-        credits_balance:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Credits Balance
-        daily:
-          items:
-            $ref: '#/components/schemas/HomeDailyActivity'
-          type: array
-          title: Daily
-      type: object
-      required:
-      - run_count
-      - completed_count
-      - review_count
-      - failed_count
-      - total_runtime_seconds
-      - timed_run_count
-      - total_cost_cents
-      - credits_balance
-      - daily
-      title: HomeWeekSummary
     HomeTeamSummary:
       properties:
         total:
@@ -135,57 +61,96 @@ components:
       - working
       - needs_attention
       title: HomeTeamSummary
-    HomeBriefingOutcome:
+    HomeAgentStatus:
       properties:
-        id:
-          type: string
-          title: Id
+        expert:
+          $ref: '#/components/schemas/HomeExpert'
         status:
           type: string
           enum:
-          - completed
+          - ready
+          - working
+          - needs_setup
+          - paused
           - failed
           title: Status
-        title:
+        detail:
           type: string
-          title: Title
-        summary:
-          type: string
-          title: Summary
-        expert:
-          anyOf:
-          - $ref: '#/components/schemas/HomeExpert'
-          - type: 'null'
-        agent_name:
-          type: string
-          title: Agent Name
-        occurred_at:
+          title: Detail
+        next_run_time:
           anyOf:
           - type: string
             format: date-time
           - type: 'null'
-          title: Occurred At
-        duration_seconds:
-          type: number
-          title: Duration Seconds
-          default: 0
-        cost_cents:
+          title: Next Run Time
+        spend_cents:
           type: integer
-          title: Cost Cents
+          title: Spend Cents
           default: 0
-        link:
+      type: object
+      required:
+      - expert
+      - status
+      - detail
+      title: HomeAgentStatus
+    HomeExpert:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        role:
+          type: string
+          title: Role
+        avatar_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Link
+          title: Avatar Url
       type: object
       required:
       - id
-      - status
-      - title
-      - summary
-      - agent_name
-      title: HomeBriefingOutcome
+      - name
+      - role
+      - avatar_url
+      title: HomeExpert
+    HomeDailyActivity:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+        completed_count:
+          type: integer
+          title: Completed Count
+        review_count:
+          type: integer
+          title: Review Count
+        failed_count:
+          type: integer
+          title: Failed Count
+      type: object
+      required:
+      - date
+      - completed_count
+      - review_count
+      - failed_count
+      title: HomeDailyActivity
+    HomeAction:
+      properties:
+        label:
+          type: string
+          title: Label
+        href:
+          type: string
+          title: Href
+      type: object
+      required:
+      - label
+      - href
+      title: HomeAction
     HomeDashboardResponse:
       properties:
         generated_at:
@@ -233,29 +198,149 @@ components:
       - agents
       - week
       title: HomeDashboardResponse
-    HomeExpert:
+    HomeUpcomingTask:
       properties:
         id:
           type: string
           title: Id
-        name:
+        title:
           type: string
-          title: Name
-        role:
+          title: Title
+        kind:
           type: string
-          title: Role
-        avatar_url:
+          enum:
+          - agent
+          - followup
+          title: Kind
+        expert:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/HomeExpert'
           - type: 'null'
-          title: Avatar Url
+        next_run_time:
+          type: string
+          format: date-time
+          title: Next Run Time
       type: object
       required:
       - id
-      - name
-      - role
-      - avatar_url
-      title: HomeExpert
+      - title
+      - kind
+      - next_run_time
+      title: HomeUpcomingTask
+    HomeAttentionItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        kind:
+          type: string
+          enum:
+          - approval
+          - setup
+          - paused
+          - credits
+          - question
+          title: Kind
+        priority:
+          type: string
+          enum:
+          - high
+          - normal
+          title: Priority
+        title:
+          type: string
+          title: Title
+        description:
+          type: string
+          title: Description
+        why_it_matters:
+          type: string
+          title: Why It Matters
+        expert:
+          anyOf:
+          - $ref: '#/components/schemas/HomeExpert'
+          - type: 'null'
+        agent_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        preview:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Preview
+        review:
+          anyOf:
+          - $ref: '#/components/schemas/PendingHumanReviewModel'
+          - type: 'null'
+        primary_action:
+          $ref: '#/components/schemas/HomeAction'
+        secondary_action:
+          anyOf:
+          - $ref: '#/components/schemas/HomeAction'
+          - type: 'null'
+      type: object
+      required:
+      - id
+      - kind
+      - priority
+      - title
+      - description
+      - why_it_matters
+      - primary_action
+      title: HomeAttentionItem
+    HomeBriefing:
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+          title: Generated At
+        window_started_at:
+          type: string
+          format: date-time
+          title: Window Started At
+        completed_count:
+          type: integer
+          title: Completed Count
+        failed_count:
+          type: integer
+          title: Failed Count
+        routine_count:
+          type: integer
+          title: Routine Count
+        outcomes:
+          items:
+            $ref: '#/components/schemas/HomeBriefingOutcome'
+          type: array
+          title: Outcomes
+        narrative:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Narrative
+        source:
+          type: string
+          enum:
+          - persisted
+          - live
+          title: Source
+          default: live
+      type: object
+      required:
+      - generated_at
+      - window_started_at
+      - completed_count
+      - failed_count
+      - routine_count
+      - outcomes
+      title: HomeBriefing
     PendingHumanReviewModel:
       properties:
         node_exec_id:
@@ -392,187 +477,6 @@ components:
       - created_at
       title: PendingHumanReviewModel
       description: "Response model for pending human review data.\n\nRepresents a human review request that is awaiting user action.\nContains all necessary information for a user to review and approve\nor reject data from a Human-in-the-Loop block execution.\n\nAttributes:\n    id: Unique identifier for the review record\n    user_id: ID of the user who must perform the review\n    node_exec_id: ID of the node execution that created this review\n    node_id: ID of the node definition (for grouping reviews from same node)\n    graph_exec_id: ID of the graph execution containing the node\n    graph_id: ID of the graph template being executed\n    graph_version: Version number of the graph template\n    payload: The actual data payload awaiting review\n    instructions: Instructions or message for the reviewer\n    editable: Whether the reviewer can edit the data\n    status: Current review status (WAITING, APPROVED, or REJECTED)\n    review_message: Optional message from the reviewer\n    created_at: Timestamp when review was created\n    updated_at: Timestamp when review was last modified\n    reviewed_at: Timestamp when review was completed (if applicable)"
-    HomeAction:
-      properties:
-        label:
-          type: string
-          title: Label
-        href:
-          type: string
-          title: Href
-      type: object
-      required:
-      - label
-      - href
-      title: HomeAction
-    HomeBriefing:
-      properties:
-        generated_at:
-          type: string
-          format: date-time
-          title: Generated At
-        window_started_at:
-          type: string
-          format: date-time
-          title: Window Started At
-        completed_count:
-          type: integer
-          title: Completed Count
-        failed_count:
-          type: integer
-          title: Failed Count
-        routine_count:
-          type: integer
-          title: Routine Count
-        outcomes:
-          items:
-            $ref: '#/components/schemas/HomeBriefingOutcome'
-          type: array
-          title: Outcomes
-        narrative:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Narrative
-        source:
-          type: string
-          enum:
-          - persisted
-          - live
-          title: Source
-          default: live
-      type: object
-      required:
-      - generated_at
-      - window_started_at
-      - completed_count
-      - failed_count
-      - routine_count
-      - outcomes
-      title: HomeBriefing
-    HomeDailyActivity:
-      properties:
-        date:
-          type: string
-          format: date
-          title: Date
-        completed_count:
-          type: integer
-          title: Completed Count
-        review_count:
-          type: integer
-          title: Review Count
-        failed_count:
-          type: integer
-          title: Failed Count
-      type: object
-      required:
-      - date
-      - completed_count
-      - review_count
-      - failed_count
-      title: HomeDailyActivity
-    HomeAttentionItem:
-      properties:
-        id:
-          type: string
-          title: Id
-        kind:
-          type: string
-          enum:
-          - approval
-          - setup
-          - paused
-          - credits
-          - question
-          title: Kind
-        priority:
-          type: string
-          enum:
-          - high
-          - normal
-          title: Priority
-        title:
-          type: string
-          title: Title
-        description:
-          type: string
-          title: Description
-        why_it_matters:
-          type: string
-          title: Why It Matters
-        expert:
-          anyOf:
-          - $ref: '#/components/schemas/HomeExpert'
-          - type: 'null'
-        agent_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Name
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        preview:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Preview
-        review:
-          anyOf:
-          - $ref: '#/components/schemas/PendingHumanReviewModel'
-          - type: 'null'
-        primary_action:
-          $ref: '#/components/schemas/HomeAction'
-        secondary_action:
-          anyOf:
-          - $ref: '#/components/schemas/HomeAction'
-          - type: 'null'
-      type: object
-      required:
-      - id
-      - kind
-      - priority
-      - title
-      - description
-      - why_it_matters
-      - primary_action
-      title: HomeAttentionItem
-    HomeAgentStatus:
-      properties:
-        expert:
-          $ref: '#/components/schemas/HomeExpert'
-        status:
-          type: string
-          enum:
-          - ready
-          - working
-          - needs_setup
-          - paused
-          - failed
-          title: Status
-        detail:
-          type: string
-          title: Detail
-        next_run_time:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Next Run Time
-        spend_cents:
-          type: integer
-          title: Spend Cents
-          default: 0
-      type: object
-      required:
-      - expert
-      - status
-      - detail
-      title: HomeAgentStatus
     ReviewStatus:
       type: string
       enum:
@@ -615,6 +519,102 @@ components:
       - title
       - status
       title: HomeActiveTask
+    HomeWeekSummary:
+      properties:
+        run_count:
+          type: integer
+          title: Run Count
+        completed_count:
+          type: integer
+          title: Completed Count
+        review_count:
+          type: integer
+          title: Review Count
+        failed_count:
+          type: integer
+          title: Failed Count
+        total_runtime_seconds:
+          type: number
+          title: Total Runtime Seconds
+        timed_run_count:
+          type: integer
+          title: Timed Run Count
+        total_cost_cents:
+          type: integer
+          title: Total Cost Cents
+        credits_balance:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Credits Balance
+        daily:
+          items:
+            $ref: '#/components/schemas/HomeDailyActivity'
+          type: array
+          title: Daily
+      type: object
+      required:
+      - run_count
+      - completed_count
+      - review_count
+      - failed_count
+      - total_runtime_seconds
+      - timed_run_count
+      - total_cost_cents
+      - credits_balance
+      - daily
+      title: HomeWeekSummary
+    HomeBriefingOutcome:
+      properties:
+        id:
+          type: string
+          title: Id
+        status:
+          type: string
+          enum:
+          - completed
+          - failed
+          title: Status
+        title:
+          type: string
+          title: Title
+        summary:
+          type: string
+          title: Summary
+        expert:
+          anyOf:
+          - $ref: '#/components/schemas/HomeExpert'
+          - type: 'null'
+        agent_name:
+          type: string
+          title: Agent Name
+        occurred_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Occurred At
+        duration_seconds:
+          type: number
+          title: Duration Seconds
+          default: 0
+        cost_cents:
+          type: integer
+          title: Cost Cents
+          default: 0
+        link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Link
+      type: object
+      required:
+      - id
+      - status
+      - title
+      - summary
+      - agent_name
+      title: HomeBriefingOutcome
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

@@ -456,107 +456,79 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
-    ValidationError:
+    Body_patchOauthUpdateAppStatus:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the app should be active
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    Body_postOauthRevoke:
+      - is_active
+      title: Body_patchOauthUpdateAppStatus
+    AuthorizeRequest:
       properties:
-        token:
-          type: string
-          title: Token
-          description: Token to revoke
-        token_type_hint:
-          anyOf:
-          - type: string
-            enum:
-            - access_token
-            - refresh_token
-          - type: 'null'
-          title: Token Type Hint
-          description: Hint about token type ('access_token' or 'refresh_token')
         client_id:
           type: string
           title: Client Id
           description: Client identifier
-        client_secret:
+        redirect_uri:
           type: string
-          title: Client Secret
-          description: Client secret
-      type: object
-      required:
-      - token
-      - client_id
-      - client_secret
-      title: Body_postOauthRevoke
-    TokenResponse:
-      properties:
-        token_type:
-          type: string
-          const: Bearer
-          title: Token Type
-          default: Bearer
-        access_token:
-          type: string
-          title: Access Token
-        access_token_expires_at:
-          type: string
-          format: date-time
-          title: Access Token Expires At
-        refresh_token:
-          type: string
-          title: Refresh Token
-        refresh_token_expires_at:
-          type: string
-          format: date-time
-          title: Refresh Token Expires At
+          title: Redirect Uri
+          description: Redirect URI
         scopes:
           items:
             type: string
           type: array
           title: Scopes
+          description: List of scopes
+        state:
+          type: string
+          title: State
+          description: Anti-CSRF token from client
+        response_type:
+          type: string
+          title: Response Type
+          description: Must be 'code' for authorization code flow
+          default: code
+        code_challenge:
+          type: string
+          title: Code Challenge
+          description: PKCE code challenge (required)
+        code_challenge_method:
+          type: string
+          enum:
+          - S256
+          - plain
+          title: Code Challenge Method
+          description: PKCE code challenge method (S256 recommended)
+          default: S256
       type: object
       required:
-      - access_token
-      - access_token_expires_at
-      - refresh_token
-      - refresh_token_expires_at
+      - client_id
+      - redirect_uri
       - scopes
-      title: TokenResponse
-      description: OAuth 2.0 token response
+      - state
+      - code_challenge
+      title: AuthorizeRequest
+      description: OAuth 2.0 authorization request
+    APIKeyPermission:
+      type: string
+      enum:
+      - IDENTITY
+      - EXECUTE_GRAPH
+      - READ_GRAPH
+      - WRITE_GRAPH
+      - EXECUTE_BLOCK
+      - READ_BLOCK
+      - READ_STORE
+      - WRITE_LIBRARY
+      - USE_TOOLS
+      - MANAGE_INTEGRATIONS
+      - READ_INTEGRATIONS
+      - DELETE_INTEGRATIONS
+      title: APIKeyPermission
     AuthorizeResponse:
       properties:
         redirect_url:
@@ -568,28 +540,32 @@ components:
       - redirect_url
       title: AuthorizeResponse
       description: OAuth 2.0 authorization response with redirect URL
-    TokenRequestByRefreshToken:
+    OAuthApplicationPublicInfo:
       properties:
-        grant_type:
+        name:
           type: string
-          const: refresh_token
-          title: Grant Type
-        refresh_token:
-          type: string
-          title: Refresh Token
-        client_id:
-          type: string
-          title: Client Id
-        client_secret:
-          type: string
-          title: Client Secret
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        logo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Logo Url
+        scopes:
+          items:
+            type: string
+          type: array
+          title: Scopes
       type: object
       required:
-      - grant_type
-      - refresh_token
-      - client_id
-      - client_secret
-      title: TokenRequestByRefreshToken
+      - name
+      - scopes
+      title: OAuthApplicationPublicInfo
+      description: Public information about an OAuth application (for consent screen)
     OAuthApplicationInfo:
       properties:
         id:
@@ -654,39 +630,63 @@ components:
       - updated_at
       title: OAuthApplicationInfo
       description: OAuth application information (without client secret hash)
-    TokenRequestByCode:
+    TokenRequestByRefreshToken:
       properties:
         grant_type:
           type: string
-          const: authorization_code
+          const: refresh_token
           title: Grant Type
-        code:
+        refresh_token:
           type: string
-          title: Code
-          description: Authorization code
-        redirect_uri:
-          type: string
-          title: Redirect Uri
-          description: Redirect URI (must match authorization request)
+          title: Refresh Token
         client_id:
           type: string
           title: Client Id
         client_secret:
           type: string
           title: Client Secret
-        code_verifier:
-          type: string
-          title: Code Verifier
-          description: PKCE code verifier
       type: object
       required:
       - grant_type
-      - code
-      - redirect_uri
+      - refresh_token
       - client_id
       - client_secret
-      - code_verifier
-      title: TokenRequestByCode
+      title: TokenRequestByRefreshToken
+    TokenResponse:
+      properties:
+        token_type:
+          type: string
+          const: Bearer
+          title: Token Type
+          default: Bearer
+        access_token:
+          type: string
+          title: Access Token
+        access_token_expires_at:
+          type: string
+          format: date-time
+          title: Access Token Expires At
+        refresh_token:
+          type: string
+          title: Refresh Token
+        refresh_token_expires_at:
+          type: string
+          format: date-time
+          title: Refresh Token Expires At
+        scopes:
+          items:
+            type: string
+          type: array
+          title: Scopes
+      type: object
+      required:
+      - access_token
+      - access_token_expires_at
+      - refresh_token
+      - refresh_token_expires_at
+      - scopes
+      title: TokenResponse
+      description: OAuth 2.0 token response
     UpdateAppLogoRequest:
       properties:
         logo_url:
@@ -697,38 +697,12 @@ components:
       required:
       - logo_url
       title: UpdateAppLogoRequest
-    OAuthApplicationPublicInfo:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        logo_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Logo Url
-        scopes:
-          items:
-            type: string
-          type: array
-          title: Scopes
-      type: object
-      required:
-      - name
-      - scopes
-      title: OAuthApplicationPublicInfo
-      description: Public information about an OAuth application (for consent screen)
-    Body_postOauthIntrospect:
+    Body_postOauthRevoke:
       properties:
         token:
           type: string
           title: Token
-          description: Token to introspect
+          description: Token to revoke
         token_type_hint:
           anyOf:
           - type: string
@@ -751,32 +725,7 @@ components:
       - token
       - client_id
       - client_secret
-      title: Body_postOauthIntrospect
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    APIKeyPermission:
-      type: string
-      enum:
-      - IDENTITY
-      - EXECUTE_GRAPH
-      - READ_GRAPH
-      - WRITE_GRAPH
-      - EXECUTE_BLOCK
-      - READ_BLOCK
-      - READ_STORE
-      - WRITE_LIBRARY
-      - USE_TOOLS
-      - MANAGE_INTEGRATIONS
-      - READ_INTEGRATIONS
-      - DELETE_INTEGRATIONS
-      title: APIKeyPermission
+      title: Body_postOauthRevoke
     TokenIntrospectionResult:
       properties:
         active:
@@ -817,62 +766,6 @@ components:
       - active
       title: TokenIntrospectionResult
       description: Result of token introspection (RFC 7662)
-    AuthorizeRequest:
-      properties:
-        client_id:
-          type: string
-          title: Client Id
-          description: Client identifier
-        redirect_uri:
-          type: string
-          title: Redirect Uri
-          description: Redirect URI
-        scopes:
-          items:
-            type: string
-          type: array
-          title: Scopes
-          description: List of scopes
-        state:
-          type: string
-          title: State
-          description: Anti-CSRF token from client
-        response_type:
-          type: string
-          title: Response Type
-          description: Must be 'code' for authorization code flow
-          default: code
-        code_challenge:
-          type: string
-          title: Code Challenge
-          description: PKCE code challenge (required)
-        code_challenge_method:
-          type: string
-          enum:
-          - S256
-          - plain
-          title: Code Challenge Method
-          description: PKCE code challenge method (S256 recommended)
-          default: S256
-      type: object
-      required:
-      - client_id
-      - redirect_uri
-      - scopes
-      - state
-      - code_challenge
-      title: AuthorizeRequest
-      description: OAuth 2.0 authorization request
-    Body_patchOauthUpdateAppStatus:
-      properties:
-        is_active:
-          type: boolean
-          title: Is Active
-          description: Whether the app should be active
-      type: object
-      required:
-      - is_active
-      title: Body_patchOauthUpdateAppStatus
     Body_postOauthUploadAppLogo:
       properties:
         file:
@@ -883,6 +776,113 @@ components:
       required:
       - file
       title: Body_postOauthUploadAppLogo
+    Body_postOauthIntrospect:
+      properties:
+        token:
+          type: string
+          title: Token
+          description: Token to introspect
+        token_type_hint:
+          anyOf:
+          - type: string
+            enum:
+            - access_token
+            - refresh_token
+          - type: 'null'
+          title: Token Type Hint
+          description: Hint about token type ('access_token' or 'refresh_token')
+        client_id:
+          type: string
+          title: Client Id
+          description: Client identifier
+        client_secret:
+          type: string
+          title: Client Secret
+          description: Client secret
+      type: object
+      required:
+      - token
+      - client_id
+      - client_secret
+      title: Body_postOauthIntrospect
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TokenRequestByCode:
+      properties:
+        grant_type:
+          type: string
+          const: authorization_code
+          title: Grant Type
+        code:
+          type: string
+          title: Code
+          description: Authorization code
+        redirect_uri:
+          type: string
+          title: Redirect Uri
+          description: Redirect URI (must match authorization request)
+        client_id:
+          type: string
+          title: Client Id
+        client_secret:
+          type: string
+          title: Client Secret
+        code_verifier:
+          type: string
+          title: Code Verifier
+          description: PKCE code verifier
+      type: object
+      required:
+      - grant_type
+      - code
+      - redirect_uri
+      - client_id
+      - client_secret
+      - code_verifier
+      title: TokenRequestByCode
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

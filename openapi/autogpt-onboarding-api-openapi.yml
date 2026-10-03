@@ -432,37 +432,191 @@ paths:
       x-operation-id-original: postV1Complete onboarding step
 components:
   schemas:
-    OnboardingStatusResponse:
+    FinalizeResponse:
       properties:
-        is_completed:
-          type: boolean
-          title: Is Completed
+        status:
+          $ref: '#/components/schemas/BrainDumpStatus'
+        input_mode:
+          $ref: '#/components/schemas/BrainDumpInputMode'
+        transcript_preview:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transcript Preview
+        error_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Code
       type: object
       required:
-      - is_completed
-      title: OnboardingStatusResponse
-      description: Response for onboarding completion check.
-    UploadPartResponse:
+      - status
+      - input_mode
+      title: FinalizeResponse
+    OnboardingProfileRequest:
+      properties:
+        user_name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: User Name
+        user_role:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: User Role
+        pain_points:
+          items:
+            type: string
+          type: array
+          maxItems: 20
+          title: Pain Points
+      type: object
+      required:
+      - user_name
+      - user_role
+      title: OnboardingProfileRequest
+      description: Request body for onboarding profile submission.
+    RecommendedProvidersResponse:
+      properties:
+        ready:
+          type: boolean
+          title: Ready
+        providers:
+          items:
+            $ref: '#/components/schemas/RecommendedProvider'
+          type: array
+          title: Providers
+          default: []
+      type: object
+      required:
+      - ready
+      title: RecommendedProvidersResponse
+      description: 'Recommendations for the "Connect your tools" panel.
+
+
+        ``ready`` is false while the background job is still running — the
+
+        client keeps polling. Once true, ``providers`` is the final answer,
+
+        empty included ("nothing worth recommending" is a real result).'
+    SuggestedPrompt:
+      properties:
+        title:
+          type: string
+          title: Title
+        prompt:
+          type: string
+          title: Prompt
+        icon:
+          type: string
+          title: Icon
+          default: sparkle
+      type: object
+      required:
+      - title
+      - prompt
+      title: SuggestedPrompt
+      description: 'One pickable prompt under the greeting.
+
+
+        ``title`` is the short line the user sees; ``prompt`` is the full
+
+        message that gets sent when they pick it. ``icon`` is a Phosphor icon
+
+        slug from ``intro.PROMPT_ICONS`` — the frontend maps it to the actual
+
+        icon component and falls back to a sparkle for anything unknown.'
+    DumpStatusResponse:
+      properties:
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/BrainDumpStatus'
+          - type: 'null'
+        input_mode:
+          anyOf:
+          - $ref: '#/components/schemas/BrainDumpInputMode'
+          - type: 'null'
+        error_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Code
+        has_audio:
+          type: boolean
+          title: Has Audio
+          default: false
+        greeting_ready:
+          type: boolean
+          title: Greeting Ready
+          default: false
+      type: object
+      title: DumpStatusResponse
+    FinalizeRequest:
       properties:
         recording_id:
           type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
           title: Recording Id
-        part_index:
-          type: integer
-          title: Part Index
-        received_bytes:
-          type: integer
-          title: Received Bytes
-        total_bytes:
-          type: integer
-          title: Total Bytes
+        input_mode:
+          $ref: '#/components/schemas/BrainDumpInputMode'
+          default: voice
+        duration_secs:
+          anyOf:
+          - type: number
+            maximum: 14400.0
+            minimum: 0.0
+          - type: 'null'
+          title: Duration Secs
+        mime_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mime Type
+        text:
+          anyOf:
+          - type: string
+            maxLength: 20000
+          - type: 'null'
+          title: Text
       type: object
       required:
       - recording_id
-      - part_index
-      - received_bytes
-      - total_bytes
-      title: UploadPartResponse
+      title: FinalizeRequest
+      description: 'Finalize one take.
+
+
+        ``text`` is the typed fallback: when set, no audio is expected and the
+
+        dump is stored with ``input_mode=typed``. ``input_mode=skipped``
+
+        records the deliberate skip so Path B can be chosen server-side.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     BrainDumpStatus:
       type: string
       enum:
@@ -473,43 +627,89 @@ components:
       - completed
       - failed
       title: BrainDumpStatus
-    RecommendedProvider:
+    UserOnboarding:
       properties:
-        provider:
+        userId:
           type: string
-          title: Provider
-        reason:
-          type: string
-          title: Reason
-          default: ''
+          title: Userid
+        completedSteps:
+          items:
+            $ref: '#/components/schemas/OnboardingStep'
+          type: array
+          title: Completedsteps
+        walletShown:
+          type: boolean
+          title: Walletshown
+        notified:
+          items:
+            $ref: '#/components/schemas/OnboardingStep'
+          type: array
+          title: Notified
+        rewardedFor:
+          items:
+            $ref: '#/components/schemas/OnboardingStep'
+          type: array
+          title: Rewardedfor
+        usageReason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usagereason
+        integrations:
+          items:
+            type: string
+          type: array
+          title: Integrations
+        otherIntegrations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Otherintegrations
+        selectedStoreListingVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selectedstorelistingversionid
+        agentInput:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Agentinput
+        onboardingAgentExecutionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Onboardingagentexecutionid
+        agentRuns:
+          type: integer
+          title: Agentruns
+        lastRunAt:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Lastrunat
+        consecutiveRunDays:
+          type: integer
+          title: Consecutiverundays
       type: object
       required:
-      - provider
-      title: RecommendedProvider
-      description: 'One provider Claude picked from the transcript.
-
-
-        ``provider`` is a registry id (validated against the live provider
-
-        list before storage); ``reason`` is the one-liner shown under it in
-
-        the welcome dialog''s Recommended section.'
-    BrainDumpInputMode:
-      type: string
-      enum:
-      - voice
-      - typed
-      - skipped
-      title: BrainDumpInputMode
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - userId
+      - completedSteps
+      - walletShown
+      - notified
+      - rewardedFor
+      - usageReason
+      - integrations
+      - otherIntegrations
+      - selectedStoreListingVersionId
+      - agentInput
+      - onboardingAgentExecutionId
+      - agentRuns
+      - lastRunAt
+      - consecutiveRunDays
+      title: UserOnboarding
     OnboardingStep:
       type: string
       enum:
@@ -541,29 +741,37 @@ components:
       - BUILD_TAB_INTRO
       title: OnboardingStep
       description: Application-level onboarding step identifiers.
-    RecommendedProvidersResponse:
+    OnboardingStatusResponse:
       properties:
-        ready:
+        is_completed:
           type: boolean
-          title: Ready
-        providers:
-          items:
-            $ref: '#/components/schemas/RecommendedProvider'
-          type: array
-          title: Providers
-          default: []
+          title: Is Completed
       type: object
       required:
-      - ready
-      title: RecommendedProvidersResponse
-      description: 'Recommendations for the "Connect your tools" panel.
-
-
-        ``ready`` is false while the background job is still running — the
-
-        client keeps polling. Once true, ``providers`` is the final answer,
-
-        empty included ("nothing worth recommending" is a real result).'
+      - is_completed
+      title: OnboardingStatusResponse
+      description: Response for onboarding completion check.
+    UploadPartResponse:
+      properties:
+        recording_id:
+          type: string
+          title: Recording Id
+        part_index:
+          type: integer
+          title: Part Index
+        received_bytes:
+          type: integer
+          title: Received Bytes
+        total_bytes:
+          type: integer
+          title: Total Bytes
+      type: object
+      required:
+      - recording_id
+      - part_index
+      - received_bytes
+      - total_bytes
+      title: UploadPartResponse
     Body_upload_brain_dump_part:
       properties:
         file:
@@ -584,73 +792,6 @@ components:
       - recording_id
       - part_index
       title: Body_upload_brain_dump_part
-    UserOnboardingUpdate:
-      properties:
-        walletShown:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Walletshown
-        notified:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/OnboardingStep'
-            type: array
-          - type: 'null'
-          title: Notified
-        usageReason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Usagereason
-        integrations:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Integrations
-        otherIntegrations:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Otherintegrations
-        selectedStoreListingVersionId:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Selectedstorelistingversionid
-        agentInput:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Agentinput
-        onboardingAgentExecutionId:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Onboardingagentexecutionid
-      type: object
-      title: UserOnboardingUpdate
-    ChangelogEntry:
-      properties:
-        version:
-          type: string
-          title: Version
-        changes_summary:
-          type: string
-          title: Changes Summary
-        date:
-          type: string
-          format: date-time
-          title: Date
-      type: object
-      required:
-      - version
-      - changes_summary
-      - date
-      title: ChangelogEntry
     IntroCardResponse:
       properties:
         path:
@@ -693,6 +834,31 @@ components:
         is the server-side "already seen it" flag — when true the client
 
         shows nothing and caches the fact locally.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BrainDumpInputMode:
+      type: string
+      enum:
+      - voice
+      - typed
+      - skipped
+      title: BrainDumpInputMode
+    GreetingDoneResponse:
+      properties:
+        greeting_done:
+          type: boolean
+          title: Greeting Done
+      type: object
+      required:
+      - greeting_done
+      title: GreetingDoneResponse
     StoreAgentDetails:
       properties:
         store_listing_version_id:
@@ -805,158 +971,31 @@ components:
       - active_version_id
       - has_approved_version
       title: StoreAgentDetails
-    FinalizeResponse:
+    UserOnboardingUpdate:
       properties:
-        status:
-          $ref: '#/components/schemas/BrainDumpStatus'
-        input_mode:
-          $ref: '#/components/schemas/BrainDumpInputMode'
-        transcript_preview:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Transcript Preview
-        error_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error Code
-      type: object
-      required:
-      - status
-      - input_mode
-      title: FinalizeResponse
-    GreetingDoneResponse:
-      properties:
-        greeting_done:
-          type: boolean
-          title: Greeting Done
-      type: object
-      required:
-      - greeting_done
-      title: GreetingDoneResponse
-    FinalizeRequest:
-      properties:
-        recording_id:
-          type: string
-          pattern: ^[A-Za-z0-9_-]{1,64}$
-          title: Recording Id
-        input_mode:
-          $ref: '#/components/schemas/BrainDumpInputMode'
-          default: voice
-        duration_secs:
-          anyOf:
-          - type: number
-            maximum: 14400.0
-            minimum: 0.0
-          - type: 'null'
-          title: Duration Secs
-        mime_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Mime Type
-        text:
-          anyOf:
-          - type: string
-            maxLength: 20000
-          - type: 'null'
-          title: Text
-      type: object
-      required:
-      - recording_id
-      title: FinalizeRequest
-      description: 'Finalize one take.
-
-
-        ``text`` is the typed fallback: when set, no audio is expected and the
-
-        dump is stored with ``input_mode=typed``. ``input_mode=skipped``
-
-        records the deliberate skip so Path B can be chosen server-side.'
-    DumpStatusResponse:
-      properties:
-        status:
-          anyOf:
-          - $ref: '#/components/schemas/BrainDumpStatus'
-          - type: 'null'
-        input_mode:
-          anyOf:
-          - $ref: '#/components/schemas/BrainDumpInputMode'
-          - type: 'null'
-        error_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error Code
-        has_audio:
-          type: boolean
-          title: Has Audio
-          default: false
-        greeting_ready:
-          type: boolean
-          title: Greeting Ready
-          default: false
-      type: object
-      title: DumpStatusResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    UserOnboarding:
-      properties:
-        userId:
-          type: string
-          title: Userid
-        completedSteps:
-          items:
-            $ref: '#/components/schemas/OnboardingStep'
-          type: array
-          title: Completedsteps
         walletShown:
-          type: boolean
+          anyOf:
+          - type: boolean
+          - type: 'null'
           title: Walletshown
         notified:
-          items:
-            $ref: '#/components/schemas/OnboardingStep'
-          type: array
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/OnboardingStep'
+            type: array
+          - type: 'null'
           title: Notified
-        rewardedFor:
-          items:
-            $ref: '#/components/schemas/OnboardingStep'
-          type: array
-          title: Rewardedfor
         usageReason:
           anyOf:
           - type: string
           - type: 'null'
           title: Usagereason
         integrations:
-          items:
-            type: string
-          type: array
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
           title: Integrations
         otherIntegrations:
           anyOf:
@@ -979,86 +1018,47 @@ components:
           - type: string
           - type: 'null'
           title: Onboardingagentexecutionid
-        agentRuns:
-          type: integer
-          title: Agentruns
-        lastRunAt:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Lastrunat
-        consecutiveRunDays:
-          type: integer
-          title: Consecutiverundays
       type: object
-      required:
-      - userId
-      - completedSteps
-      - walletShown
-      - notified
-      - rewardedFor
-      - usageReason
-      - integrations
-      - otherIntegrations
-      - selectedStoreListingVersionId
-      - agentInput
-      - onboardingAgentExecutionId
-      - agentRuns
-      - lastRunAt
-      - consecutiveRunDays
-      title: UserOnboarding
-    OnboardingProfileRequest:
+      title: UserOnboardingUpdate
+    ChangelogEntry:
       properties:
-        user_name:
+        version:
           type: string
-          maxLength: 100
-          minLength: 1
-          title: User Name
-        user_role:
+          title: Version
+        changes_summary:
           type: string
-          maxLength: 100
-          minLength: 1
-          title: User Role
-        pain_points:
-          items:
-            type: string
-          type: array
-          maxItems: 20
-          title: Pain Points
+          title: Changes Summary
+        date:
+          type: string
+          format: date-time
+          title: Date
       type: object
       required:
-      - user_name
-      - user_role
-      title: OnboardingProfileRequest
-      description: Request body for onboarding profile submission.
-    SuggestedPrompt:
+      - version
+      - changes_summary
+      - date
+      title: ChangelogEntry
+    RecommendedProvider:
       properties:
-        title:
+        provider:
           type: string
-          title: Title
-        prompt:
+          title: Provider
+        reason:
           type: string
-          title: Prompt
-        icon:
-          type: string
-          title: Icon
-          default: sparkle
+          title: Reason
+          default: ''
       type: object
       required:
-      - title
-      - prompt
-      title: SuggestedPrompt
-      description: 'One pickable prompt under the greeting.
+      - provider
+      title: RecommendedProvider
+      description: 'One provider Claude picked from the transcript.
 
 
-        ``title`` is the short line the user sees; ``prompt`` is the full
+        ``provider`` is a registry id (validated against the live provider
 
-        message that gets sent when they pick it. ``icon`` is a Phosphor icon
+        list before storage); ``reason`` is the one-liner shown under it in
 
-        slug from ``intro.PROMPT_ICONS`` — the frontend maps it to the actual
-
-        icon component and falls back to a sparkle for anything unknown.'
+        the welcome dialog''s Recommended section.'
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

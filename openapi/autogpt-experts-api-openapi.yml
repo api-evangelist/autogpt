@@ -467,51 +467,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ExpertPod:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-      type: object
-      required:
-      - id
-      - name
-      - created_at
-      title: ExpertPod
-      description: A named group of hired experts, scoped to the owner.
-    HireResult:
-      properties:
-        expert:
-          $ref: '#/components/schemas/Expert'
-        failed_preloads:
-          items:
-            type: string
-          type: array
-          title: Failed Preloads
-      type: object
-      required:
-      - expert
-      - failed_preloads
-      title: HireResult
-    AssignPodRequest:
-      properties:
-        pod_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Pod Id
-      type: object
-      required:
-      - pod_id
-      title: AssignPodRequest
-    RaiseAttachment:
+    RaiseAttachmentFailure:
       properties:
         kind:
           type: string
@@ -527,47 +483,20 @@ components:
           title: Source
         id:
           type: string
-          maxLength: 100
-          minLength: 1
           title: Id
+        reason:
+          type: string
+          enum:
+          - unavailable
+          - installation_failed
+          title: Reason
       type: object
       required:
       - kind
       - source
       - id
-      title: RaiseAttachment
-      description: 'One workflow or skill to attach while raising an expert.
-
-
-        ``id`` is a store listing version UUID (marketplace), a library agent
-
-        UUID (library workflow), or a copilot skill slug (library skill).
-
-        Marketplace skills use a store listing version UUID; the listing''s
-
-        public name is stored on ``Expert.skills``.'
-    RaiseResult:
-      properties:
-        expert:
-          $ref: '#/components/schemas/Expert'
-        failed_attachments:
-          items:
-            $ref: '#/components/schemas/RaiseAttachmentFailure'
-          type: array
-          title: Failed Attachments
-          default: []
-      type: object
-      required:
-      - expert
-      title: RaiseResult
-      description: 'Result of raising a blank expert.
-
-
-        Attachments are validated before the expert row is created. A later
-
-        install failure is non-fatal and listed in ``failed_attachments`` so
-
-        the client can surface partial success.'
+      - reason
+      title: RaiseAttachmentFailure
     ExpertRun:
       properties:
         execution_id:
@@ -643,6 +572,44 @@ components:
       - link
       title: ExpertRun
       description: One expert-attributed execution, for the /team Work surface.
+    ExpertIdentity:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        role:
+          type: string
+          title: Role
+        is_archived:
+          type: boolean
+          title: Is Archived
+      type: object
+      required:
+      - id
+      - name
+      - avatar_url
+      - role
+      - is_archived
+      title: ExpertIdentity
+    CreatePodRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: CreatePodRequest
     InstallWorkflowRequest:
       properties:
         store_listing_version_id:
@@ -652,42 +619,119 @@ components:
       required:
       - store_listing_version_id
       title: InstallWorkflowRequest
-    HTTPValidationError:
+    HireRequest:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ExpertSoulUpdate:
-      properties:
+        template_id:
+          type: string
+          title: Template Id
         name:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Name
+      type: object
+      required:
+      - template_id
+      title: HireRequest
+    RaiseAttachment:
+      properties:
+        kind:
+          type: string
+          enum:
+          - workflow
+          - skill
+          title: Kind
+        source:
+          type: string
+          enum:
+          - marketplace
+          - library
+          title: Source
+        id:
           type: string
           maxLength: 100
           minLength: 1
-          title: Name
-        identity:
-          type: string
-          maxLength: 10000
-          minLength: 1
-          title: Identity
-        voice_preferences:
-          type: string
-          maxLength: 4000
-          title: Voice Preferences
-        boundaries:
-          type: string
-          maxLength: 4000
-          title: Boundaries
+          title: Id
       type: object
       required:
+      - kind
+      - source
+      - id
+      title: RaiseAttachment
+      description: 'One workflow or skill to attach while raising an expert.
+
+
+        ``id`` is a store listing version UUID (marketplace), a library agent
+
+        UUID (library workflow), or a copilot skill slug (library skill).
+
+        Marketplace skills use a store listing version UUID; the listing''s
+
+        public name is stored on ``Expert.skills``.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ExpertPod:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
       - name
-      - identity
-      - voice_preferences
-      - boundaries
-      title: ExpertSoulUpdate
+      - created_at
+      title: ExpertPod
+      description: A named group of hired experts, scoped to the owner.
+    VoiceSample:
+      properties:
+        label:
+          type: string
+          title: Label
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+      - label
+      - text
+      title: VoiceSample
+      description: 'A short writing sample in a persona''s own voice, offered as a pick in
+
+        the hire or raise flow. The first sample is choice "a", the second choice
+
+        "b".'
     CreateRaisedExpertRequest:
       properties:
         name:
@@ -742,36 +786,58 @@ components:
       required:
       - name
       title: CreateRaisedExpertRequest
-    RaiseAttachmentFailure:
+    ExpertDetachPreview:
       properties:
-        kind:
-          type: string
-          enum:
-          - workflow
-          - skill
-          title: Kind
-        source:
-          type: string
-          enum:
-          - marketplace
-          - library
-          title: Source
-        id:
-          type: string
-          title: Id
-        reason:
-          type: string
-          enum:
-          - unavailable
-          - installation_failed
-          title: Reason
+        schedule_names:
+          items:
+            type: string
+          type: array
+          title: Schedule Names
+        trigger_names:
+          items:
+            type: string
+          type: array
+          title: Trigger Names
       type: object
       required:
-      - kind
-      - source
-      - id
-      - reason
-      title: RaiseAttachmentFailure
+      - schedule_names
+      - trigger_names
+      title: ExpertDetachPreview
+      description: What archiving the expert would pause — drives the confirm dialog.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HireResult:
+      properties:
+        expert:
+          $ref: '#/components/schemas/Expert'
+        failed_preloads:
+          items:
+            type: string
+          type: array
+          title: Failed Preloads
+      type: object
+      required:
+      - expert
+      - failed_preloads
+      title: HireResult
+    AssignPodRequest:
+      properties:
+        pod_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pod Id
+      type: object
+      required:
+      - pod_id
+      title: AssignPodRequest
     Expert:
       properties:
         id:
@@ -892,43 +958,55 @@ components:
       - is_archived
       - workflows
       title: Expert
-    ValidationError:
+    RaiseResult:
       properties:
-        loc:
+        expert:
+          $ref: '#/components/schemas/Expert'
+        failed_attachments:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/RaiseAttachmentFailure'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Failed Attachments
+          default: []
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    CreatePodRequest:
+      - expert
+      title: RaiseResult
+      description: 'Result of raising a blank expert.
+
+
+        Attachments are validated before the expert row is created. A later
+
+        install failure is non-fatal and listed in ``failed_attachments`` so
+
+        the client can surface partial success.'
+    ExpertSoulUpdate:
       properties:
         name:
           type: string
           maxLength: 100
           minLength: 1
           title: Name
+        identity:
+          type: string
+          maxLength: 10000
+          minLength: 1
+          title: Identity
+        voice_preferences:
+          type: string
+          maxLength: 4000
+          title: Voice Preferences
+        boundaries:
+          type: string
+          maxLength: 4000
+          title: Boundaries
       type: object
       required:
       - name
-      title: CreatePodRequest
+      - identity
+      - voice_preferences
+      - boundaries
+      title: ExpertSoulUpdate
     ExpertWorkflowRef:
       properties:
         id:
@@ -978,84 +1056,6 @@ components:
       - name
       - description
       title: ExpertWorkflowRef
-    ExpertDetachPreview:
-      properties:
-        schedule_names:
-          items:
-            type: string
-          type: array
-          title: Schedule Names
-        trigger_names:
-          items:
-            type: string
-          type: array
-          title: Trigger Names
-      type: object
-      required:
-      - schedule_names
-      - trigger_names
-      title: ExpertDetachPreview
-      description: What archiving the expert would pause — drives the confirm dialog.
-    HireRequest:
-      properties:
-        template_id:
-          type: string
-          title: Template Id
-        name:
-          anyOf:
-          - type: string
-            maxLength: 100
-          - type: 'null'
-          title: Name
-      type: object
-      required:
-      - template_id
-      title: HireRequest
-    ExpertIdentity:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        avatar_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Avatar Url
-        role:
-          type: string
-          title: Role
-        is_archived:
-          type: boolean
-          title: Is Archived
-      type: object
-      required:
-      - id
-      - name
-      - avatar_url
-      - role
-      - is_archived
-      title: ExpertIdentity
-    VoiceSample:
-      properties:
-        label:
-          type: string
-          title: Label
-        text:
-          type: string
-          title: Text
-      type: object
-      required:
-      - label
-      - text
-      title: VoiceSample
-      description: 'A short writing sample in a persona''s own voice, offered as a pick in
-
-        the hire or raise flow. The first sample is choice "a", the second choice
-
-        "b".'
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

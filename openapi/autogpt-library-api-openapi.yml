@@ -834,28 +834,6 @@ paths:
       x-operation-id-original: postV2Move folder
 components:
   schemas:
-    GraphTriggerInfo:
-      properties:
-        provider:
-          type: string
-          title: Provider
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        config_schema:
-          additionalProperties: true
-          type: object
-          title: Config Schema
-          description: Input schema for the trigger block
-        credentials_input_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Credentials Input Name
-      type: object
-      required:
-      - provider
-      - config_schema
-      - credentials_input_name
-      title: GraphTriggerInfo
     GraphSettings:
       properties:
         human_in_the_loop_safe_mode:
@@ -873,30 +851,87 @@ components:
           title: Builder Chat Session Id
       type: object
       title: GraphSettings
-    LibraryAgentStatus:
-      type: string
-      enum:
-      - COMPLETED
-      - HEALTHY
-      - WAITING
-      - ERROR
-      title: LibraryAgentStatus
-    Body_postV2Add_marketplace_agent:
+    FolderListResponse:
       properties:
-        store_listing_version_id:
-          type: string
-          title: Store Listing Version Id
-        source:
-          type: string
-          enum:
-          - onboarding
-          - marketplace
-          title: Source
-          default: marketplace
+        folders:
+          items:
+            $ref: '#/components/schemas/LibraryFolder'
+          type: array
+          title: Folders
+        pagination:
+          $ref: '#/components/schemas/Pagination'
       type: object
       required:
-      - store_listing_version_id
-      title: Body_postV2Add marketplace agent
+      - folders
+      - pagination
+      title: FolderListResponse
+      description: Response schema for a list of folders.
+    LibraryAgentUpdateRequest:
+      properties:
+        auto_update_version:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Auto Update Version
+          description: Auto-update the agent version
+        graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graph Version
+          description: Specific graph version to update to
+        is_favorite:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Favorite
+          description: Mark the agent as a favorite
+        is_archived:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Archived
+          description: Archive the agent
+        is_hidden:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Hidden
+          description: Whether to hide the agent from the library listing
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/GraphSettings'
+          - type: 'null'
+          description: User-specific settings for this library agent
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+          description: Folder ID to move agent to (None to move to root)
+      type: object
+      title: LibraryAgentUpdateRequest
+      description: 'Schema for updating a library agent via PUT.
+
+
+        Includes flags for auto-updating version, marking as favorite,
+
+        archiving, or deleting.'
+    LibraryAgentResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/LibraryAgent'
+          type: array
+          title: Agents
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - agents
+      - pagination
+      title: LibraryAgentResponse
+      description: Response schema for a list of library agents and pagination info.
     FolderCreateRequest:
       properties:
         name:
@@ -926,144 +961,91 @@ components:
       - name
       title: FolderCreateRequest
       description: Request model for creating a folder.
-    FolderMoveRequest:
+    MarketplaceListingCreator:
       properties:
-        target_parent_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Target Parent Id
-      type: object
-      title: FolderMoveRequest
-      description: Request model for moving a folder to a new parent.
-    FolderListResponse:
-      properties:
-        folders:
-          items:
-            $ref: '#/components/schemas/LibraryFolder'
-          type: array
-          title: Folders
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - folders
-      - pagination
-      title: FolderListResponse
-      description: Response schema for a list of folders.
-    LibraryFolderTree:
-      properties:
+        name:
+          type: string
+          title: Name
         id:
           type: string
           title: Id
-        user_id:
+        slug:
           type: string
-          title: User Id
-        name:
-          type: string
-          title: Name
-        icon:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Icon
-        color:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Color
-        parent_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Parent Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        agent_count:
-          type: integer
-          title: Agent Count
-          default: 0
-        subfolder_count:
-          type: integer
-          title: Subfolder Count
-          default: 0
-        children:
-          items:
-            $ref: '#/components/schemas/LibraryFolderTree'
-          type: array
-          title: Children
-          default: []
+          title: Slug
       type: object
       required:
-      - id
-      - user_id
       - name
-      - created_at
-      - updated_at
-      title: LibraryFolderTree
-      description: Folder with nested children for tree view.
-    HTTPValidationError:
+      - id
+      - slug
+      title: MarketplaceListingCreator
+      description: Creator information for a marketplace listing.
+    ValidationError:
       properties:
-        detail:
+        loc:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    FolderUpdateRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 1
-          - type: 'null'
-          title: Name
-        icon:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Icon
-        color:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Color
-      type: object
-      title: FolderUpdateRequest
-      description: Request model for updating a folder.
-    BulkMoveAgentsRequest:
-      properties:
-        agent_ids:
-          items:
-            type: string
-          type: array
-          title: Agent Ids
-        folder_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Folder Id
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - agent_ids
-      title: BulkMoveAgentsRequest
-      description: Request model for moving multiple agents to a folder.
-    LibraryAgentSort:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    LibraryAgentStatus:
       type: string
       enum:
-      - createdAt
-      - updatedAt
-      - lastRunAt
-      title: LibraryAgentSort
-      description: Possible sort options for sorting library agents.
+      - COMPLETED
+      - HEALTHY
+      - WAITING
+      - ERROR
+      title: LibraryAgentStatus
     LibraryAgent:
       properties:
         id:
@@ -1246,31 +1228,6 @@ components:
       description: 'Represents an agent in the library, including metadata for display and
 
         user interaction within the system.'
-    RecentExecution:
-      properties:
-        status:
-          type: string
-          title: Status
-        correctness_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Correctness Score
-        activity_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Summary
-      type: object
-      required:
-      - status
-      title: RecentExecution
-      description: 'Summary of a recent execution for quality assessment.
-
-
-        Used by the LLM to understand the agent''s recent performance with specific examples
-
-        rather than just aggregate statistics.'
     FolderTreeResponse:
       properties:
         tree:
@@ -1283,137 +1240,63 @@ components:
       - tree
       title: FolderTreeResponse
       description: Response schema for folder tree structure.
-    LibraryAgentUpdateRequest:
+    Body_postV2Add_marketplace_agent:
       properties:
-        auto_update_version:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Auto Update Version
-          description: Auto-update the agent version
-        graph_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Graph Version
-          description: Specific graph version to update to
-        is_favorite:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Favorite
-          description: Mark the agent as a favorite
-        is_archived:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Archived
-          description: Archive the agent
-        is_hidden:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Hidden
-          description: Whether to hide the agent from the library listing
-        settings:
-          anyOf:
-          - $ref: '#/components/schemas/GraphSettings'
-          - type: 'null'
-          description: User-specific settings for this library agent
-        folder_id:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        source:
+          type: string
+          enum:
+          - onboarding
+          - marketplace
+          title: Source
+          default: marketplace
+      type: object
+      required:
+      - store_listing_version_id
+      title: Body_postV2Add marketplace agent
+    FolderMoveRequest:
+      properties:
+        target_parent_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Folder Id
-          description: Folder ID to move agent to (None to move to root)
+          title: Target Parent Id
       type: object
-      title: LibraryAgentUpdateRequest
-      description: 'Schema for updating a library agent via PUT.
-
-
-        Includes flags for auto-updating version, marking as favorite,
-
-        archiving, or deleting.'
-    MarketplaceListingCreator:
+      title: FolderMoveRequest
+      description: Request model for moving a folder to a new parent.
+    FolderUpdateRequest:
       properties:
         name:
-          type: string
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
           title: Name
-        id:
-          type: string
-          title: Id
-        slug:
-          type: string
-          title: Slug
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
       type: object
-      required:
-      - name
-      - id
-      - slug
-      title: MarketplaceListingCreator
-      description: Creator information for a marketplace listing.
-    ValidationError:
+      title: FolderUpdateRequest
+      description: Request model for updating a folder.
+    HTTPValidationError:
       properties:
-        loc:
+        detail:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Detail
       type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    MarketplaceListing:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        slug:
-          type: string
-          title: Slug
-        creator:
-          $ref: '#/components/schemas/MarketplaceListingCreator'
-      type: object
-      required:
-      - id
-      - name
-      - slug
-      - creator
-      title: MarketplaceListing
-      description: Marketplace listing information for a library agent.
-    LibraryAgentResponse:
-      properties:
-        agents:
-          items:
-            $ref: '#/components/schemas/LibraryAgent'
-          type: array
-          title: Agents
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - agents
-      - pagination
-      title: LibraryAgentResponse
-      description: Response schema for a list of library agents and pagination info.
+      title: HTTPValidationError
     LibraryFolder:
       properties:
         id:
@@ -1465,39 +1348,156 @@ components:
       - updated_at
       title: LibraryFolder
       description: Represents a folder for organizing library agents.
-    Pagination:
+    LibraryAgentSort:
+      type: string
+      enum:
+      - createdAt
+      - updatedAt
+      - lastRunAt
+      title: LibraryAgentSort
+      description: Possible sort options for sorting library agents.
+    LibraryFolderTree:
       properties:
-        total_items:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        name:
+          type: string
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
+        parent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        agent_count:
           type: integer
-          title: Total Items
-          description: Total number of items.
-          examples:
-          - 42
-        total_pages:
+          title: Agent Count
+          default: 0
+        subfolder_count:
           type: integer
-          title: Total Pages
-          description: Total number of pages.
-          examples:
-          - 2
-        current_page:
-          type: integer
-          title: Current Page
-          description: Current_page page number.
-          examples:
-          - 1
-        page_size:
-          type: integer
-          title: Page Size
-          description: Number of items per page.
-          examples:
-          - 25
+          title: Subfolder Count
+          default: 0
+        children:
+          items:
+            $ref: '#/components/schemas/LibraryFolderTree'
+          type: array
+          title: Children
+          default: []
       type: object
       required:
-      - total_items
-      - total_pages
-      - current_page
-      - page_size
-      title: Pagination
+      - id
+      - user_id
+      - name
+      - created_at
+      - updated_at
+      title: LibraryFolderTree
+      description: Folder with nested children for tree view.
+    RecentExecution:
+      properties:
+        status:
+          type: string
+          title: Status
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+        activity_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Summary
+      type: object
+      required:
+      - status
+      title: RecentExecution
+      description: 'Summary of a recent execution for quality assessment.
+
+
+        Used by the LLM to understand the agent''s recent performance with specific examples
+
+        rather than just aggregate statistics.'
+    BulkMoveAgentsRequest:
+      properties:
+        agent_ids:
+          items:
+            type: string
+          type: array
+          title: Agent Ids
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+      type: object
+      required:
+      - agent_ids
+      title: BulkMoveAgentsRequest
+      description: Request model for moving multiple agents to a folder.
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    MarketplaceListing:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        slug:
+          type: string
+          title: Slug
+        creator:
+          $ref: '#/components/schemas/MarketplaceListingCreator'
+      type: object
+      required:
+      - id
+      - name
+      - slug
+      - creator
+      title: MarketplaceListing
+      description: Marketplace listing information for a library agent.
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

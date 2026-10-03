@@ -56,6 +56,74 @@ components:
               detail:
                 type: string
   schemas:
+    BriefingResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        briefing_date:
+          type: string
+          format: date
+          title: Briefing Date
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        delivered_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Delivered At
+        content:
+          $ref: '#/components/schemas/BriefingContent'
+      type: object
+      required:
+      - id
+      - briefing_date
+      - created_at
+      - delivered_at
+      - content
+      title: BriefingResponse
+    BriefingDecisionItem:
+      properties:
+        node_exec_id:
+          type: string
+          title: Node Exec Id
+        graph_exec_id:
+          type: string
+          title: Graph Exec Id
+        title:
+          type: string
+          title: Title
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        expert_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Name
+        expert_avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Avatar Url
+        link:
+          type: string
+          title: Link
+      type: object
+      required:
+      - node_exec_id
+      - graph_exec_id
+      - title
+      - expert_id
+      - expert_name
+      - expert_avatar_url
+      - link
+      title: BriefingDecisionItem
     BriefingRunItem:
       properties:
         expert_id:
@@ -140,74 +208,6 @@ components:
       - summary
       - link
       title: BriefingRunItem
-    BriefingDecisionItem:
-      properties:
-        node_exec_id:
-          type: string
-          title: Node Exec Id
-        graph_exec_id:
-          type: string
-          title: Graph Exec Id
-        title:
-          type: string
-          title: Title
-        expert_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expert Id
-        expert_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expert Name
-        expert_avatar_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expert Avatar Url
-        link:
-          type: string
-          title: Link
-      type: object
-      required:
-      - node_exec_id
-      - graph_exec_id
-      - title
-      - expert_id
-      - expert_name
-      - expert_avatar_url
-      - link
-      title: BriefingDecisionItem
-    BriefingResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        briefing_date:
-          type: string
-          format: date
-          title: Briefing Date
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        delivered_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Delivered At
-        content:
-          $ref: '#/components/schemas/BriefingContent'
-      type: object
-      required:
-      - id
-      - briefing_date
-      - created_at
-      - delivered_at
-      - content
-      title: BriefingResponse
     BriefingContent:
       properties:
         generated_at:

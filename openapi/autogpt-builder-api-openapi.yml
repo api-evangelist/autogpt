@@ -235,43 +235,124 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: getV2Get builder suggestions
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
-    ValidationError:
+    Pagination:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    BlockInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        inputSchema:
+          additionalProperties: true
+          type: object
+          title: Inputschema
+        outputSchema:
+          additionalProperties: true
+          type: object
+          title: Outputschema
+        costs:
+          items:
+            $ref: '#/components/schemas/BlockCost'
+          type: array
+          title: Costs
+        description:
+          type: string
+          title: Description
+        categories:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Categories
+        contributors:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Contributors
+        staticOutput:
+          type: boolean
+          title: Staticoutput
+        uiType:
+          type: string
+          title: Uitype
+      type: object
+      required:
+      - id
+      - name
+      - inputSchema
+      - outputSchema
+      - costs
+      - description
+      - categories
+      - contributors
+      - staticOutput
+      - uiType
+      title: BlockInfo
+    Provider:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        description:
+          type: string
+          title: Description
+        integration_count:
+          type: integer
+          title: Integration Count
+      type: object
+      required:
+      - name
+      - description
+      - integration_count
+      title: Provider
+    BlockCostType:
+      type: string
+      enum:
+      - run
+      - byte
+      - second
+      - items
+      - cost_usd
+      - tokens
+      title: BlockCostType
     BlockCost:
       properties:
         cost_amount:
@@ -297,40 +378,20 @@ components:
       - cost_filter
       - cost_type
       title: BlockCost
-    BlockCostType:
-      type: string
-      enum:
-      - run
-      - byte
-      - second
-      - items
-      - cost_usd
-      - tokens
-      title: BlockCostType
-    SuggestionsResponse:
+    ProviderResponse:
       properties:
-        recent_searches:
-          items:
-            $ref: '#/components/schemas/SearchEntry'
-          type: array
-          title: Recent Searches
         providers:
           items:
-            type: string
-            description: Provider name for integrations. Can be any string value, including custom provider names.
+            $ref: '#/components/schemas/Provider'
           type: array
           title: Providers
-        top_blocks:
-          items:
-            $ref: '#/components/schemas/BlockInfo'
-          type: array
-          title: Top Blocks
+        pagination:
+          $ref: '#/components/schemas/Pagination'
       type: object
       required:
-      - recent_searches
       - providers
-      - top_blocks
-      title: SuggestionsResponse
+      - pagination
+      title: ProviderResponse
     CountResponse:
       properties:
         all_blocks:
@@ -401,137 +462,30 @@ components:
         cached-token rate (Anthropic). Display-only — billing always uses the
 
         internal credit math in `BlockCost.cost_amount`.'
-    BlockCategoryResponse:
+    SuggestionsResponse:
       properties:
-        name:
-          type: string
-          title: Name
-        total_blocks:
-          type: integer
-          title: Total Blocks
-        blocks:
+        recent_searches:
+          items:
+            $ref: '#/components/schemas/SearchEntry'
+          type: array
+          title: Recent Searches
+        providers:
+          items:
+            type: string
+            description: Provider name for integrations. Can be any string value, including custom provider names.
+          type: array
+          title: Providers
+        top_blocks:
           items:
             $ref: '#/components/schemas/BlockInfo'
           type: array
-          title: Blocks
+          title: Top Blocks
       type: object
       required:
-      - name
-      - total_blocks
-      - blocks
-      title: BlockCategoryResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    BlockResponse:
-      properties:
-        blocks:
-          items:
-            $ref: '#/components/schemas/BlockInfo'
-          type: array
-          title: Blocks
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - blocks
-      - pagination
-      title: BlockResponse
-    BlockInfo:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        inputSchema:
-          additionalProperties: true
-          type: object
-          title: Inputschema
-        outputSchema:
-          additionalProperties: true
-          type: object
-          title: Outputschema
-        costs:
-          items:
-            $ref: '#/components/schemas/BlockCost'
-          type: array
-          title: Costs
-        description:
-          type: string
-          title: Description
-        categories:
-          items:
-            additionalProperties:
-              type: string
-            type: object
-          type: array
-          title: Categories
-        contributors:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Contributors
-        staticOutput:
-          type: boolean
-          title: Staticoutput
-        uiType:
-          type: string
-          title: Uitype
-      type: object
-      required:
-      - id
-      - name
-      - inputSchema
-      - outputSchema
-      - costs
-      - description
-      - categories
-      - contributors
-      - staticOutput
-      - uiType
-      title: BlockInfo
-    Pagination:
-      properties:
-        total_items:
-          type: integer
-          title: Total Items
-          description: Total number of items.
-          examples:
-          - 42
-        total_pages:
-          type: integer
-          title: Total Pages
-          description: Total number of pages.
-          examples:
-          - 2
-        current_page:
-          type: integer
-          title: Current Page
-          description: Current_page page number.
-          examples:
-          - 1
-        page_size:
-          type: integer
-          title: Page Size
-          description: Number of items per page.
-          examples:
-          - 25
-      type: object
-      required:
-      - total_items
-      - total_pages
-      - current_page
-      - page_size
-      title: Pagination
+      - recent_searches
+      - providers
+      - top_blocks
+      title: SuggestionsResponse
     SearchEntry:
       properties:
         search_query:
@@ -565,38 +519,84 @@ components:
           title: Search Id
       type: object
       title: SearchEntry
-    Provider:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BlockCategoryResponse:
       properties:
         name:
           type: string
           title: Name
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        description:
-          type: string
-          title: Description
-        integration_count:
+        total_blocks:
           type: integer
-          title: Integration Count
+          title: Total Blocks
+        blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfo'
+          type: array
+          title: Blocks
       type: object
       required:
       - name
-      - description
-      - integration_count
-      title: Provider
-    ProviderResponse:
+      - total_blocks
+      - blocks
+      title: BlockCategoryResponse
+    ValidationError:
       properties:
-        providers:
+        loc:
           items:
-            $ref: '#/components/schemas/Provider'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Providers
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    BlockResponse:
+      properties:
+        blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfo'
+          type: array
+          title: Blocks
         pagination:
           $ref: '#/components/schemas/Pagination'
       type: object
       required:
-      - providers
+      - blocks
       - pagination
-      title: ProviderResponse
+      title: BlockResponse
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

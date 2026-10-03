@@ -283,95 +283,6 @@ components:
               detail:
                 type: string
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    ForgetFactResponse:
-      properties:
-        uuid:
-          type: string
-          title: Uuid
-        forgotten:
-          type: boolean
-          title: Forgotten
-      type: object
-      required:
-      - uuid
-      - forgotten
-      title: ForgetFactResponse
-    MemoryFactListResponse:
-      properties:
-        expert_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expert Id
-        items:
-          items:
-            $ref: '#/components/schemas/MemoryFact'
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: MemoryFactListResponse
-    MemoryScopeOverview:
-      properties:
-        expert_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expert Id
-        facts:
-          type: integer
-          title: Facts
-        entities:
-          type: integer
-          title: Entities
-        episodes:
-          type: integer
-          title: Episodes
-      type: object
-      required:
-      - facts
-      - entities
-      - episodes
-      title: MemoryScopeOverview
-      description: 'Counts for one memory scope, shown on the settings page and in the
-
-        erase-confirmation dialog.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     EraseMemoryResponse:
       properties:
         expert_id:
@@ -426,6 +337,95 @@ components:
       - target
       title: MemoryFact
       description: One live fact edge, as shown in the recent-memories list.
+    ForgetFactResponse:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        forgotten:
+          type: boolean
+          title: Forgotten
+      type: object
+      required:
+      - uuid
+      - forgotten
+      title: ForgetFactResponse
+    MemoryScopeOverview:
+      properties:
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        facts:
+          type: integer
+          title: Facts
+        entities:
+          type: integer
+          title: Entities
+        episodes:
+          type: integer
+          title: Episodes
+      type: object
+      required:
+      - facts
+      - entities
+      - episodes
+      title: MemoryScopeOverview
+      description: 'Counts for one memory scope, shown on the settings page and in the
+
+        erase-confirmation dialog.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MemoryFactListResponse:
+      properties:
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        items:
+          items:
+            $ref: '#/components/schemas/MemoryFact'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: MemoryFactListResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

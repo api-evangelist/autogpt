@@ -53,45 +53,38 @@ components:
               detail:
                 type: string
   schemas:
-    ValidationError:
+    Document:
       properties:
-        loc:
+        url:
+          type: string
+          title: Url
+        relevance_score:
+          type: number
+          title: Relevance Score
+      type: object
+      required:
+      - url
+      - relevance_score
+      title: Document
+    ApiResponse:
+      properties:
+        answer:
+          type: string
+          title: Answer
+        documents:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/Document'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Documents
+        success:
+          type: boolean
+          title: Success
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    Message:
-      properties:
-        query:
-          type: string
-          title: Query
-        response:
-          type: string
-          title: Response
-      type: object
-      required:
-      - query
-      - response
-      title: Message
+      - answer
+      - documents
+      - success
+      title: ApiResponse
     ChatRequest:
       properties:
         query:
@@ -120,25 +113,19 @@ components:
       - conversation_history
       - message_id
       title: ChatRequest
-    ApiResponse:
+    Message:
       properties:
-        answer:
+        query:
           type: string
-          title: Answer
-        documents:
-          items:
-            $ref: '#/components/schemas/Document'
-          type: array
-          title: Documents
-        success:
-          type: boolean
-          title: Success
+          title: Query
+        response:
+          type: string
+          title: Response
       type: object
       required:
-      - answer
-      - documents
-      - success
-      title: ApiResponse
+      - query
+      - response
+      title: Message
     HTTPValidationError:
       properties:
         detail:
@@ -148,19 +135,32 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    Document:
+    ValidationError:
       properties:
-        url:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          title: Url
-        relevance_score:
-          type: number
-          title: Relevance Score
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - url
-      - relevance_score
-      title: Document
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

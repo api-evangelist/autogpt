@@ -3265,129 +3265,6 @@ paths:
       x-operation-id-original: postV2Review store submission
 components:
   schemas:
-    UserRateLimitResponse:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        user_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: User Email
-        daily_cost_limit_microdollars:
-          type: integer
-          title: Daily Cost Limit Microdollars
-        weekly_cost_limit_microdollars:
-          type: integer
-          title: Weekly Cost Limit Microdollars
-        daily_cost_used_microdollars:
-          type: integer
-          title: Daily Cost Used Microdollars
-        weekly_cost_used_microdollars:
-          type: integer
-          title: Weekly Cost Used Microdollars
-        tier:
-          $ref: '#/components/schemas/SubscriptionTier'
-        tier_multipliers:
-          additionalProperties:
-            type: number
-          type: object
-          title: Tier Multipliers
-          default: {}
-      type: object
-      required:
-      - user_id
-      - daily_cost_limit_microdollars
-      - weekly_cost_limit_microdollars
-      - daily_cost_used_microdollars
-      - weekly_cost_used_microdollars
-      - tier
-      title: UserRateLimitResponse
-    SetUserTierRequest:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        tier:
-          $ref: '#/components/schemas/SubscriptionTier'
-      type: object
-      required:
-      - user_id
-      - tier
-      title: SetUserTierRequest
-    CreditTransactionType:
-      type: string
-      enum:
-      - TOP_UP
-      - USAGE
-      - GRANT
-      - REFUND
-      - CARD_CHECK
-      - SUBSCRIPTION
-      title: CreditTransactionType
-    PlatformCostLogsResponse:
-      properties:
-        logs:
-          items:
-            $ref: '#/components/schemas/CostLogRow'
-          type: array
-          title: Logs
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - logs
-      - pagination
-      title: PlatformCostLogsResponse
-    SchedulesListResponse:
-      properties:
-        schedules:
-          items:
-            $ref: '#/components/schemas/ScheduleDetail'
-          type: array
-          title: Schedules
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - schedules
-      - total
-      title: SchedulesListResponse
-      description: Response model for list of schedules
-    BlockCostEstimatesResponse:
-      properties:
-        estimates:
-          items:
-            $ref: '#/components/schemas/BlockCostEstimateRow'
-          type: array
-          title: Estimates
-        total_rows:
-          type: integer
-          title: Total Rows
-        window_days:
-          type: integer
-          title: Window Days
-        max_window_days:
-          type: integer
-          title: Max Window Days
-        min_samples:
-          type: integer
-          title: Min Samples
-        generated_at:
-          type: string
-          format: date-time
-          title: Generated At
-      type: object
-      required:
-      - estimates
-      - total_rows
-      - window_days
-      - max_window_days
-      - min_samples
-      - generated_at
-      title: BlockCostEstimatesResponse
     SubmissionStatus:
       type: string
       enum:
@@ -3396,322 +3273,83 @@ components:
       - APPROVED
       - REJECTED
       title: SubmissionStatus
-    ExecutionAnalyticsResult:
+    GraphSettings:
       properties:
-        agent_id:
-          type: string
-          title: Agent Id
-        version_id:
-          type: integer
-          title: Version Id
-        user_id:
-          type: string
-          title: User Id
-        exec_id:
-          type: string
-          title: Exec Id
-        summary_text:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Summary Text
-        score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Score
-        status:
-          type: string
-          title: Status
-        error_message:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error Message
-        started_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Started At
-        ended_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Ended At
-      type: object
-      required:
-      - agent_id
-      - version_id
-      - user_id
-      - exec_id
-      - summary_text
-      - score
-      - status
-      title: ExecutionAnalyticsResult
-    BotAnalyticsSummary:
-      properties:
-        platform:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Platform
-        window_days:
-          type: integer
-          title: Window Days
-        live_servers:
-          type: integer
-          title: Live Servers
-          description: Current count of servers the bot is in right now. Point-in-time gauge — intentionally ignores window_days. Use the server-count timeseries endpoint for the windowed growth curve.
-        messages_received:
-          type: integer
-          title: Messages Received
-        replies_sent:
-          type: integer
-          title: Replies Sent
-        commands_used:
-          type: integer
-          title: Commands Used
-        stream_errors:
-          type: integer
-          title: Stream Errors
-        avg_reply_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Reply Ms
-        error_rate:
-          type: number
-          title: Error Rate
-      type: object
-      required:
-      - platform
-      - window_days
-      - live_servers
-      - messages_received
-      - replies_sent
-      - commands_used
-      - stream_errors
-      - avg_reply_ms
-      - error_rate
-      title: BotAnalyticsSummary
-    DreamPassUsage:
-      properties:
-        phases:
-          items:
-            $ref: '#/components/schemas/PhaseUsage'
-          type: array
-          title: Phases
-        total_input_tokens:
-          type: integer
-          title: Total Input Tokens
-          default: 0
-        total_output_tokens:
-          type: integer
-          title: Total Output Tokens
-          default: 0
-        total_cache_read_tokens:
-          type: integer
-          title: Total Cache Read Tokens
-          default: 0
-        total_cache_creation_tokens:
-          type: integer
-          title: Total Cache Creation Tokens
-          default: 0
-        total_cost_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Total Cost Usd
-        discount_applied:
-          type: number
-          title: Discount Applied
-          default: 0.0
-      type: object
-      title: DreamPassUsage
-      description: 'Aggregate usage across all phases of one dream pass.
-
-
-        Surfaced on ``DreamPassResult.usage`` so eval / admin UI / billing
-
-        can read tokens + cost without recomputing. Written to
-
-        ``PlatformCostLog`` from apply.py with ``provider=''dream_pass''``;
-
-        charged against the user''s rate-limit window via
-
-        ``persist_and_record_usage`` so dream-pass spend rolls into the
-
-        same daily/weekly subscription tier budget as chat-execution
-
-        overage.'
-    NightlyBatchResult:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        nightly_id:
-          type: string
-          title: Nightly Id
-          description: UUID correlating every per-submitter cost-log row for this pass. The dream pass and ratification supersession sweep all share this id.
-        started_at:
-          type: string
-          format: date-time
-          title: Started At
-        completed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Completed At
-        elapsed_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Elapsed Seconds
-        dream:
-          anyOf:
-          - $ref: '#/components/schemas/DreamPassResult'
-          - type: 'null'
-        ratification:
-          anyOf:
-          - $ref: '#/components/schemas/RatificationResult'
-          - type: 'null'
-        dream_in_flight:
+        human_in_the_loop_safe_mode:
           type: boolean
-          title: Dream In Flight
-          default: false
-        skipped:
+          title: Human In The Loop Safe Mode
+          default: true
+        sensitive_action_safe_mode:
           type: boolean
-          title: Skipped
+          title: Sensitive Action Safe Mode
           default: false
-        skip_reason:
+        builder_chat_session_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Skip Reason
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
+          title: Builder Chat Session Id
+      type: object
+      title: GraphSettings
+    RequeueExecutionResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        requeued_count:
+          type: integer
+          title: Requeued Count
+          default: 0
+        message:
+          type: string
+          title: Message
       type: object
       required:
-      - user_id
-      - nightly_id
-      - started_at
-      title: NightlyBatchResult
-      description: 'Structured outcome of one nightly-batch-submit pass.
-
-
-        Surfaced via the scheduler wrapper + admin endpoint so we can
-
-        audit "what fired tonight for this user" without scraping logs.'
-    DreamOperationsSnapshot:
+      - success
+      - message
+      title: RequeueExecutionResponse
+      description: Response model for requeue execution operations
+    StoreListingWithVersionsAdminView:
       properties:
-        writes:
-          items:
-            $ref: '#/components/schemas/WriteSummary'
-          type: array
-          title: Writes
-        proposals:
-          items:
-            $ref: '#/components/schemas/WriteSummary'
-          type: array
-          title: Proposals
-        demotions:
-          items:
-            $ref: '#/components/schemas/DemotionSummary'
-          type: array
-          title: Demotions
-        entity_invalidations:
-          items:
-            $ref: '#/components/schemas/EntityInvalidationSummary'
-          type: array
-          title: Entity Invalidations
-      type: object
-      title: DreamOperationsSnapshot
-      description: "Detailed per-operation rollup of a single dream pass.\n\nShape used by three downstream consumers:\n  1. The admin memory-visualizer UI (renders the per-edge detail).\n  2. AgentProbe eval scorers (read via ``rawExchangeKey``).\n  3. The future chat-stream ``dream.operations`` SSE event (P6 + P9\n     daydreaming, see ``dream/TODO.md``).\n\nKept additive on ``DreamPassResult`` so adding fields here doesn't\nbump the count-only top-level columns existing clients rely on."
-    SubscriptionTier:
-      type: string
-      enum:
-      - NO_TIER
-      - BASIC
-      - PRO
-      - MAX
-      - BUSINESS
-      - ENTERPRISE
-      title: SubscriptionTier
-      description: "Subscription tiers with increasing cost allowances.\n\nMirrors the ``SubscriptionTier`` enum in ``schema.prisma``.\nOnce ``prisma generate`` is run, this can be replaced with::\n\n    from prisma.enums import SubscriptionTier"
-    NightlyJobStatus:
-      properties:
-        job_id:
+        listing_id:
           type: string
-          title: Job Id
-        user_id:
+          title: Listing Id
+        graph_id:
           type: string
-          title: User Id
-        kind:
+          title: Graph Id
+        slug:
           type: string
-          enum:
-          - nightly
-          - dream_pass
-          - rebuild
-          title: Kind
-        state:
-          type: string
-          enum:
-          - queued
-          - running
-          - submitted
-          - complete
-          - errored
-          title: State
-        started_at:
-          type: string
-          format: date-time
-          title: Started At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        completed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Completed At
-        current_phase:
+          title: Slug
+        active_listing_version_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Current Phase
-          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
-        batch_id:
+          title: Active Listing Version Id
+        has_approved_version:
+          type: boolean
+          title: Has Approved Version
+          default: false
+        creator_email:
           anyOf:
           - type: string
           - type: 'null'
-          title: Batch Id
-        result:
+          title: Creator Email
+        latest_version:
           anyOf:
-          - $ref: '#/components/schemas/NightlyBatchResult'
+          - $ref: '#/components/schemas/StoreSubmissionAdminView'
           - type: 'null'
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
+        versions:
+          items:
+            $ref: '#/components/schemas/StoreSubmissionAdminView'
+          type: array
+          title: Versions
+          default: []
       type: object
       required:
-      - job_id
-      - user_id
-      - kind
-      - state
-      - started_at
-      - updated_at
-      title: NightlyJobStatus
-      description: JobStatus envelope for ``kind="nightly"``.
+      - listing_id
+      - graph_id
+      - slug
+      title: StoreListingWithVersionsAdminView
+      description: A store listing with its version history
     UserTransaction:
       properties:
         transaction_key:
@@ -3789,238 +3427,114 @@ components:
       required:
       - user_id
       title: UserTransaction
-    ScheduleHealthMetrics:
+    PlatformCostDashboard:
       properties:
-        total_schedules:
-          type: integer
-          title: Total Schedules
-        user_schedules:
-          type: integer
-          title: User Schedules
-        system_schedules:
-          type: integer
-          title: System Schedules
-        orphaned_deleted_graph:
-          type: integer
-          title: Orphaned Deleted Graph
-        orphaned_no_library_access:
-          type: integer
-          title: Orphaned No Library Access
-        orphaned_invalid_credentials:
-          type: integer
-          title: Orphaned Invalid Credentials
-        orphaned_validation_failed:
-          type: integer
-          title: Orphaned Validation Failed
-        total_orphaned:
-          type: integer
-          title: Total Orphaned
-        schedules_next_hour:
-          type: integer
-          title: Schedules Next Hour
-        schedules_next_24h:
-          type: integer
-          title: Schedules Next 24H
-        total_runs_next_hour:
-          type: integer
-          title: Total Runs Next Hour
-        total_runs_next_24h:
-          type: integer
-          title: Total Runs Next 24H
-        timestamp:
-          type: string
-          title: Timestamp
-      type: object
-      required:
-      - total_schedules
-      - user_schedules
-      - system_schedules
-      - orphaned_deleted_graph
-      - orphaned_no_library_access
-      - orphaned_invalid_credentials
-      - orphaned_validation_failed
-      - total_orphaned
-      - schedules_next_hour
-      - schedules_next_24h
-      - total_runs_next_hour
-      - total_runs_next_24h
-      - timestamp
-      title: ScheduleHealthMetrics
-      description: Summary of schedule health diagnostics
-    MarketplaceListing:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        slug:
-          type: string
-          title: Slug
-        creator:
-          $ref: '#/components/schemas/MarketplaceListingCreator'
-      type: object
-      required:
-      - id
-      - name
-      - slug
-      - creator
-      title: MarketplaceListing
-      description: Marketplace listing information for a library agent.
-    CommunityListResponse:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        items:
+        by_provider:
           items:
-            $ref: '#/components/schemas/CommunitySummary'
+            $ref: '#/components/schemas/ProviderCostSummary'
           type: array
-          title: Items
-      type: object
-      required:
-      - user_id
-      - items
-      title: CommunityListResponse
-    Pagination:
-      properties:
-        total_items:
+          title: By Provider
+        by_user:
+          items:
+            $ref: '#/components/schemas/UserCostSummary'
+          type: array
+          title: By User
+        total_cost_microdollars:
           type: integer
-          title: Total Items
-          description: Total number of items.
-          examples:
-          - 42
-        total_pages:
+          title: Total Cost Microdollars
+        total_requests:
           type: integer
-          title: Total Pages
-          description: Total number of pages.
-          examples:
-          - 2
-        current_page:
+          title: Total Requests
+        total_users:
           type: integer
-          title: Current Page
-          description: Current_page page number.
-          examples:
-          - 1
-        page_size:
+          title: Total Users
+        total_input_tokens:
           type: integer
-          title: Page Size
-          description: Number of items per page.
-          examples:
-          - 25
-      type: object
-      required:
-      - total_items
-      - total_pages
-      - current_page
-      - page_size
-      title: Pagination
-    ExecutionDiagnosticsResponse:
-      properties:
-        running_executions:
+          title: Total Input Tokens
+          default: 0
+        total_output_tokens:
           type: integer
-          title: Running Executions
-        queued_executions_db:
-          type: integer
-          title: Queued Executions Db
-        queued_executions_rabbitmq:
-          type: integer
-          title: Queued Executions Rabbitmq
-        cancel_queue_depth:
-          type: integer
-          title: Cancel Queue Depth
-        orphaned_running:
-          type: integer
-          title: Orphaned Running
-        orphaned_queued:
-          type: integer
-          title: Orphaned Queued
-        failed_count_1h:
-          type: integer
-          title: Failed Count 1H
-        failed_count_24h:
-          type: integer
-          title: Failed Count 24H
-        failure_rate_24h:
+          title: Total Output Tokens
+          default: 0
+        avg_input_tokens_per_request:
           type: number
-          title: Failure Rate 24H
-        stuck_running_24h:
-          type: integer
-          title: Stuck Running 24H
-        stuck_running_1h:
-          type: integer
-          title: Stuck Running 1H
-        oldest_running_hours:
+          title: Avg Input Tokens Per Request
+          default: 0.0
+        avg_output_tokens_per_request:
+          type: number
+          title: Avg Output Tokens Per Request
+          default: 0.0
+        avg_cost_microdollars_per_request:
+          type: number
+          title: Avg Cost Microdollars Per Request
+          default: 0.0
+        cost_p50_microdollars:
+          type: number
+          title: Cost P50 Microdollars
+          default: 0.0
+        cost_p75_microdollars:
+          type: number
+          title: Cost P75 Microdollars
+          default: 0.0
+        cost_p95_microdollars:
+          type: number
+          title: Cost P95 Microdollars
+          default: 0.0
+        cost_p99_microdollars:
+          type: number
+          title: Cost P99 Microdollars
+          default: 0.0
+        cost_buckets:
+          items:
+            $ref: '#/components/schemas/CostBucket'
+          type: array
+          title: Cost Buckets
+          default: []
+      type: object
+      required:
+      - by_provider
+      - by_user
+      - total_cost_microdollars
+      - total_requests
+      - total_users
+      title: PlatformCostDashboard
+    AccuracyLatestData:
+      properties:
+        date:
+          type: string
+          format: date-time
+          title: Date
+        daily_score:
           anyOf:
           - type: number
           - type: 'null'
-          title: Oldest Running Hours
-        stuck_queued_1h:
-          type: integer
-          title: Stuck Queued 1H
-        queued_never_started:
-          type: integer
-          title: Queued Never Started
-        invalid_queued_with_start:
-          type: integer
-          title: Invalid Queued With Start
-        invalid_running_without_start:
-          type: integer
-          title: Invalid Running Without Start
-        completed_1h:
-          type: integer
-          title: Completed 1H
-        completed_24h:
-          type: integer
-          title: Completed 24H
-        throughput_per_hour:
-          type: number
-          title: Throughput Per Hour
-        timestamp:
-          type: string
-          title: Timestamp
+          title: Daily Score
+        three_day_avg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Three Day Avg
+        seven_day_avg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Seven Day Avg
+        fourteen_day_avg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fourteen Day Avg
       type: object
       required:
-      - running_executions
-      - queued_executions_db
-      - queued_executions_rabbitmq
-      - cancel_queue_depth
-      - orphaned_running
-      - orphaned_queued
-      - failed_count_1h
-      - failed_count_24h
-      - failure_rate_24h
-      - stuck_running_24h
-      - stuck_running_1h
-      - oldest_running_hours
-      - stuck_queued_1h
-      - queued_never_started
-      - invalid_queued_with_start
-      - invalid_running_without_start
-      - completed_1h
-      - completed_24h
-      - throughput_per_hour
-      - timestamp
-      title: ExecutionDiagnosticsResponse
-      description: Response model for execution diagnostics
-    ScheduleDetail:
+      - date
+      - daily_score
+      - three_day_avg
+      - seven_day_avg
+      - fourteen_day_avg
+      title: AccuracyLatestData
+      description: Latest execution accuracy data point.
+    CopilotWeeklyUsageRow:
       properties:
-        schedule_id:
-          type: string
-          title: Schedule Id
-        schedule_name:
-          type: string
-          title: Schedule Name
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_name:
-          type: string
-          title: Graph Name
-        graph_version:
-          type: integer
-          title: Graph Version
         user_id:
           type: string
           title: User Id
@@ -4029,93 +3543,67 @@ components:
           - type: string
           - type: 'null'
           title: User Email
-        cron:
+        week_start:
           type: string
-          title: Cron
-        timezone:
+          format: date-time
+          title: Week Start
+        week_end:
           type: string
-          title: Timezone
-        next_run_time:
+          format: date-time
+          title: Week End
+        copilot_cost_microdollars:
+          type: integer
+          title: Copilot Cost Microdollars
+        tier:
           type: string
-          title: Next Run Time
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
+          title: Tier
+        weekly_limit_microdollars:
+          type: integer
+          title: Weekly Limit Microdollars
+        percent_used:
+          type: number
+          title: Percent Used
       type: object
       required:
-      - schedule_id
-      - schedule_name
-      - graph_id
-      - graph_name
-      - graph_version
       - user_id
-      - user_email
-      - cron
-      - timezone
-      - next_run_time
-      title: ScheduleDetail
-      description: Details about a schedule for admin view
-    LibraryAgentStatus:
-      type: string
-      enum:
-      - COMPLETED
-      - HEALTHY
-      - WAITING
-      - ERROR
-      title: LibraryAgentStatus
-    BlockCostEstimateRow:
+      - week_start
+      - week_end
+      - copilot_cost_microdollars
+      - tier
+      - weekly_limit_microdollars
+      - percent_used
+      title: CopilotWeeklyUsageRow
+    StoreListingsWithVersionsAdminViewResponse:
       properties:
-        block_id:
-          type: string
-          title: Block Id
-        block_name:
-          type: string
-          title: Block Name
-        cost_type:
-          type: string
-          title: Cost Type
-        samples:
-          type: integer
-          title: Samples
-        mean_credits:
-          type: integer
-          title: Mean Credits
-        p50_credits:
-          type: integer
-          title: P50 Credits
-        p95_credits:
-          type: integer
-          title: P95 Credits
+        listings:
+          items:
+            $ref: '#/components/schemas/StoreListingWithVersionsAdminView'
+          type: array
+          title: Listings
+        pagination:
+          $ref: '#/components/schemas/Pagination'
       type: object
       required:
-      - block_id
-      - block_name
-      - cost_type
-      - samples
-      - mean_credits
-      - p50_credits
-      - p95_credits
-      title: BlockCostEstimateRow
-    BotCommandUsage:
+      - listings
+      - pagination
+      title: StoreListingsWithVersionsAdminViewResponse
+      description: Response model for listings with version history
+    OrphanedSchedulesListResponse:
       properties:
-        platform:
-          type: string
-          title: Platform
-        command:
-          type: string
-          title: Command
-        uses:
+        schedules:
+          items:
+            $ref: '#/components/schemas/OrphanedScheduleDetail'
+          type: array
+          title: Schedules
+        total:
           type: integer
-          title: Uses
+          title: Total
       type: object
       required:
-      - platform
-      - command
-      - uses
-      title: BotCommandUsage
+      - schedules
+      - total
+      title: OrphanedSchedulesListResponse
+      description: Response model for list of orphaned schedules
     ModelInfo:
       properties:
         value:
@@ -4133,149 +3621,318 @@ components:
       - label
       - provider
       title: ModelInfo
-    UserHistoryResponse:
+    DreamPassUsage:
       properties:
-        history:
+        phases:
           items:
-            $ref: '#/components/schemas/UserTransaction'
+            $ref: '#/components/schemas/PhaseUsage'
           type: array
-          title: History
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - history
-      - pagination
-      title: UserHistoryResponse
-      description: Response model for listings with version history
-    RunningExecutionsListResponse:
-      properties:
-        executions:
-          items:
-            $ref: '#/components/schemas/RunningExecutionDetail'
-          type: array
-          title: Executions
-        total:
+          title: Phases
+        total_input_tokens:
           type: integer
-          title: Total
+          title: Total Input Tokens
+          default: 0
+        total_output_tokens:
+          type: integer
+          title: Total Output Tokens
+          default: 0
+        total_cache_read_tokens:
+          type: integer
+          title: Total Cache Read Tokens
+          default: 0
+        total_cache_creation_tokens:
+          type: integer
+          title: Total Cache Creation Tokens
+          default: 0
+        total_cost_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Total Cost Usd
+        discount_applied:
+          type: number
+          title: Discount Applied
+          default: 0.0
+      type: object
+      title: DreamPassUsage
+      description: 'Aggregate usage across all phases of one dream pass.
+
+
+        Surfaced on ``DreamPassResult.usage`` so eval / admin UI / billing
+
+        can read tokens + cost without recomputing. Written to
+
+        ``PlatformCostLog`` from apply.py with ``provider=''dream_pass''``;
+
+        charged against the user''s rate-limit window via
+
+        ``persist_and_record_usage`` so dream-pass spend rolls into the
+
+        same daily/weekly subscription tier budget as chat-execution
+
+        overage.'
+    AccuracyAlertData:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+        drop_percent:
+          type: number
+          title: Drop Percent
+        three_day_avg:
+          type: number
+          title: Three Day Avg
+        seven_day_avg:
+          type: number
+          title: Seven Day Avg
+        detected_at:
+          type: string
+          format: date-time
+          title: Detected At
       type: object
       required:
-      - executions
-      - total
-      title: RunningExecutionsListResponse
-      description: Response model for list of running executions
-    CommunityRebuildJobStatus:
+      - graph_id
+      - user_id
+      - drop_percent
+      - three_day_avg
+      - seven_day_avg
+      - detected_at
+      title: AccuracyAlertData
+      description: Alert data when accuracy drops significantly.
+    MarketplaceListingCreator:
       properties:
-        job_id:
+        name:
           type: string
-          title: Job Id
+          title: Name
+        id:
+          type: string
+          title: Id
+        slug:
+          type: string
+          title: Slug
+      type: object
+      required:
+      - name
+      - id
+      - slug
+      title: MarketplaceListingCreator
+      description: Creator information for a marketplace listing.
+    DreamPassResult:
+      properties:
         user_id:
           type: string
           title: User Id
-        kind:
+        pass_id:
           type: string
-          enum:
-          - nightly
-          - dream_pass
-          - rebuild
-          title: Kind
-        state:
-          type: string
-          enum:
-          - queued
-          - running
-          - submitted
-          - complete
-          - errored
-          title: State
+          title: Pass Id
         started_at:
-          type: string
-          format: date-time
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
           title: Started At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
         completed_at:
           anyOf:
           - type: string
             format: date-time
           - type: 'null'
           title: Completed At
-        current_phase:
+        elapsed_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Elapsed Seconds
+        execution_path:
+          type: string
+          enum:
+          - sync_baseline
+          - anthropic_batch
+          - openai_batch
+          title: Execution Path
+          default: sync_baseline
+        consolidated_count:
+          type: integer
+          title: Consolidated Count
+          default: 0
+        proposal_count:
+          type: integer
+          title: Proposal Count
+          default: 0
+        demotion_count:
+          type: integer
+          title: Demotion Count
+          default: 0
+        entity_invalidation_count:
+          type: integer
+          title: Entity Invalidation Count
+          default: 0
+        summary_for_user:
+          type: string
+          title: Summary For User
+          default: ''
+        dream_session_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Current Phase
-          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
-        batch_id:
+          title: Dream Session Id
+        ingestion_drain_status:
+          $ref: '#/components/schemas/IngestionDrainStatus'
+          default: drained
+        operations:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/DreamOperationsSnapshot'
           - type: 'null'
-          title: Batch Id
-        result:
+        usage:
           anyOf:
-          - $ref: '#/components/schemas/RebuildResult'
+          - $ref: '#/components/schemas/DreamPassUsage'
           - type: 'null'
         error:
           anyOf:
           - type: string
           - type: 'null'
           title: Error
-      type: object
-      required:
-      - job_id
-      - user_id
-      - kind
-      - state
-      - started_at
-      - updated_at
-      title: CommunityRebuildJobStatus
-      description: JobStatus envelope for ``kind="rebuild"``.
-    Body_postV2Reset_user_rate_limit_usage:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        reset_weekly:
+        skipped:
           type: boolean
-          title: Reset Weekly
+          title: Skipped
           default: false
+        skip_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skip Reason
       type: object
       required:
       - user_id
-      title: Body_postV2Reset user rate limit usage
-    Body_postV2Add_credits_to_user:
+      - pass_id
+      title: DreamPassResult
+      description: 'Return value of ``execute_dream_pass`` and the admin API.
+
+
+        Mirrors ``RebuildResponse`` from the community-rebuild endpoint so
+
+        the admin frontend can render both with the same toast logic.'
+    ProviderCostSummary:
       properties:
+        provider:
+          type: string
+          title: Provider
+        tracking_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tracking Type
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        total_cost_microdollars:
+          type: integer
+          title: Total Cost Microdollars
+        total_input_tokens:
+          type: integer
+          title: Total Input Tokens
+        total_output_tokens:
+          type: integer
+          title: Total Output Tokens
+        total_cache_read_tokens:
+          type: integer
+          title: Total Cache Read Tokens
+          default: 0
+        total_cache_creation_tokens:
+          type: integer
+          title: Total Cache Creation Tokens
+          default: 0
+        total_duration_seconds:
+          type: number
+          title: Total Duration Seconds
+          default: 0.0
+        total_tracking_amount:
+          type: number
+          title: Total Tracking Amount
+          default: 0.0
+        request_count:
+          type: integer
+          title: Request Count
+      type: object
+      required:
+      - provider
+      - total_cost_microdollars
+      - total_input_tokens
+      - total_output_tokens
+      - request_count
+      title: ProviderCostSummary
+    RunningExecutionDetail:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_name:
+          type: string
+          title: Graph Name
+        graph_version:
+          type: integer
+          title: Graph Version
         user_id:
           type: string
           title: User Id
-        amount:
-          type: integer
-          title: Amount
-        comments:
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        status:
           type: string
-          title: Comments
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        queue_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Queue Status
       type: object
       required:
+      - execution_id
+      - graph_id
+      - graph_name
+      - graph_version
       - user_id
-      - amount
-      - comments
-      title: Body_postV2Add credits to user
-    AgentDiagnosticsResponse:
+      - user_email
+      - status
+      - created_at
+      - started_at
+      title: RunningExecutionDetail
+      description: Details about a running execution for admin view
+    CostBucket:
       properties:
-        agents_with_active_executions:
-          type: integer
-          title: Agents With Active Executions
-        timestamp:
+        bucket:
           type: string
-          title: Timestamp
+          title: Bucket
+        count:
+          type: integer
+          title: Count
       type: object
       required:
-      - agents_with_active_executions
-      - timestamp
-      title: AgentDiagnosticsResponse
-      description: Response model for agent diagnostics
+      - bucket
+      - count
+      title: CostBucket
     CostLogRow:
       properties:
         id:
@@ -4368,68 +4025,926 @@ components:
       - block_name
       - provider
       title: CostLogRow
-    BotServerActivity:
+    RatificationResult:
       properties:
-        platform:
+        user_id:
           type: string
-          title: Platform
-        server_id:
-          type: string
-          title: Server Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        messages:
-          type: integer
-          title: Messages
-        commands:
-          type: integer
-          title: Commands
-      type: object
-      required:
-      - platform
-      - server_id
-      - name
-      - messages
-      - commands
-      title: BotServerActivity
-    BotGuildInfo:
-      properties:
-        platform:
-          type: string
-          title: Platform
-        server_id:
-          type: string
-          title: Server Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        joined_at:
+          title: User Id
+        started_at:
           type: string
           format: date-time
-          title: Joined At
-        left_at:
+          title: Started At
+        completed_at:
           anyOf:
           - type: string
             format: date-time
           - type: 'null'
-          title: Left At
-        active:
+          title: Completed At
+        examined_count:
+          type: integer
+          title: Examined Count
+          default: 0
+        ratified_count:
+          type: integer
+          title: Ratified Count
+          default: 0
+        superseded_count:
+          type: integer
+          title: Superseded Count
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        skipped:
           type: boolean
-          title: Active
+          title: Skipped
+          default: false
+        skip_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skip Reason
+        per_edge_errors:
+          items:
+            type: string
+          type: array
+          title: Per Edge Errors
+      type: object
+      required:
+      - user_id
+      - started_at
+      title: RatificationResult
+      description: 'Structured outcome of a single ratification pass.
+
+
+        Surfaced via the scheduler wrapper so admin / future metrics can
+
+        read promotion vs. supersession counts without re-scanning Graphiti.'
+    UserRateLimitResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        daily_cost_limit_microdollars:
+          type: integer
+          title: Daily Cost Limit Microdollars
+        weekly_cost_limit_microdollars:
+          type: integer
+          title: Weekly Cost Limit Microdollars
+        daily_cost_used_microdollars:
+          type: integer
+          title: Daily Cost Used Microdollars
+        weekly_cost_used_microdollars:
+          type: integer
+          title: Weekly Cost Used Microdollars
+        tier:
+          $ref: '#/components/schemas/SubscriptionTier'
+        tier_multipliers:
+          additionalProperties:
+            type: number
+          type: object
+          title: Tier Multipliers
+          default: {}
+      type: object
+      required:
+      - user_id
+      - daily_cost_limit_microdollars
+      - weekly_cost_limit_microdollars
+      - daily_cost_used_microdollars
+      - weekly_cost_used_microdollars
+      - tier
+      title: UserRateLimitResponse
+    BotCommandUsage:
+      properties:
+        platform:
+          type: string
+          title: Platform
+        command:
+          type: string
+          title: Command
+        uses:
+          type: integer
+          title: Uses
       type: object
       required:
       - platform
-      - server_id
+      - command
+      - uses
+      title: BotCommandUsage
+    RebuildResult:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Started At
+        communities_built:
+          title: Communities Built
+        elapsed_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Elapsed Seconds
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        skipped:
+          type: boolean
+          title: Skipped
+          default: false
+        skip_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skip Reason
+        activity:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Activity
+        forced:
+          type: boolean
+          title: Forced
+          default: false
+        execution_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Execution Path
+      type: object
+      required:
+      - user_id
+      title: RebuildResult
+      description: 'Typed envelope around ``rebuild_communities_for_user``''s return dict.
+
+
+        Lives here (admin routes) rather than in ``copilot/graphiti/communities.py``
+
+        because the dict-returning rebuild function predates the admin-API
+
+        typing pass. Hoisting it to ``communities.py`` (and changing the
+
+        function signature) is a follow-up cleanup.'
+    UserTierResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        tier:
+          $ref: '#/components/schemas/SubscriptionTier'
+      type: object
+      required:
+      - user_id
+      - tier
+      title: UserTierResponse
+    FactListResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        items:
+          items:
+            $ref: '#/components/schemas/FactSummary'
+          type: array
+          title: Items
+      type: object
+      required:
+      - user_id
+      - items
+      title: FactListResponse
+    GraphResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        group_id:
+          type: string
+          title: Group Id
+        nodes:
+          items:
+            $ref: '#/components/schemas/GraphNode'
+          type: array
+          title: Nodes
+        edges:
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+          type: array
+          title: Edges
+        truncated:
+          type: boolean
+          title: Truncated
+          description: True when the result was capped by ``node_limit`` / ``edge_limit``. Frontend should surface this so the user knows they're not seeing the full graph.
+          default: false
+      type: object
+      required:
+      - user_id
+      - group_id
+      - nodes
+      - edges
+      title: GraphResponse
+    NightlyBatchResult:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        nightly_id:
+          type: string
+          title: Nightly Id
+          description: UUID correlating every per-submitter cost-log row for this pass. The dream pass and ratification supersession sweep all share this id.
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        elapsed_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Elapsed Seconds
+        dream:
+          anyOf:
+          - $ref: '#/components/schemas/DreamPassResult'
+          - type: 'null'
+        ratification:
+          anyOf:
+          - $ref: '#/components/schemas/RatificationResult'
+          - type: 'null'
+        dream_in_flight:
+          type: boolean
+          title: Dream In Flight
+          default: false
+        skipped:
+          type: boolean
+          title: Skipped
+          default: false
+        skip_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skip Reason
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - user_id
+      - nightly_id
+      - started_at
+      title: NightlyBatchResult
+      description: 'Structured outcome of one nightly-batch-submit pass.
+
+
+        Surfaced via the scheduler wrapper + admin endpoint so we can
+
+        audit "what fired tonight for this user" without scraping logs.'
+    SetUserTierRequest:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        tier:
+          $ref: '#/components/schemas/SubscriptionTier'
+      type: object
+      required:
+      - user_id
+      - tier
+      title: SetUserTierRequest
+    JobTriggerResponse:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        user_id:
+          type: string
+          title: User Id
+        kind:
+          type: string
+          enum:
+          - nightly
+          - dream_pass
+          - rebuild
+          title: Kind
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - submitted
+          - complete
+          - errored
+          title: State
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+      type: object
+      required:
+      - job_id
+      - user_id
+      - kind
+      - state
+      - started_at
+      title: JobTriggerResponse
+      description: '202 response from a fire-and-forget admin trigger.
+
+
+        Frontend captures ``job_id`` and polls ``GET .../{job_id}`` for
+
+        progress. ``state`` is always ``"queued"`` at this point — the
+
+        scheduler picks the job up within sub-second and flips it to
+
+        ``running``.'
+    PlatformCostExportResponse:
+      properties:
+        logs:
+          items:
+            $ref: '#/components/schemas/CostLogRow'
+          type: array
+          title: Logs
+        total_rows:
+          type: integer
+          title: Total Rows
+        truncated:
+          type: boolean
+          title: Truncated
+      type: object
+      required:
+      - logs
+      - total_rows
+      - truncated
+      title: PlatformCostExportResponse
+    RunningExecutionsListResponse:
+      properties:
+        executions:
+          items:
+            $ref: '#/components/schemas/RunningExecutionDetail'
+          type: array
+          title: Executions
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - executions
+      - total
+      title: RunningExecutionsListResponse
+      description: Response model for list of running executions
+    FactSummary:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        source:
+          type: string
+          title: Source
+        target:
+          type: string
+          title: Target
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        fact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fact
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        scope:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scope
+        confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Confidence
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        expired_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expired At
+      type: object
+      required:
+      - uuid
+      - source
+      - target
+      title: FactSummary
+    EntityInvalidationSummary:
+      properties:
+        entity_uuid:
+          type: string
+          title: Entity Uuid
+        reason:
+          type: string
+          title: Reason
+        edges_touched:
+          items:
+            type: string
+          type: array
+          title: Edges Touched
+      type: object
+      required:
+      - entity_uuid
+      - reason
+      title: EntityInvalidationSummary
+      description: Per-entity invalidation rollup.
+    ExecutionAnalyticsConfig:
+      properties:
+        available_models:
+          items:
+            $ref: '#/components/schemas/ModelInfo'
+          type: array
+          title: Available Models
+        default_system_prompt:
+          type: string
+          title: Default System Prompt
+        default_user_prompt:
+          type: string
+          title: Default User Prompt
+        recommended_model:
+          type: string
+          title: Recommended Model
+      type: object
+      required:
+      - available_models
+      - default_system_prompt
+      - default_user_prompt
+      - recommended_model
+      title: ExecutionAnalyticsConfig
+    RecentExecution:
+      properties:
+        status:
+          type: string
+          title: Status
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+        activity_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Summary
+      type: object
+      required:
+      - status
+      title: RecentExecution
+      description: 'Summary of a recent execution for quality assessment.
+
+
+        Used by the LLM to understand the agent''s recent performance with specific examples
+
+        rather than just aggregate statistics.'
+    ScheduleCleanupRequest:
+      properties:
+        schedule_ids:
+          items:
+            type: string
+          type: array
+          title: Schedule Ids
+      type: object
+      required:
+      - schedule_ids
+      title: ScheduleCleanupRequest
+      description: Request model for cleaning up schedules
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    MarketplaceListing:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        slug:
+          type: string
+          title: Slug
+        creator:
+          $ref: '#/components/schemas/MarketplaceListingCreator'
+      type: object
+      required:
+      - id
       - name
-      - joined_at
-      - left_at
-      - active
-      title: BotGuildInfo
+      - slug
+      - creator
+      title: MarketplaceListing
+      description: Marketplace listing information for a library agent.
+    UserSearchResult:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+      type: object
+      required:
+      - user_id
+      title: UserSearchResult
+    NightlyJobStatus:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        user_id:
+          type: string
+          title: User Id
+        kind:
+          type: string
+          enum:
+          - nightly
+          - dream_pass
+          - rebuild
+          title: Kind
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - submitted
+          - complete
+          - errored
+          title: State
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        current_phase:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Phase
+          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
+        batch_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Batch Id
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/NightlyBatchResult'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - job_id
+      - user_id
+      - kind
+      - state
+      - started_at
+      - updated_at
+      title: NightlyJobStatus
+      description: JobStatus envelope for ``kind="nightly"``.
+    SchedulesListResponse:
+      properties:
+        schedules:
+          items:
+            $ref: '#/components/schemas/ScheduleDetail'
+          type: array
+          title: Schedules
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - schedules
+      - total
+      title: SchedulesListResponse
+      description: Response model for list of schedules
+    WriteSummary:
+      properties:
+        edge_uuid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Edge Uuid
+        content:
+          type: string
+          title: Content
+        scope:
+          type: string
+          title: Scope
+          default: real:global
+        confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Confidence
+        status:
+          type: string
+          enum:
+          - active
+          - tentative
+          title: Status
+          default: active
+        source_episode_uuids:
+          items:
+            type: string
+          type: array
+          title: Source Episode Uuids
+        source_fact_uuids:
+          items:
+            type: string
+          type: array
+          title: Source Fact Uuids
+      type: object
+      required:
+      - content
+      title: WriteSummary
+      description: 'One line per envelope written by apply.py.
+
+
+        Carries the durable Graphiti edge uuid so the eval / admin UI / the
+
+        future inline chat-stream `dream.operations` event (P9 daydreaming)
+
+        can render or audit individual operations. ``edge_uuid`` is None
+
+        when the underlying ``enqueue_episode`` call did not return one
+
+        (FalkorDB unreachable, etc.) — we still record the attempted write.'
+    DreamOperationsSnapshot:
+      properties:
+        writes:
+          items:
+            $ref: '#/components/schemas/WriteSummary'
+          type: array
+          title: Writes
+        proposals:
+          items:
+            $ref: '#/components/schemas/WriteSummary'
+          type: array
+          title: Proposals
+        demotions:
+          items:
+            $ref: '#/components/schemas/DemotionSummary'
+          type: array
+          title: Demotions
+        entity_invalidations:
+          items:
+            $ref: '#/components/schemas/EntityInvalidationSummary'
+          type: array
+          title: Entity Invalidations
+      type: object
+      title: DreamOperationsSnapshot
+      description: "Detailed per-operation rollup of a single dream pass.\n\nShape used by three downstream consumers:\n  1. The admin memory-visualizer UI (renders the per-edge detail).\n  2. AgentProbe eval scorers (read via ``rawExchangeKey``).\n  3. The future chat-stream ``dream.operations`` SSE event (P6 + P9\n     daydreaming, see ``dream/TODO.md``).\n\nKept additive on ``DreamPassResult`` so adding fields here doesn't\nbump the count-only top-level columns existing clients rely on."
+    StoreSubmissionAdminView:
+      properties:
+        listing_id:
+          type: string
+          title: Listing Id
+        user_id:
+          type: string
+          title: User Id
+        slug:
+          type: string
+          title: Slug
+        listing_version_id:
+          type: string
+          title: Listing Version Id
+        listing_version:
+          type: integer
+          title: Listing Version
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        name:
+          type: string
+          title: Name
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        image_urls:
+          items:
+            type: string
+          type: array
+          title: Image Urls
+        video_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Url
+        agent_output_demo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Output Demo Url
+        submitted_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Submitted At
+        changes_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Changes Summary
+        status:
+          $ref: '#/components/schemas/SubmissionStatus'
+        reviewed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reviewed At
+        reviewer_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reviewer Id
+        review_comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Review Comments
+        run_count:
+          type: integer
+          title: Run Count
+          default: 0
+        review_count:
+          type: integer
+          title: Review Count
+          default: 0
+        review_avg_rating:
+          type: number
+          title: Review Avg Rating
+          default: 0.0
+        internal_comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Internal Comments
+      type: object
+      required:
+      - listing_id
+      - user_id
+      - slug
+      - listing_version_id
+      - listing_version
+      - graph_id
+      - graph_version
+      - name
+      - sub_heading
+      - description
+      - instructions
+      - categories
+      - image_urls
+      - video_url
+      - agent_output_demo_url
+      - submitted_at
+      - changes_summary
+      - status
+      - internal_comments
+      title: StoreSubmissionAdminView
+    FailedExecutionsListResponse:
+      properties:
+        executions:
+          items:
+            $ref: '#/components/schemas/FailedExecutionDetail'
+          type: array
+          title: Executions
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - executions
+      - total
+      title: FailedExecutionsListResponse
+      description: Response model for list of failed executions
+    OrphanedScheduleDetail:
+      properties:
+        schedule_id:
+          type: string
+          title: Schedule Id
+        schedule_name:
+          type: string
+          title: Schedule Name
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        user_id:
+          type: string
+          title: User Id
+        orphan_reason:
+          type: string
+          title: Orphan Reason
+        error_detail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Detail
+        next_run_time:
+          type: string
+          title: Next Run Time
+      type: object
+      required:
+      - schedule_id
+      - schedule_name
+      - graph_id
+      - graph_version
+      - user_id
+      - orphan_reason
+      - error_detail
+      - next_run_time
+      title: OrphanedScheduleDetail
+      description: Details about an orphaned schedule
     ExecutionAnalyticsRequest:
       properties:
         graph_id:
@@ -4488,183 +5003,31 @@ components:
       required:
       - graph_id
       title: ExecutionAnalyticsRequest
-    WriteSummary:
+    StopExecutionRequest:
       properties:
-        edge_uuid:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Edge Uuid
-        content:
+        execution_id:
           type: string
-          title: Content
-        scope:
-          type: string
-          title: Scope
-          default: real:global
-        confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Confidence
-        status:
-          type: string
-          enum:
-          - active
-          - tentative
-          title: Status
-          default: active
-        source_episode_uuids:
-          items:
-            type: string
-          type: array
-          title: Source Episode Uuids
-        source_fact_uuids:
-          items:
-            type: string
-          type: array
-          title: Source Fact Uuids
+          title: Execution Id
       type: object
       required:
-      - content
-      title: WriteSummary
-      description: 'One line per envelope written by apply.py.
-
-
-        Carries the durable Graphiti edge uuid so the eval / admin UI / the
-
-        future inline chat-stream `dream.operations` event (P9 daydreaming)
-
-        can render or audit individual operations. ``edge_uuid`` is None
-
-        when the underlying ``enqueue_episode`` call did not return one
-
-        (FalkorDB unreachable, etc.) — we still record the attempted write.'
-    RequeueExecutionResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-        requeued_count:
-          type: integer
-          title: Requeued Count
-          default: 0
-        message:
-          type: string
-          title: Message
-      type: object
-      required:
-      - success
-      - message
-      title: RequeueExecutionResponse
-      description: Response model for requeue execution operations
-    StopExecutionResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-        stopped_count:
-          type: integer
-          title: Stopped Count
-          default: 0
-        message:
-          type: string
-          title: Message
-      type: object
-      required:
-      - success
-      - message
-      title: StopExecutionResponse
-      description: Response model for stop execution operations
-    DemotionSummary:
-      properties:
-        edge_uuid:
-          type: string
-          title: Edge Uuid
-        reason:
-          type: string
-          title: Reason
-        new_status:
-          type: string
-          enum:
-          - superseded
-          - contradicted
-          title: New Status
-        applied:
-          type: boolean
-          title: Applied
-          default: true
-      type: object
-      required:
-      - edge_uuid
-      - reason
-      - new_status
-      title: DemotionSummary
-      description: One line per demoted RELATES_TO edge.
-    AccuracyAlertData:
-      properties:
-        graph_id:
-          type: string
-          title: Graph Id
-        user_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: User Id
-        drop_percent:
-          type: number
-          title: Drop Percent
-        three_day_avg:
-          type: number
-          title: Three Day Avg
-        seven_day_avg:
-          type: number
-          title: Seven Day Avg
-        detected_at:
-          type: string
-          format: date-time
-          title: Detected At
-      type: object
-      required:
-      - graph_id
-      - user_id
-      - drop_percent
-      - three_day_avg
-      - seven_day_avg
-      - detected_at
-      title: AccuracyAlertData
-      description: Alert data when accuracy drops significantly.
-    FactListResponse:
+      - execution_id
+      title: StopExecutionRequest
+      description: Request model for stopping a single execution
+    EntityListResponse:
       properties:
         user_id:
           type: string
           title: User Id
         items:
           items:
-            $ref: '#/components/schemas/FactSummary'
+            $ref: '#/components/schemas/EntitySummary'
           type: array
           title: Items
       type: object
       required:
       - user_id
       - items
-      title: FactListResponse
-    OrphanedSchedulesListResponse:
-      properties:
-        schedules:
-          items:
-            $ref: '#/components/schemas/OrphanedScheduleDetail'
-          type: array
-          title: Schedules
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - schedules
-      - total
-      title: OrphanedSchedulesListResponse
-      description: Response model for list of orphaned schedules
+      title: EntityListResponse
     CreditTransactionsExportResponse:
       properties:
         transactions:
@@ -4688,112 +5051,45 @@ components:
       - window_days
       - max_window_days
       title: CreditTransactionsExportResponse
-    StopExecutionRequest:
+    PhaseUsage:
       properties:
-        execution_id:
+        phase:
           type: string
-          title: Execution Id
-      type: object
-      required:
-      - execution_id
-      title: StopExecutionRequest
-      description: Request model for stopping a single execution
-    RunningExecutionDetail:
-      properties:
-        execution_id:
+          enum:
+          - consolidate
+          - recombine
+          - sanitize
+          title: Phase
+        model:
           type: string
-          title: Execution Id
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_name:
-          type: string
-          title: Graph Name
-        graph_version:
+          title: Model
+        input_tokens:
           type: integer
-          title: Graph Version
-        user_id:
-          type: string
-          title: User Id
-        user_email:
+          title: Input Tokens
+          default: 0
+        output_tokens:
+          type: integer
+          title: Output Tokens
+          default: 0
+        cache_read_tokens:
+          type: integer
+          title: Cache Read Tokens
+          default: 0
+        cache_creation_tokens:
+          type: integer
+          title: Cache Creation Tokens
+          default: 0
+        cost_usd:
           anyOf:
-          - type: string
+          - type: number
           - type: 'null'
-          title: User Email
-        status:
-          type: string
-          title: Status
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        started_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Started At
-        queue_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Queue Status
+          title: Cost Usd
       type: object
       required:
-      - execution_id
-      - graph_id
-      - graph_name
-      - graph_version
-      - user_id
-      - user_email
-      - status
-      - created_at
-      - started_at
-      title: RunningExecutionDetail
-      description: Details about a running execution for admin view
-    AccuracyTrendsResponse:
-      properties:
-        latest_data:
-          $ref: '#/components/schemas/AccuracyLatestData'
-        alert:
-          anyOf:
-          - $ref: '#/components/schemas/AccuracyAlertData'
-          - type: 'null'
-        historical_data:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/AccuracyLatestData'
-            type: array
-          - type: 'null'
-          title: Historical Data
-      type: object
-      required:
-      - latest_data
-      - alert
-      title: AccuracyTrendsResponse
-      description: Response model for accuracy trends and alerts.
-    ReviewSubmissionRequest:
-      properties:
-        store_listing_version_id:
-          type: string
-          title: Store Listing Version Id
-        is_approved:
-          type: boolean
-          title: Is Approved
-        comments:
-          type: string
-          title: Comments
-        internal_comments:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Internal Comments
-      type: object
-      required:
-      - store_listing_version_id
-      - is_approved
-      - comments
-      title: ReviewSubmissionRequest
+      - phase
+      - model
+      title: PhaseUsage
+      description: Per-phase token + cost telemetry.
     GraphNode:
       properties:
         uuid:
@@ -4834,116 +5130,6 @@ components:
         Organization / Project / Concept / Preference / Rule). The frontend
 
         uses ``type`` for color-coding when present, falls back to ``label``.'
-    EntityInvalidationSummary:
-      properties:
-        entity_uuid:
-          type: string
-          title: Entity Uuid
-        reason:
-          type: string
-          title: Reason
-        edges_touched:
-          items:
-            type: string
-          type: array
-          title: Edges Touched
-      type: object
-      required:
-      - entity_uuid
-      - reason
-      title: EntityInvalidationSummary
-      description: Per-entity invalidation rollup.
-    BotServerCountPoint:
-      properties:
-        date:
-          type: string
-          format: date-time
-          title: Date
-        server_count:
-          type: integer
-          title: Server Count
-      type: object
-      required:
-      - date
-      - server_count
-      title: BotServerCountPoint
-    Platform:
-      type: string
-      enum:
-      - DISCORD
-      - TELEGRAM
-      - SLACK
-      - TEAMS
-      - WHATSAPP
-      - GITHUB
-      - LINEAR
-      title: Platform
-      description: Mirror of the Prisma PlatformType enum.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    FailedExecutionsListResponse:
-      properties:
-        executions:
-          items:
-            $ref: '#/components/schemas/FailedExecutionDetail'
-          type: array
-          title: Executions
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - executions
-      - total
-      title: FailedExecutionsListResponse
-      description: Response model for list of failed executions
-    CopilotWeeklyUsageRow:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        user_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: User Email
-        week_start:
-          type: string
-          format: date-time
-          title: Week Start
-        week_end:
-          type: string
-          format: date-time
-          title: Week End
-        copilot_cost_microdollars:
-          type: integer
-          title: Copilot Cost Microdollars
-        tier:
-          type: string
-          title: Tier
-        weekly_limit_microdollars:
-          type: integer
-          title: Weekly Limit Microdollars
-        percent_used:
-          type: number
-          title: Percent Used
-      type: object
-      required:
-      - user_id
-      - week_start
-      - week_end
-      - copilot_cost_microdollars
-      - tier
-      - weekly_limit_microdollars
-      - percent_used
-      title: CopilotWeeklyUsageRow
     GraphEdge:
       properties:
         uuid:
@@ -4986,6 +5172,662 @@ components:
       - target
       title: GraphEdge
       description: An edge in the visualizer graph payload.
+    ExecutionDiagnosticsResponse:
+      properties:
+        running_executions:
+          type: integer
+          title: Running Executions
+        queued_executions_db:
+          type: integer
+          title: Queued Executions Db
+        queued_executions_rabbitmq:
+          type: integer
+          title: Queued Executions Rabbitmq
+        cancel_queue_depth:
+          type: integer
+          title: Cancel Queue Depth
+        orphaned_running:
+          type: integer
+          title: Orphaned Running
+        orphaned_queued:
+          type: integer
+          title: Orphaned Queued
+        failed_count_1h:
+          type: integer
+          title: Failed Count 1H
+        failed_count_24h:
+          type: integer
+          title: Failed Count 24H
+        failure_rate_24h:
+          type: number
+          title: Failure Rate 24H
+        stuck_running_24h:
+          type: integer
+          title: Stuck Running 24H
+        stuck_running_1h:
+          type: integer
+          title: Stuck Running 1H
+        oldest_running_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Oldest Running Hours
+        stuck_queued_1h:
+          type: integer
+          title: Stuck Queued 1H
+        queued_never_started:
+          type: integer
+          title: Queued Never Started
+        invalid_queued_with_start:
+          type: integer
+          title: Invalid Queued With Start
+        invalid_running_without_start:
+          type: integer
+          title: Invalid Running Without Start
+        completed_1h:
+          type: integer
+          title: Completed 1H
+        completed_24h:
+          type: integer
+          title: Completed 24H
+        throughput_per_hour:
+          type: number
+          title: Throughput Per Hour
+        timestamp:
+          type: string
+          title: Timestamp
+      type: object
+      required:
+      - running_executions
+      - queued_executions_db
+      - queued_executions_rabbitmq
+      - cancel_queue_depth
+      - orphaned_running
+      - orphaned_queued
+      - failed_count_1h
+      - failed_count_24h
+      - failure_rate_24h
+      - stuck_running_24h
+      - stuck_running_1h
+      - oldest_running_hours
+      - stuck_queued_1h
+      - queued_never_started
+      - invalid_queued_with_start
+      - invalid_running_without_start
+      - completed_1h
+      - completed_24h
+      - throughput_per_hour
+      - timestamp
+      title: ExecutionDiagnosticsResponse
+      description: Response model for execution diagnostics
+    BlockCostEstimateRow:
+      properties:
+        block_id:
+          type: string
+          title: Block Id
+        block_name:
+          type: string
+          title: Block Name
+        cost_type:
+          type: string
+          title: Cost Type
+        samples:
+          type: integer
+          title: Samples
+        mean_credits:
+          type: integer
+          title: Mean Credits
+        p50_credits:
+          type: integer
+          title: P50 Credits
+        p95_credits:
+          type: integer
+          title: P95 Credits
+      type: object
+      required:
+      - block_id
+      - block_name
+      - cost_type
+      - samples
+      - mean_credits
+      - p50_credits
+      - p95_credits
+      title: BlockCostEstimateRow
+    StoreAgentDetails:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        slug:
+          type: string
+          title: Slug
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_video:
+          type: string
+          title: Agent Video
+        agent_output_demo:
+          type: string
+          title: Agent Output Demo
+        agent_image:
+          items:
+            type: string
+          type: array
+          title: Agent Image
+        creator:
+          type: string
+          title: Creator
+        creator_avatar:
+          type: string
+          title: Creator Avatar
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        runs:
+          type: integer
+          title: Runs
+        rating:
+          type: number
+          title: Rating
+        versions:
+          items:
+            type: string
+          type: array
+          title: Versions
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_versions:
+          items:
+            type: string
+          type: array
+          title: Graph Versions
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        owning_org_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owning Org Id
+        active_version_id:
+          type: string
+          title: Active Version Id
+        has_approved_version:
+          type: boolean
+          title: Has Approved Version
+        changelog:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChangelogEntry'
+            type: array
+          - type: 'null'
+          title: Changelog
+      type: object
+      required:
+      - store_listing_version_id
+      - slug
+      - agent_name
+      - agent_video
+      - agent_output_demo
+      - agent_image
+      - creator
+      - creator_avatar
+      - sub_heading
+      - description
+      - categories
+      - runs
+      - rating
+      - versions
+      - graph_id
+      - graph_versions
+      - last_updated
+      - active_version_id
+      - has_approved_version
+      title: StoreAgentDetails
+    AddUserCreditsResponse:
+      properties:
+        new_balance:
+          type: integer
+          title: New Balance
+        transaction_key:
+          type: string
+          title: Transaction Key
+      type: object
+      required:
+      - new_balance
+      - transaction_key
+      title: AddUserCreditsResponse
+    EntitySummary:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        name:
+          type: string
+          title: Name
+        summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary
+      type: object
+      required:
+      - uuid
+      - name
+      title: EntitySummary
+    StopExecutionResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        stopped_count:
+          type: integer
+          title: Stopped Count
+          default: 0
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: StopExecutionResponse
+      description: Response model for stop execution operations
+    ChangelogEntry:
+      properties:
+        version:
+          type: string
+          title: Version
+        changes_summary:
+          type: string
+          title: Changes Summary
+        date:
+          type: string
+          format: date-time
+          title: Date
+      type: object
+      required:
+      - version
+      - changes_summary
+      - date
+      title: ChangelogEntry
+    CommunitySummary:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary
+        member_count:
+          type: integer
+          title: Member Count
+          default: 0
+      type: object
+      required:
+      - uuid
+      title: CommunitySummary
+    DreamJobStatus:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        user_id:
+          type: string
+          title: User Id
+        kind:
+          type: string
+          enum:
+          - nightly
+          - dream_pass
+          - rebuild
+          title: Kind
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - submitted
+          - complete
+          - errored
+          title: State
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        current_phase:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Phase
+          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
+        batch_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Batch Id
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/DreamPassResult'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - job_id
+      - user_id
+      - kind
+      - state
+      - started_at
+      - updated_at
+      title: DreamJobStatus
+      description: JobStatus envelope for ``kind="dream_pass"``.
+    FailedExecutionDetail:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_name:
+          type: string
+          title: Graph Name
+        graph_version:
+          type: integer
+          title: Graph Version
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Email
+        status:
+          type: string
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        failed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Failed At
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+      type: object
+      required:
+      - execution_id
+      - graph_id
+      - graph_name
+      - graph_version
+      - user_id
+      - user_email
+      - status
+      - created_at
+      - started_at
+      - failed_at
+      - error_message
+      title: FailedExecutionDetail
+      description: Details about a failed execution for admin view
+    UserCostSummary:
+      properties:
+        user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        total_cost_microdollars:
+          type: integer
+          title: Total Cost Microdollars
+        total_input_tokens:
+          type: integer
+          title: Total Input Tokens
+        total_output_tokens:
+          type: integer
+          title: Total Output Tokens
+        total_cache_read_tokens:
+          type: integer
+          title: Total Cache Read Tokens
+          default: 0
+        total_cache_creation_tokens:
+          type: integer
+          title: Total Cache Creation Tokens
+          default: 0
+        request_count:
+          type: integer
+          title: Request Count
+        cost_bearing_request_count:
+          type: integer
+          title: Cost Bearing Request Count
+          default: 0
+      type: object
+      required:
+      - total_cost_microdollars
+      - total_input_tokens
+      - total_output_tokens
+      - request_count
+      title: UserCostSummary
+    CommunityRebuildJobStatus:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        user_id:
+          type: string
+          title: User Id
+        kind:
+          type: string
+          enum:
+          - nightly
+          - dream_pass
+          - rebuild
+          title: Kind
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - submitted
+          - complete
+          - errored
+          title: State
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        current_phase:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Phase
+          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
+        batch_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Batch Id
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/RebuildResult'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - job_id
+      - user_id
+      - kind
+      - state
+      - started_at
+      - updated_at
+      title: CommunityRebuildJobStatus
+      description: JobStatus envelope for ``kind="rebuild"``.
+    DemotionSummary:
+      properties:
+        edge_uuid:
+          type: string
+          title: Edge Uuid
+        reason:
+          type: string
+          title: Reason
+        new_status:
+          type: string
+          enum:
+          - superseded
+          - contradicted
+          title: New Status
+        applied:
+          type: boolean
+          title: Applied
+          default: true
+      type: object
+      required:
+      - edge_uuid
+      - reason
+      - new_status
+      title: DemotionSummary
+      description: One line per demoted RELATES_TO edge.
+    BotTimeseriesPoint:
+      properties:
+        date:
+          type: string
+          format: date-time
+          title: Date
+        messages:
+          type: integer
+          title: Messages
+        replies:
+          type: integer
+          title: Replies
+        errors:
+          type: integer
+          title: Errors
+      type: object
+      required:
+      - date
+      - messages
+      - replies
+      - errors
+      title: BotTimeseriesPoint
+    Platform:
+      type: string
+      enum:
+      - DISCORD
+      - TELEGRAM
+      - SLACK
+      - TEAMS
+      - WHATSAPP
+      - GITHUB
+      - LINEAR
+      title: Platform
+      description: Mirror of the Prisma PlatformType enum.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    LibraryAgentStatus:
+      type: string
+      enum:
+      - COMPLETED
+      - HEALTHY
+      - WAITING
+      - ERROR
+      title: LibraryAgentStatus
     LibraryAgent:
       properties:
         id:
@@ -5168,6 +6010,260 @@ components:
       description: 'Represents an agent in the library, including metadata for display and
 
         user interaction within the system.'
+    ExecutionAnalyticsResult:
+      properties:
+        agent_id:
+          type: string
+          title: Agent Id
+        version_id:
+          type: integer
+          title: Version Id
+        user_id:
+          type: string
+          title: User Id
+        exec_id:
+          type: string
+          title: Exec Id
+        summary_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary Text
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Score
+        status:
+          type: string
+          title: Status
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+      type: object
+      required:
+      - agent_id
+      - version_id
+      - user_id
+      - exec_id
+      - summary_text
+      - score
+      - status
+      title: ExecutionAnalyticsResult
+    BotAnalyticsSummary:
+      properties:
+        platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform
+        window_days:
+          type: integer
+          title: Window Days
+        live_servers:
+          type: integer
+          title: Live Servers
+          description: Current count of servers the bot is in right now. Point-in-time gauge — intentionally ignores window_days. Use the server-count timeseries endpoint for the windowed growth curve.
+        messages_received:
+          type: integer
+          title: Messages Received
+        replies_sent:
+          type: integer
+          title: Replies Sent
+        commands_used:
+          type: integer
+          title: Commands Used
+        stream_errors:
+          type: integer
+          title: Stream Errors
+        avg_reply_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Reply Ms
+        error_rate:
+          type: number
+          title: Error Rate
+      type: object
+      required:
+      - platform
+      - window_days
+      - live_servers
+      - messages_received
+      - replies_sent
+      - commands_used
+      - stream_errors
+      - avg_reply_ms
+      - error_rate
+      title: BotAnalyticsSummary
+    Body_postV2Reset_user_rate_limit_usage:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        reset_weekly:
+          type: boolean
+          title: Reset Weekly
+          default: false
+      type: object
+      required:
+      - user_id
+      title: Body_postV2Reset user rate limit usage
+    PlatformCostLogsResponse:
+      properties:
+        logs:
+          items:
+            $ref: '#/components/schemas/CostLogRow'
+          type: array
+          title: Logs
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - logs
+      - pagination
+      title: PlatformCostLogsResponse
+    CreditTransactionType:
+      type: string
+      enum:
+      - TOP_UP
+      - USAGE
+      - GRANT
+      - REFUND
+      - CARD_CHECK
+      - SUBSCRIPTION
+      title: CreditTransactionType
+    BlockCostEstimatesResponse:
+      properties:
+        estimates:
+          items:
+            $ref: '#/components/schemas/BlockCostEstimateRow'
+          type: array
+          title: Estimates
+        total_rows:
+          type: integer
+          title: Total Rows
+        window_days:
+          type: integer
+          title: Window Days
+        max_window_days:
+          type: integer
+          title: Max Window Days
+        min_samples:
+          type: integer
+          title: Min Samples
+        generated_at:
+          type: string
+          format: date-time
+          title: Generated At
+      type: object
+      required:
+      - estimates
+      - total_rows
+      - window_days
+      - max_window_days
+      - min_samples
+      - generated_at
+      title: BlockCostEstimatesResponse
+    Body_postV2Add_credits_to_user:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        amount:
+          type: integer
+          title: Amount
+        comments:
+          type: string
+          title: Comments
+      type: object
+      required:
+      - user_id
+      - amount
+      - comments
+      title: Body_postV2Add credits to user
+    CommunityListResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        items:
+          items:
+            $ref: '#/components/schemas/CommunitySummary'
+          type: array
+          title: Items
+      type: object
+      required:
+      - user_id
+      - items
+      title: CommunityListResponse
+    ExecutionAnalyticsResponse:
+      properties:
+        total_executions:
+          type: integer
+          title: Total Executions
+        processed_executions:
+          type: integer
+          title: Processed Executions
+        successful_analytics:
+          type: integer
+          title: Successful Analytics
+        failed_analytics:
+          type: integer
+          title: Failed Analytics
+        skipped_executions:
+          type: integer
+          title: Skipped Executions
+        results:
+          items:
+            $ref: '#/components/schemas/ExecutionAnalyticsResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - total_executions
+      - processed_executions
+      - successful_analytics
+      - failed_analytics
+      - skipped_executions
+      - results
+      title: ExecutionAnalyticsResponse
+    ReviewSubmissionRequest:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        is_approved:
+          type: boolean
+          title: Is Approved
+        comments:
+          type: string
+          title: Comments
+        internal_comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Internal Comments
+      type: object
+      required:
+      - store_listing_version_id
+      - is_approved
+      - comments
+      title: ReviewSubmissionRequest
     MemoryOverview:
       properties:
         user_id:
@@ -5207,577 +6303,132 @@ components:
       - communities
       title: MemoryOverview
       description: Counts surfaced in the visualizer's header strip.
-    StoreListingsWithVersionsAdminViewResponse:
+    UserHistoryResponse:
       properties:
-        listings:
+        history:
           items:
-            $ref: '#/components/schemas/StoreListingWithVersionsAdminView'
+            $ref: '#/components/schemas/UserTransaction'
           type: array
-          title: Listings
+          title: History
         pagination:
           $ref: '#/components/schemas/Pagination'
       type: object
       required:
-      - listings
+      - history
       - pagination
-      title: StoreListingsWithVersionsAdminViewResponse
+      title: UserHistoryResponse
       description: Response model for listings with version history
-    ExecutionAnalyticsConfig:
+    SubscriptionTier:
+      type: string
+      enum:
+      - NO_TIER
+      - BASIC
+      - PRO
+      - MAX
+      - BUSINESS
+      - ENTERPRISE
+      title: SubscriptionTier
+      description: "Subscription tiers with increasing cost allowances.\n\nMirrors the ``SubscriptionTier`` enum in ``schema.prisma``.\nOnce ``prisma generate`` is run, this can be replaced with::\n\n    from prisma.enums import SubscriptionTier"
+    IngestionDrainStatus:
+      type: string
+      enum:
+      - drained
+      - skipped
+      - timed_out
+      title: IngestionDrainStatus
+      description: "Fate of a dream pass's enqueued graph writes at the moment the pass\nwas reported complete.\n\nThree distinct states, so consumers (and a future Memory Visualizer)\ncan tell a healthy by-design skip from a real failure:\n\n  * ``drained`` — the pass's own episodes were confirmed landed in the\n    graph before the pass returned (sync path), or the pass enqueued\n    nothing to drain. Healthy.\n  * ``skipped`` — the drain was intentionally not run to avoid stalling\n    a shared serial loop (batch path). The episodes process\n    fire-and-forget; healthy by design, NOT a failure signal.\n  * ``timed_out`` — the sync-path drain was attempted but did not finish\n    within its budget. The reported write/proposal counts include\n    episodes still queued in-process, which are lost if the worker's pod\n    restarts. This is the only value that warrants an operator warning."
+    Pagination:
       properties:
-        available_models:
-          items:
-            $ref: '#/components/schemas/ModelInfo'
-          type: array
-          title: Available Models
-        default_system_prompt:
-          type: string
-          title: Default System Prompt
-        default_user_prompt:
-          type: string
-          title: Default User Prompt
-        recommended_model:
-          type: string
-          title: Recommended Model
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
       type: object
       required:
-      - available_models
-      - default_system_prompt
-      - default_user_prompt
-      - recommended_model
-      title: ExecutionAnalyticsConfig
-    RatificationResult:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    ScheduleHealthMetrics:
       properties:
-        user_id:
+        total_schedules:
+          type: integer
+          title: Total Schedules
+        user_schedules:
+          type: integer
+          title: User Schedules
+        system_schedules:
+          type: integer
+          title: System Schedules
+        orphaned_deleted_graph:
+          type: integer
+          title: Orphaned Deleted Graph
+        orphaned_no_library_access:
+          type: integer
+          title: Orphaned No Library Access
+        orphaned_invalid_credentials:
+          type: integer
+          title: Orphaned Invalid Credentials
+        orphaned_validation_failed:
+          type: integer
+          title: Orphaned Validation Failed
+        total_orphaned:
+          type: integer
+          title: Total Orphaned
+        schedules_next_hour:
+          type: integer
+          title: Schedules Next Hour
+        schedules_next_24h:
+          type: integer
+          title: Schedules Next 24H
+        total_runs_next_hour:
+          type: integer
+          title: Total Runs Next Hour
+        total_runs_next_24h:
+          type: integer
+          title: Total Runs Next 24H
+        timestamp:
           type: string
-          title: User Id
-        started_at:
-          type: string
-          format: date-time
-          title: Started At
-        completed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Completed At
-        examined_count:
-          type: integer
-          title: Examined Count
-          default: 0
-        ratified_count:
-          type: integer
-          title: Ratified Count
-          default: 0
-        superseded_count:
-          type: integer
-          title: Superseded Count
-          default: 0
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-        skipped:
-          type: boolean
-          title: Skipped
-          default: false
-        skip_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Skip Reason
-        per_edge_errors:
-          items:
-            type: string
-          type: array
-          title: Per Edge Errors
+          title: Timestamp
       type: object
       required:
-      - user_id
-      - started_at
-      title: RatificationResult
-      description: 'Structured outcome of a single ratification pass.
-
-
-        Surfaced via the scheduler wrapper so admin / future metrics can
-
-        read promotion vs. supersession counts without re-scanning Graphiti.'
-    ScheduleCleanupRequest:
-      properties:
-        schedule_ids:
-          items:
-            type: string
-          type: array
-          title: Schedule Ids
-      type: object
-      required:
-      - schedule_ids
-      title: ScheduleCleanupRequest
-      description: Request model for cleaning up schedules
-    MarketplaceListingCreator:
-      properties:
-        name:
-          type: string
-          title: Name
-        id:
-          type: string
-          title: Id
-        slug:
-          type: string
-          title: Slug
-      type: object
-      required:
-      - name
-      - id
-      - slug
-      title: MarketplaceListingCreator
-      description: Creator information for a marketplace listing.
-    UserCostSummary:
-      properties:
-        user_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: User Id
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        total_cost_microdollars:
-          type: integer
-          title: Total Cost Microdollars
-        total_input_tokens:
-          type: integer
-          title: Total Input Tokens
-        total_output_tokens:
-          type: integer
-          title: Total Output Tokens
-        total_cache_read_tokens:
-          type: integer
-          title: Total Cache Read Tokens
-          default: 0
-        total_cache_creation_tokens:
-          type: integer
-          title: Total Cache Creation Tokens
-          default: 0
-        request_count:
-          type: integer
-          title: Request Count
-        cost_bearing_request_count:
-          type: integer
-          title: Cost Bearing Request Count
-          default: 0
-      type: object
-      required:
-      - total_cost_microdollars
-      - total_input_tokens
-      - total_output_tokens
-      - request_count
-      title: UserCostSummary
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    DreamJobStatus:
-      properties:
-        job_id:
-          type: string
-          title: Job Id
-        user_id:
-          type: string
-          title: User Id
-        kind:
-          type: string
-          enum:
-          - nightly
-          - dream_pass
-          - rebuild
-          title: Kind
-        state:
-          type: string
-          enum:
-          - queued
-          - running
-          - submitted
-          - complete
-          - errored
-          title: State
-        started_at:
-          type: string
-          format: date-time
-          title: Started At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        completed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Completed At
-        current_phase:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Phase
-          description: Free-form phase label set by the work body. Dream pass uses 'consolidate' | 'recombine' | 'sanitize' | 'apply'; nightly batch reuses those plus 'ratification'; community rebuild uses 'leiden' | 'summarize' | 'persist'.
-        batch_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Batch Id
-        result:
-          anyOf:
-          - $ref: '#/components/schemas/DreamPassResult'
-          - type: 'null'
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-      type: object
-      required:
-      - job_id
-      - user_id
-      - kind
-      - state
-      - started_at
-      - updated_at
-      title: DreamJobStatus
-      description: JobStatus envelope for ``kind="dream_pass"``.
-    CostBucket:
-      properties:
-        bucket:
-          type: string
-          title: Bucket
-        count:
-          type: integer
-          title: Count
-      type: object
-      required:
-      - bucket
-      - count
-      title: CostBucket
-    CommunitySummary:
-      properties:
-        uuid:
-          type: string
-          title: Uuid
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Summary
-        member_count:
-          type: integer
-          title: Member Count
-          default: 0
-      type: object
-      required:
-      - uuid
-      title: CommunitySummary
-    UserSearchResult:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        user_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: User Email
-      type: object
-      required:
-      - user_id
-      title: UserSearchResult
-    GraphTriggerInfo:
-      properties:
-        provider:
-          type: string
-          title: Provider
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        config_schema:
-          additionalProperties: true
-          type: object
-          title: Config Schema
-          description: Input schema for the trigger block
-        credentials_input_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Credentials Input Name
-      type: object
-      required:
-      - provider
-      - config_schema
-      - credentials_input_name
-      title: GraphTriggerInfo
-    GraphSettings:
-      properties:
-        human_in_the_loop_safe_mode:
-          type: boolean
-          title: Human In The Loop Safe Mode
-          default: true
-        sensitive_action_safe_mode:
-          type: boolean
-          title: Sensitive Action Safe Mode
-          default: false
-        builder_chat_session_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Builder Chat Session Id
-      type: object
-      title: GraphSettings
-    StoreSubmissionAdminView:
-      properties:
-        listing_id:
-          type: string
-          title: Listing Id
-        user_id:
-          type: string
-          title: User Id
-        slug:
-          type: string
-          title: Slug
-        listing_version_id:
-          type: string
-          title: Listing Version Id
-        listing_version:
-          type: integer
-          title: Listing Version
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_version:
-          type: integer
-          title: Graph Version
-        name:
-          type: string
-          title: Name
-        sub_heading:
-          type: string
-          title: Sub Heading
-        description:
-          type: string
-          title: Description
-        instructions:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Instructions
-        categories:
-          items:
-            type: string
-          type: array
-          title: Categories
-        image_urls:
-          items:
-            type: string
-          type: array
-          title: Image Urls
-        video_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Video Url
-        agent_output_demo_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Output Demo Url
-        submitted_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Submitted At
-        changes_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Changes Summary
-        status:
-          $ref: '#/components/schemas/SubmissionStatus'
-        reviewed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reviewed At
-        reviewer_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reviewer Id
-        review_comments:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Review Comments
-        run_count:
-          type: integer
-          title: Run Count
-          default: 0
-        review_count:
-          type: integer
-          title: Review Count
-          default: 0
-        review_avg_rating:
-          type: number
-          title: Review Avg Rating
-          default: 0.0
-        internal_comments:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Internal Comments
-      type: object
-      required:
-      - listing_id
-      - user_id
-      - slug
-      - listing_version_id
-      - listing_version
-      - graph_id
-      - graph_version
-      - name
-      - sub_heading
-      - description
-      - instructions
-      - categories
-      - image_urls
-      - video_url
-      - agent_output_demo_url
-      - submitted_at
-      - changes_summary
-      - status
-      - internal_comments
-      title: StoreSubmissionAdminView
-    DreamPassResult:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        pass_id:
-          type: string
-          title: Pass Id
-        started_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Started At
-        completed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Completed At
-        elapsed_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Elapsed Seconds
-        execution_path:
-          type: string
-          enum:
-          - sync_baseline
-          - anthropic_batch
-          - openai_batch
-          title: Execution Path
-          default: sync_baseline
-        consolidated_count:
-          type: integer
-          title: Consolidated Count
-          default: 0
-        proposal_count:
-          type: integer
-          title: Proposal Count
-          default: 0
-        demotion_count:
-          type: integer
-          title: Demotion Count
-          default: 0
-        entity_invalidation_count:
-          type: integer
-          title: Entity Invalidation Count
-          default: 0
-        summary_for_user:
-          type: string
-          title: Summary For User
-          default: ''
-        dream_session_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dream Session Id
-        ingestion_drain_status:
-          $ref: '#/components/schemas/IngestionDrainStatus'
-          default: drained
-        operations:
-          anyOf:
-          - $ref: '#/components/schemas/DreamOperationsSnapshot'
-          - type: 'null'
-        usage:
-          anyOf:
-          - $ref: '#/components/schemas/DreamPassUsage'
-          - type: 'null'
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-        skipped:
-          type: boolean
-          title: Skipped
-          default: false
-        skip_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Skip Reason
-      type: object
-      required:
-      - user_id
-      - pass_id
-      title: DreamPassResult
-      description: 'Return value of ``execute_dream_pass`` and the admin API.
-
-
-        Mirrors ``RebuildResponse`` from the community-rebuild endpoint so
-
-        the admin frontend can render both with the same toast logic.'
-    OrphanedScheduleDetail:
+      - total_schedules
+      - user_schedules
+      - system_schedules
+      - orphaned_deleted_graph
+      - orphaned_no_library_access
+      - orphaned_invalid_credentials
+      - orphaned_validation_failed
+      - total_orphaned
+      - schedules_next_hour
+      - schedules_next_24h
+      - total_runs_next_hour
+      - total_runs_next_24h
+      - timestamp
+      title: ScheduleHealthMetrics
+      description: Summary of schedule health diagnostics
+    ScheduleDetail:
       properties:
         schedule_id:
           type: string
@@ -5788,408 +6439,49 @@ components:
         graph_id:
           type: string
           title: Graph Id
+        graph_name:
+          type: string
+          title: Graph Name
         graph_version:
           type: integer
           title: Graph Version
         user_id:
           type: string
           title: User Id
-        orphan_reason:
-          type: string
-          title: Orphan Reason
-        error_detail:
+        user_email:
           anyOf:
           - type: string
           - type: 'null'
-          title: Error Detail
+          title: User Email
+        cron:
+          type: string
+          title: Cron
+        timezone:
+          type: string
+          title: Timezone
         next_run_time:
           type: string
           title: Next Run Time
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
       type: object
       required:
       - schedule_id
       - schedule_name
       - graph_id
+      - graph_name
       - graph_version
       - user_id
-      - orphan_reason
-      - error_detail
+      - user_email
+      - cron
+      - timezone
       - next_run_time
-      title: OrphanedScheduleDetail
-      description: Details about an orphaned schedule
-    RebuildResult:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        started_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Started At
-        communities_built:
-          title: Communities Built
-        elapsed_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Elapsed Seconds
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-        skipped:
-          type: boolean
-          title: Skipped
-          default: false
-        skip_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Skip Reason
-        activity:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Activity
-        forced:
-          type: boolean
-          title: Forced
-          default: false
-        execution_path:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Execution Path
-      type: object
-      required:
-      - user_id
-      title: RebuildResult
-      description: 'Typed envelope around ``rebuild_communities_for_user``''s return dict.
-
-
-        Lives here (admin routes) rather than in ``copilot/graphiti/communities.py``
-
-        because the dict-returning rebuild function predates the admin-API
-
-        typing pass. Hoisting it to ``communities.py`` (and changing the
-
-        function signature) is a follow-up cleanup.'
-    GraphResponse:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        expert_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expert Id
-        group_id:
-          type: string
-          title: Group Id
-        nodes:
-          items:
-            $ref: '#/components/schemas/GraphNode'
-          type: array
-          title: Nodes
-        edges:
-          items:
-            $ref: '#/components/schemas/GraphEdge'
-          type: array
-          title: Edges
-        truncated:
-          type: boolean
-          title: Truncated
-          description: True when the result was capped by ``node_limit`` / ``edge_limit``. Frontend should surface this so the user knows they're not seeing the full graph.
-          default: false
-      type: object
-      required:
-      - user_id
-      - group_id
-      - nodes
-      - edges
-      title: GraphResponse
-    AddUserCreditsResponse:
-      properties:
-        new_balance:
-          type: integer
-          title: New Balance
-        transaction_key:
-          type: string
-          title: Transaction Key
-      type: object
-      required:
-      - new_balance
-      - transaction_key
-      title: AddUserCreditsResponse
-    ProviderCostSummary:
-      properties:
-        provider:
-          type: string
-          title: Provider
-        tracking_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tracking Type
-        model:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Model
-        total_cost_microdollars:
-          type: integer
-          title: Total Cost Microdollars
-        total_input_tokens:
-          type: integer
-          title: Total Input Tokens
-        total_output_tokens:
-          type: integer
-          title: Total Output Tokens
-        total_cache_read_tokens:
-          type: integer
-          title: Total Cache Read Tokens
-          default: 0
-        total_cache_creation_tokens:
-          type: integer
-          title: Total Cache Creation Tokens
-          default: 0
-        total_duration_seconds:
-          type: number
-          title: Total Duration Seconds
-          default: 0.0
-        total_tracking_amount:
-          type: number
-          title: Total Tracking Amount
-          default: 0.0
-        request_count:
-          type: integer
-          title: Request Count
-      type: object
-      required:
-      - provider
-      - total_cost_microdollars
-      - total_input_tokens
-      - total_output_tokens
-      - request_count
-      title: ProviderCostSummary
-    AccuracyLatestData:
-      properties:
-        date:
-          type: string
-          format: date-time
-          title: Date
-        daily_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Daily Score
-        three_day_avg:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Three Day Avg
-        seven_day_avg:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Seven Day Avg
-        fourteen_day_avg:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Fourteen Day Avg
-      type: object
-      required:
-      - date
-      - daily_score
-      - three_day_avg
-      - seven_day_avg
-      - fourteen_day_avg
-      title: AccuracyLatestData
-      description: Latest execution accuracy data point.
-    JobTriggerResponse:
-      properties:
-        job_id:
-          type: string
-          title: Job Id
-        user_id:
-          type: string
-          title: User Id
-        kind:
-          type: string
-          enum:
-          - nightly
-          - dream_pass
-          - rebuild
-          title: Kind
-        state:
-          type: string
-          enum:
-          - queued
-          - running
-          - submitted
-          - complete
-          - errored
-          title: State
-        started_at:
-          type: string
-          format: date-time
-          title: Started At
-      type: object
-      required:
-      - job_id
-      - user_id
-      - kind
-      - state
-      - started_at
-      title: JobTriggerResponse
-      description: '202 response from a fire-and-forget admin trigger.
-
-
-        Frontend captures ``job_id`` and polls ``GET .../{job_id}`` for
-
-        progress. ``state`` is always ``"queued"`` at this point — the
-
-        scheduler picks the job up within sub-second and flips it to
-
-        ``running``.'
-    EntityListResponse:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        items:
-          items:
-            $ref: '#/components/schemas/EntitySummary'
-          type: array
-          title: Items
-      type: object
-      required:
-      - user_id
-      - items
-      title: EntityListResponse
-    IngestionDrainStatus:
-      type: string
-      enum:
-      - drained
-      - skipped
-      - timed_out
-      title: IngestionDrainStatus
-      description: "Fate of a dream pass's enqueued graph writes at the moment the pass\nwas reported complete.\n\nThree distinct states, so consumers (and a future Memory Visualizer)\ncan tell a healthy by-design skip from a real failure:\n\n  * ``drained`` — the pass's own episodes were confirmed landed in the\n    graph before the pass returned (sync path), or the pass enqueued\n    nothing to drain. Healthy.\n  * ``skipped`` — the drain was intentionally not run to avoid stalling\n    a shared serial loop (batch path). The episodes process\n    fire-and-forget; healthy by design, NOT a failure signal.\n  * ``timed_out`` — the sync-path drain was attempted but did not finish\n    within its budget. The reported write/proposal counts include\n    episodes still queued in-process, which are lost if the worker's pod\n    restarts. This is the only value that warrants an operator warning."
-    PhaseUsage:
-      properties:
-        phase:
-          type: string
-          enum:
-          - consolidate
-          - recombine
-          - sanitize
-          title: Phase
-        model:
-          type: string
-          title: Model
-        input_tokens:
-          type: integer
-          title: Input Tokens
-          default: 0
-        output_tokens:
-          type: integer
-          title: Output Tokens
-          default: 0
-        cache_read_tokens:
-          type: integer
-          title: Cache Read Tokens
-          default: 0
-        cache_creation_tokens:
-          type: integer
-          title: Cache Creation Tokens
-          default: 0
-        cost_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Cost Usd
-      type: object
-      required:
-      - phase
-      - model
-      title: PhaseUsage
-      description: Per-phase token + cost telemetry.
-    PlatformCostDashboard:
-      properties:
-        by_provider:
-          items:
-            $ref: '#/components/schemas/ProviderCostSummary'
-          type: array
-          title: By Provider
-        by_user:
-          items:
-            $ref: '#/components/schemas/UserCostSummary'
-          type: array
-          title: By User
-        total_cost_microdollars:
-          type: integer
-          title: Total Cost Microdollars
-        total_requests:
-          type: integer
-          title: Total Requests
-        total_users:
-          type: integer
-          title: Total Users
-        total_input_tokens:
-          type: integer
-          title: Total Input Tokens
-          default: 0
-        total_output_tokens:
-          type: integer
-          title: Total Output Tokens
-          default: 0
-        avg_input_tokens_per_request:
-          type: number
-          title: Avg Input Tokens Per Request
-          default: 0.0
-        avg_output_tokens_per_request:
-          type: number
-          title: Avg Output Tokens Per Request
-          default: 0.0
-        avg_cost_microdollars_per_request:
-          type: number
-          title: Avg Cost Microdollars Per Request
-          default: 0.0
-        cost_p50_microdollars:
-          type: number
-          title: Cost P50 Microdollars
-          default: 0.0
-        cost_p75_microdollars:
-          type: number
-          title: Cost P75 Microdollars
-          default: 0.0
-        cost_p95_microdollars:
-          type: number
-          title: Cost P95 Microdollars
-          default: 0.0
-        cost_p99_microdollars:
-          type: number
-          title: Cost P99 Microdollars
-          default: 0.0
-        cost_buckets:
-          items:
-            $ref: '#/components/schemas/CostBucket'
-          type: array
-          title: Cost Buckets
-          default: []
-      type: object
-      required:
-      - by_provider
-      - by_user
-      - total_cost_microdollars
-      - total_requests
-      - total_users
-      title: PlatformCostDashboard
+      title: ScheduleDetail
+      description: Details about a schedule for admin view
     CopilotUsageExportResponse:
       properties:
         rows:
@@ -6213,316 +6505,6 @@ components:
       - window_days
       - max_window_days
       title: CopilotUsageExportResponse
-    StopExecutionsRequest:
-      properties:
-        execution_ids:
-          items:
-            type: string
-          type: array
-          title: Execution Ids
-      type: object
-      required:
-      - execution_ids
-      title: StopExecutionsRequest
-      description: Request model for stopping multiple executions
-    ExecutionAnalyticsResponse:
-      properties:
-        total_executions:
-          type: integer
-          title: Total Executions
-        processed_executions:
-          type: integer
-          title: Processed Executions
-        successful_analytics:
-          type: integer
-          title: Successful Analytics
-        failed_analytics:
-          type: integer
-          title: Failed Analytics
-        skipped_executions:
-          type: integer
-          title: Skipped Executions
-        results:
-          items:
-            $ref: '#/components/schemas/ExecutionAnalyticsResult'
-          type: array
-          title: Results
-      type: object
-      required:
-      - total_executions
-      - processed_executions
-      - successful_analytics
-      - failed_analytics
-      - skipped_executions
-      - results
-      title: ExecutionAnalyticsResponse
-    ChangelogEntry:
-      properties:
-        version:
-          type: string
-          title: Version
-        changes_summary:
-          type: string
-          title: Changes Summary
-        date:
-          type: string
-          format: date-time
-          title: Date
-      type: object
-      required:
-      - version
-      - changes_summary
-      - date
-      title: ChangelogEntry
-    StoreAgentDetails:
-      properties:
-        store_listing_version_id:
-          type: string
-          title: Store Listing Version Id
-        slug:
-          type: string
-          title: Slug
-        agent_name:
-          type: string
-          title: Agent Name
-        agent_video:
-          type: string
-          title: Agent Video
-        agent_output_demo:
-          type: string
-          title: Agent Output Demo
-        agent_image:
-          items:
-            type: string
-          type: array
-          title: Agent Image
-        creator:
-          type: string
-          title: Creator
-        creator_avatar:
-          type: string
-          title: Creator Avatar
-        sub_heading:
-          type: string
-          title: Sub Heading
-        description:
-          type: string
-          title: Description
-        instructions:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Instructions
-        categories:
-          items:
-            type: string
-          type: array
-          title: Categories
-        runs:
-          type: integer
-          title: Runs
-        rating:
-          type: number
-          title: Rating
-        versions:
-          items:
-            type: string
-          type: array
-          title: Versions
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_versions:
-          items:
-            type: string
-          type: array
-          title: Graph Versions
-        last_updated:
-          type: string
-          format: date-time
-          title: Last Updated
-        recommended_schedule_cron:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Recommended Schedule Cron
-        owning_org_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owning Org Id
-        active_version_id:
-          type: string
-          title: Active Version Id
-        has_approved_version:
-          type: boolean
-          title: Has Approved Version
-        changelog:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ChangelogEntry'
-            type: array
-          - type: 'null'
-          title: Changelog
-      type: object
-      required:
-      - store_listing_version_id
-      - slug
-      - agent_name
-      - agent_video
-      - agent_output_demo
-      - agent_image
-      - creator
-      - creator_avatar
-      - sub_heading
-      - description
-      - categories
-      - runs
-      - rating
-      - versions
-      - graph_id
-      - graph_versions
-      - last_updated
-      - active_version_id
-      - has_approved_version
-      title: StoreAgentDetails
-    RecentExecution:
-      properties:
-        status:
-          type: string
-          title: Status
-        correctness_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Correctness Score
-        activity_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Summary
-      type: object
-      required:
-      - status
-      title: RecentExecution
-      description: 'Summary of a recent execution for quality assessment.
-
-
-        Used by the LLM to understand the agent''s recent performance with specific examples
-
-        rather than just aggregate statistics.'
-    FactSummary:
-      properties:
-        uuid:
-          type: string
-          title: Uuid
-        source:
-          type: string
-          title: Source
-        target:
-          type: string
-          title: Target
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        fact:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Fact
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        scope:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Scope
-        confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Confidence
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-        expired_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expired At
-      type: object
-      required:
-      - uuid
-      - source
-      - target
-      title: FactSummary
-    EntitySummary:
-      properties:
-        uuid:
-          type: string
-          title: Uuid
-        name:
-          type: string
-          title: Name
-        summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Summary
-      type: object
-      required:
-      - uuid
-      - name
-      title: EntitySummary
-    StoreListingWithVersionsAdminView:
-      properties:
-        listing_id:
-          type: string
-          title: Listing Id
-        graph_id:
-          type: string
-          title: Graph Id
-        slug:
-          type: string
-          title: Slug
-        active_listing_version_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Active Listing Version Id
-        has_approved_version:
-          type: boolean
-          title: Has Approved Version
-          default: false
-        creator_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Creator Email
-        latest_version:
-          anyOf:
-          - $ref: '#/components/schemas/StoreSubmissionAdminView'
-          - type: 'null'
-        versions:
-          items:
-            $ref: '#/components/schemas/StoreSubmissionAdminView'
-          type: array
-          title: Versions
-          default: []
-      type: object
-      required:
-      - listing_id
-      - graph_id
-      - slug
-      title: StoreListingWithVersionsAdminView
-      description: A store listing with its version history
     ScheduleCleanupResponse:
       properties:
         success:
@@ -6541,120 +6523,138 @@ components:
       - message
       title: ScheduleCleanupResponse
       description: Response model for schedule cleanup operations
-    UserTierResponse:
+    HTTPValidationError:
       properties:
-        user_id:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BotGuildInfo:
+      properties:
+        platform:
           type: string
-          title: User Id
-        tier:
-          $ref: '#/components/schemas/SubscriptionTier'
+          title: Platform
+        server_id:
+          type: string
+          title: Server Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        joined_at:
+          type: string
+          format: date-time
+          title: Joined At
+        left_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Left At
+        active:
+          type: boolean
+          title: Active
       type: object
       required:
-      - user_id
-      - tier
-      title: UserTierResponse
-    BotTimeseriesPoint:
+      - platform
+      - server_id
+      - name
+      - joined_at
+      - left_at
+      - active
+      title: BotGuildInfo
+    AgentDiagnosticsResponse:
+      properties:
+        agents_with_active_executions:
+          type: integer
+          title: Agents With Active Executions
+        timestamp:
+          type: string
+          title: Timestamp
+      type: object
+      required:
+      - agents_with_active_executions
+      - timestamp
+      title: AgentDiagnosticsResponse
+      description: Response model for agent diagnostics
+    BotServerCountPoint:
       properties:
         date:
           type: string
           format: date-time
           title: Date
-        messages:
+        server_count:
           type: integer
-          title: Messages
-        replies:
-          type: integer
-          title: Replies
-        errors:
-          type: integer
-          title: Errors
+          title: Server Count
       type: object
       required:
       - date
+      - server_count
+      title: BotServerCountPoint
+    BotServerActivity:
+      properties:
+        platform:
+          type: string
+          title: Platform
+        server_id:
+          type: string
+          title: Server Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        messages:
+          type: integer
+          title: Messages
+        commands:
+          type: integer
+          title: Commands
+      type: object
+      required:
+      - platform
+      - server_id
+      - name
       - messages
-      - replies
-      - errors
-      title: BotTimeseriesPoint
-    FailedExecutionDetail:
+      - commands
+      title: BotServerActivity
+    StopExecutionsRequest:
       properties:
-        execution_id:
-          type: string
-          title: Execution Id
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_name:
-          type: string
-          title: Graph Name
-        graph_version:
-          type: integer
-          title: Graph Version
-        user_id:
-          type: string
-          title: User Id
-        user_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: User Email
-        status:
-          type: string
-          title: Status
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        started_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Started At
-        failed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Failed At
-        error_message:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error Message
-      type: object
-      required:
-      - execution_id
-      - graph_id
-      - graph_name
-      - graph_version
-      - user_id
-      - user_email
-      - status
-      - created_at
-      - started_at
-      - failed_at
-      - error_message
-      title: FailedExecutionDetail
-      description: Details about a failed execution for admin view
-    PlatformCostExportResponse:
-      properties:
-        logs:
+        execution_ids:
           items:
-            $ref: '#/components/schemas/CostLogRow'
+            type: string
           type: array
-          title: Logs
-        total_rows:
-          type: integer
-          title: Total Rows
-        truncated:
-          type: boolean
-          title: Truncated
+          title: Execution Ids
       type: object
       required:
-      - logs
-      - total_rows
-      - truncated
-      title: PlatformCostExportResponse
+      - execution_ids
+      title: StopExecutionsRequest
+      description: Request model for stopping multiple executions
+    AccuracyTrendsResponse:
+      properties:
+        latest_data:
+          $ref: '#/components/schemas/AccuracyLatestData'
+        alert:
+          anyOf:
+          - $ref: '#/components/schemas/AccuracyAlertData'
+          - type: 'null'
+        historical_data:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AccuracyLatestData'
+            type: array
+          - type: 'null'
+          title: Historical Data
+      type: object
+      required:
+      - latest_data
+      - alert
+      title: AccuracyTrendsResponse
+      description: Response model for accuracy trends and alerts.
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

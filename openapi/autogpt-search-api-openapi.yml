@@ -66,59 +66,6 @@ components:
               detail:
                 type: string
   schemas:
-    GlobalSearchResponse:
-      properties:
-        agents:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Agents
-        files:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Files
-        chats:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Chats
-      type: object
-      title: GlobalSearchResponse
-      description: 'Top-N hits bucketed by item type.
-
-
-        For a non-empty query this contains hybrid-search results.
-
-        For an empty query this contains the most-recently-updated items
-
-        per bucket (cached per-user with a short TTL).'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     SearchResultItem:
       properties:
         id:
@@ -169,6 +116,33 @@ components:
         buckets through a single component. Type-specific details live in
 
         ``metadata`` (e.g. mime_type for files, creator for store agents).'
+    GlobalSearchResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Agents
+        files:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Files
+        chats:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Chats
+      type: object
+      title: GlobalSearchResponse
+      description: 'Top-N hits bucketed by item type.
+
+
+        For a non-empty query this contains hybrid-search results.
+
+        For an empty query this contains the most-recently-updated items
+
+        per bucket (cached per-user with a short TTL).'
     HTTPValidationError:
       properties:
         detail:
@@ -178,6 +152,32 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey
