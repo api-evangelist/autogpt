@@ -37,52 +37,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AgentExecutionStatus:
-      type: string
-      enum:
-      - INCOMPLETE
-      - QUEUED
-      - RUNNING
-      - COMPLETED
-      - TERMINATED
-      - FAILED
-      - REVIEW
-      title: AgentExecutionStatus
-    SharedExecutionResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        graph_name:
-          type: string
-          title: Graph Name
-        graph_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Graph Description
-        status:
-          $ref: '#/components/schemas/AgentExecutionStatus'
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        outputs:
-          additionalProperties:
-            items: {}
-            type: array
-          type: object
-          title: Outputs
-      type: object
-      required:
-      - id
-      - graph_name
-      - graph_description
-      - status
-      - created_at
-      - outputs
-      title: SharedExecutionResponse
-      description: Public-safe response for shared executions
     HTTPValidationError:
       properties:
         detail:
@@ -118,6 +72,52 @@ components:
       - msg
       - type
       title: ValidationError
+    SharedExecutionResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        graph_name:
+          type: string
+          title: Graph Name
+        graph_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Graph Description
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        outputs:
+          additionalProperties:
+            items: {}
+            type: array
+          type: object
+          title: Outputs
+      type: object
+      required:
+      - id
+      - graph_name
+      - graph_description
+      - status
+      - created_at
+      - outputs
+      title: SharedExecutionResponse
+      description: Public-safe response for shared executions
+    AgentExecutionStatus:
+      type: string
+      enum:
+      - INCOMPLETE
+      - QUEUED
+      - RUNNING
+      - COMPLETED
+      - TERMINATED
+      - FAILED
+      - REVIEW
+      title: AgentExecutionStatus
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

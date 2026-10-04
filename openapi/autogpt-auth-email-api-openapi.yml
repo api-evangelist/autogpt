@@ -39,6 +39,16 @@ paths:
       security:
       - HTTPBearerJWT: []
 components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   schemas:
     HTTPValidationError:
       properties:
@@ -49,6 +59,28 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    AuthEmailRequest:
+      properties:
+        type:
+          type: string
+          enum:
+          - reset_password
+          - verify_email
+          - change_email
+          title: Type
+        to:
+          type: string
+          format: email
+          title: To
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - type
+      - to
+      - url
+      title: AuthEmailRequest
     ValidationError:
       properties:
         loc:
@@ -75,38 +107,6 @@ components:
       - msg
       - type
       title: ValidationError
-    AuthEmailRequest:
-      properties:
-        type:
-          type: string
-          enum:
-          - reset_password
-          - verify_email
-          - change_email
-          title: Type
-        to:
-          type: string
-          format: email
-          title: To
-        url:
-          type: string
-          title: Url
-      type: object
-      required:
-      - type
-      - to
-      - url
-      title: AuthEmailRequest
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

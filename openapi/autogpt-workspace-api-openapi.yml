@@ -460,6 +460,251 @@ paths:
       - HTTPBearerJWT: []
 components:
   schemas:
+    backend__api__features__workspace__routes__UploadFileResponse:
+      properties:
+        file_id:
+          type: string
+          title: File Id
+        name:
+          type: string
+          title: Name
+        path:
+          type: string
+          title: Path
+        mime_type:
+          type: string
+          title: Mime Type
+        size_bytes:
+          type: integer
+          title: Size Bytes
+      type: object
+      required:
+      - file_id
+      - name
+      - path
+      - mime_type
+      - size_bytes
+      title: UploadFileResponse
+    BulkMoveFilesRequest:
+      properties:
+        file_ids:
+          items:
+            type: string
+          type: array
+          title: File Ids
+        folder_id:
+          anyOf:
+          - type: string
+            minLength: 1
+          - type: 'null'
+          title: Folder Id
+      type: object
+      required:
+      - file_ids
+      title: BulkMoveFilesRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WorkspaceFolderUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+      type: object
+      title: WorkspaceFolderUpdateRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ListFilesResponse:
+      properties:
+        files:
+          items:
+            $ref: '#/components/schemas/WorkspaceFileItem'
+          type: array
+          title: Files
+        offset:
+          type: integer
+          title: Offset
+          default: 0
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+      type: object
+      required:
+      - files
+      title: ListFilesResponse
+    Body_uploadWorkspaceFile:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_uploadWorkspaceFile
+    StorageUsageResponse:
+      properties:
+        used_bytes:
+          type: integer
+          title: Used Bytes
+        limit_bytes:
+          type: integer
+          title: Limit Bytes
+        used_percent:
+          type: number
+          title: Used Percent
+        file_count:
+          type: integer
+          title: File Count
+      type: object
+      required:
+      - used_bytes
+      - limit_bytes
+      - used_percent
+      - file_count
+      title: StorageUsageResponse
+    WorkspaceFileItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        path:
+          type: string
+          title: Path
+        mime_type:
+          type: string
+          title: Mime Type
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        folder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Folder Id
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        origin:
+          type: string
+          enum:
+          - uploaded
+          - generated
+          title: Origin
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - path
+      - mime_type
+      - size_bytes
+      - origin
+      - created_at
+      title: WorkspaceFileItem
+    WorkspaceFolder:
+      properties:
+        id:
+          type: string
+          title: Id
+        workspace_id:
+          type: string
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        file_count:
+          type: integer
+          title: File Count
+          default: 0
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - created_at
+      - updated_at
+      title: WorkspaceFolder
+      description: Pydantic model for UserWorkspaceFolder, safe for RPC transport.
+    WorkspaceFolderListResponse:
+      properties:
+        folders:
+          items:
+            $ref: '#/components/schemas/WorkspaceFolder'
+          type: array
+          title: Folders
+      type: object
+      required:
+      - folders
+      title: WorkspaceFolderListResponse
+    DeleteFileResponse:
+      properties:
+        deleted:
+          type: boolean
+          title: Deleted
+      type: object
+      required:
+      - deleted
+      title: DeleteFileResponse
     WorkspaceFile:
       properties:
         id:
@@ -528,127 +773,6 @@ components:
       - size_bytes
       title: WorkspaceFile
       description: Pydantic model for UserWorkspaceFile, safe for RPC transport.
-    DeleteFileResponse:
-      properties:
-        deleted:
-          type: boolean
-          title: Deleted
-      type: object
-      required:
-      - deleted
-      title: DeleteFileResponse
-    WorkspaceFileItem:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        path:
-          type: string
-          title: Path
-        mime_type:
-          type: string
-          title: Mime Type
-        size_bytes:
-          type: integer
-          title: Size Bytes
-        folder_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Folder Id
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-        origin:
-          type: string
-          enum:
-          - uploaded
-          - generated
-          title: Origin
-        created_at:
-          type: string
-          title: Created At
-      type: object
-      required:
-      - id
-      - name
-      - path
-      - mime_type
-      - size_bytes
-      - origin
-      - created_at
-      title: WorkspaceFileItem
-    ListFilesResponse:
-      properties:
-        files:
-          items:
-            $ref: '#/components/schemas/WorkspaceFileItem'
-          type: array
-          title: Files
-        offset:
-          type: integer
-          title: Offset
-          default: 0
-        has_more:
-          type: boolean
-          title: Has More
-          default: false
-      type: object
-      required:
-      - files
-      title: ListFilesResponse
-    WorkspaceFolder:
-      properties:
-        id:
-          type: string
-          title: Id
-        workspace_id:
-          type: string
-          title: Workspace Id
-        name:
-          type: string
-          title: Name
-        icon:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Icon
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        file_count:
-          type: integer
-          title: File Count
-          default: 0
-      type: object
-      required:
-      - id
-      - workspace_id
-      - name
-      - created_at
-      - updated_at
-      title: WorkspaceFolder
-      description: Pydantic model for UserWorkspaceFolder, safe for RPC transport.
-    WorkspaceFolderListResponse:
-      properties:
-        folders:
-          items:
-            $ref: '#/components/schemas/WorkspaceFolder'
-          type: array
-          title: Folders
-      type: object
-      required:
-      - folders
-      title: WorkspaceFolderListResponse
     WorkspaceFolderCreateRequest:
       properties:
         name:
@@ -665,130 +789,6 @@ components:
       required:
       - name
       title: WorkspaceFolderCreateRequest
-    StorageUsageResponse:
-      properties:
-        used_bytes:
-          type: integer
-          title: Used Bytes
-        limit_bytes:
-          type: integer
-          title: Limit Bytes
-        used_percent:
-          type: number
-          title: Used Percent
-        file_count:
-          type: integer
-          title: File Count
-      type: object
-      required:
-      - used_bytes
-      - limit_bytes
-      - used_percent
-      - file_count
-      title: StorageUsageResponse
-    WorkspaceFolderUpdateRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 1
-          - type: 'null'
-          title: Name
-        icon:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Icon
-      type: object
-      title: WorkspaceFolderUpdateRequest
-    BulkMoveFilesRequest:
-      properties:
-        file_ids:
-          items:
-            type: string
-          type: array
-          title: File Ids
-        folder_id:
-          anyOf:
-          - type: string
-            minLength: 1
-          - type: 'null'
-          title: Folder Id
-      type: object
-      required:
-      - file_ids
-      title: BulkMoveFilesRequest
-    Body_uploadWorkspaceFile:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-      type: object
-      required:
-      - file
-      title: Body_uploadWorkspaceFile
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    backend__api__features__workspace__routes__UploadFileResponse:
-      properties:
-        file_id:
-          type: string
-          title: File Id
-        name:
-          type: string
-          title: Name
-        path:
-          type: string
-          title: Path
-        mime_type:
-          type: string
-          title: Mime Type
-        size_bytes:
-          type: integer
-          title: Size Bytes
-      type: object
-      required:
-      - file_id
-      - name
-      - path
-      - mime_type
-      - size_bytes
-      title: UploadFileResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

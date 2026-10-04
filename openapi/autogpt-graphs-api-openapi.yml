@@ -868,45 +868,7 @@ paths:
     servers:
     - url: /external-api
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
-    backend__api__features__v1__ShareResponse:
-      properties:
-        share_url:
-          type: string
-          title: Share Url
-        share_token:
-          type: string
-          title: Share Token
-      type: object
-      required:
-      - share_url
-      - share_token
-      title: ShareResponse
-      description: Response from share endpoints.
-    ShareRequest:
-      properties: {}
-      type: object
-      title: ShareRequest
-      description: Optional request body for share endpoint.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -933,24 +895,163 @@ components:
       - msg
       - type
       title: ValidationError
-    GraphSettings:
+    HTTPValidationError:
       properties:
-        human_in_the_loop_safe_mode:
-          type: boolean
-          title: Human In The Loop Safe Mode
-          default: true
-        sensitive_action_safe_mode:
-          type: boolean
-          title: Sensitive Action Safe Mode
-          default: false
-        builder_chat_session_id:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ShareRequest:
+      properties: {}
+      type: object
+      title: ShareRequest
+      description: Optional request body for share endpoint.
+    backend__api__features__v1__ShareResponse:
+      properties:
+        share_url:
+          type: string
+          title: Share Url
+        share_token:
+          type: string
+          title: Share Token
+      type: object
+      required:
+      - share_url
+      - share_token
+      title: ShareResponse
+      description: Response from share endpoints.
+    SetActiveGraphVersionResponse:
+      properties:
+        skipped_webhook_presets:
+          items:
+            $ref: '#/components/schemas/SkippedWebhookPreset'
+          type: array
+          title: Skipped Webhook Presets
+      type: object
+      title: SetActiveGraphVersionResponse
+      description: 'Response for activating an existing graph version.
+
+
+        Carries any webhook presets that were left pinned to their old version
+
+        because the newly activated version''s trigger block is incompatible and
+
+        needs to be reconfigured.'
+    CredentialsMetaInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
           anyOf:
           - type: string
           - type: 'null'
-          title: Builder Chat Session Id
+          title: Title
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
       type: object
-      title: GraphSettings
-    NodeModel:
+      required:
+      - id
+      - provider
+      - type
+      title: CredentialsMetaInput
+      credentials_provider: []
+      credentials_types: []
+    UserAgentCostRollup:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+        cost_cents:
+          type: integer
+          title: Cost Cents
+        run_count:
+          type: integer
+          title: Run Count
+      type: object
+      required:
+      - graph_id
+      - cost_cents
+      - run_count
+      title: UserAgentCostRollup
+    UserDailyCost:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+        cost_cents:
+          type: integer
+          title: Cost Cents
+        run_count:
+          type: integer
+          title: Run Count
+        success_count:
+          type: integer
+          title: Success Count
+          default: 0
+        failed_count:
+          type: integer
+          title: Failed Count
+          default: 0
+        review_count:
+          type: integer
+          title: Review Count
+          default: 0
+      type: object
+      required:
+      - date
+      - cost_cents
+      - run_count
+      title: UserDailyCost
+    UserTopRun:
+      properties:
+        execution_id:
+          type: string
+          title: Execution Id
+        graph_id:
+          type: string
+          title: Graph Id
+        cost_cents:
+          type: integer
+          title: Cost Cents
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        duration_seconds:
+          type: number
+          title: Duration Seconds
+        node_error_count:
+          type: integer
+          title: Node Error Count
+      type: object
+      required:
+      - execution_id
+      - graph_id
+      - cost_cents
+      - started_at
+      - status
+      - duration_seconds
+      - node_error_count
+      title: UserTopRun
+    Node:
       properties:
         id:
           type: string
@@ -976,240 +1077,10 @@ components:
             $ref: '#/components/schemas/Link'
           type: array
           title: Output Links
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_version:
-          type: integer
-          title: Graph Version
-        webhook_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Webhook Id
       type: object
       required:
       - block_id
-      - graph_id
-      - graph_version
-      title: NodeModel
-    BaseGraph-Output:
-      properties:
-        id:
-          type: string
-          title: Id
-        version:
-          type: integer
-          title: Version
-          default: 1
-        is_active:
-          type: boolean
-          title: Is Active
-          default: true
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        instructions:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Instructions
-        recommended_schedule_cron:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Recommended Schedule Cron
-        forked_from_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Forked From Id
-        forked_from_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Forked From Version
-        nodes:
-          items:
-            $ref: '#/components/schemas/Node'
-          type: array
-          title: Nodes
-        links:
-          items:
-            $ref: '#/components/schemas/Link'
-          type: array
-          title: Links
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-          readOnly: true
-        output_schema:
-          additionalProperties: true
-          type: object
-          title: Output Schema
-          readOnly: true
-        has_external_trigger:
-          type: boolean
-          title: Has External Trigger
-          readOnly: true
-        has_human_in_the_loop:
-          type: boolean
-          title: Has Human In The Loop
-          readOnly: true
-        has_sensitive_action:
-          type: boolean
-          title: Has Sensitive Action
-          readOnly: true
-        trigger_setup_info:
-          anyOf:
-          - $ref: '#/components/schemas/GraphTriggerInfo'
-          - type: 'null'
-          readOnly: true
-      type: object
-      required:
-      - name
-      - description
-      - input_schema
-      - output_schema
-      - has_external_trigger
-      - has_human_in_the_loop
-      - has_sensitive_action
-      - trigger_setup_info
-      title: BaseGraph
-      description: 'Graph with nodes, links, and computed I/O schema fields.
-
-
-        Used to represent sub-graphs within a `Graph`. Contains the full graph
-
-        structure including nodes and links, plus computed fields for schemas
-
-        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
-    UpdateGraphResponse:
-      properties:
-        graph:
-          $ref: '#/components/schemas/GraphModel'
-        skipped_webhook_presets:
-          items:
-            $ref: '#/components/schemas/SkippedWebhookPreset'
-          type: array
-          title: Skipped Webhook Presets
-      type: object
-      required:
-      - graph
-      title: UpdateGraphResponse
-      description: 'Response for creating/activating a new graph version.
-
-
-        Carries the new graph version plus any webhook presets that were left
-
-        pinned to their old version because the new version''s trigger block is
-
-        incompatible and needs to be reconfigured.'
-    GraphExecutionMeta:
-      properties:
-        id:
-          type: string
-          title: Id
-        user_id:
-          type: string
-          title: User Id
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_version:
-          type: integer
-          title: Graph Version
-        inputs:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Inputs
-        credential_inputs:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/CredentialsMetaInput'
-            type: object
-          - type: 'null'
-          title: Credential Inputs
-        nodes_input_masks:
-          anyOf:
-          - additionalProperties:
-              additionalProperties: true
-              type: object
-            type: object
-          - type: 'null'
-          title: Nodes Input Masks
-        preset_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Preset Id
-        status:
-          $ref: '#/components/schemas/AgentExecutionStatus'
-        started_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Started At
-          description: When execution started running. Null if not yet started (QUEUED).
-        ended_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Ended At
-          description: When execution finished. Null if not yet completed (QUEUED, RUNNING, INCOMPLETE, REVIEW).
-        is_shared:
-          type: boolean
-          title: Is Shared
-          default: false
-        share_token:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Share Token
-        is_dry_run:
-          type: boolean
-          title: Is Dry Run
-          default: false
-        organization_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Organization Id
-        team_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Team Id
-        expert_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expert Id
-        stats:
-          anyOf:
-          - $ref: '#/components/schemas/Stats'
-          - type: 'null'
-      type: object
-      required:
-      - id
-      - user_id
-      - graph_id
-      - graph_version
-      - inputs
-      - credential_inputs
-      - nodes_input_masks
-      - preset_id
-      - status
-      - stats
-      title: GraphExecutionMeta
+      title: Node
     GraphExecution:
       properties:
         id:
@@ -1316,17 +1187,104 @@ components:
       - stats
       - outputs
       title: GraphExecution
-    AgentExecutionStatus:
-      type: string
-      enum:
-      - INCOMPLETE
-      - QUEUED
-      - RUNNING
-      - COMPLETED
-      - TERMINATED
-      - FAILED
-      - REVIEW
-      title: AgentExecutionStatus
+    GraphMeta:
+      properties:
+        id:
+          type: string
+          title: Id
+        version:
+          type: integer
+          title: Version
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        user_id:
+          type: string
+          title: User Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+      type: object
+      required:
+      - id
+      - version
+      - name
+      - description
+      - user_id
+      - created_at
+      title: GraphMeta
+      description: 'Lightweight graph metadata model representing an existing graph from the database,
+
+        for use in listings and summaries.
+
+
+        Lacks `GraphModel`''s nodes, links, and expensive computed fields.
+
+        Use for list endpoints where full graph data is not needed and performance matters.'
+    Body_postV1Execute_graph_agent:
+      properties:
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credentials_inputs:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Credentials Inputs
+        source:
+          anyOf:
+          - type: string
+            enum:
+            - builder
+            - library
+            - onboarding
+          - type: 'null'
+          title: Source
+        dry_run:
+          type: boolean
+          title: Dry Run
+          default: false
+      type: object
+      title: Body_postV1Execute graph agent
     NodeExecutionResult:
       properties:
         user_id:
@@ -1401,167 +1359,6 @@ components:
       - start_time
       - end_time
       title: NodeExecutionResult
-    DeleteGraphResponse:
-      properties:
-        version_counts:
-          type: integer
-          title: Version Counts
-      type: object
-      required:
-      - version_counts
-      title: DeleteGraphResponse
-    Node:
-      properties:
-        id:
-          type: string
-          title: Id
-        block_id:
-          type: string
-          title: Block Id
-        input_default:
-          additionalProperties: true
-          type: object
-          title: Input Default
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-        input_links:
-          items:
-            $ref: '#/components/schemas/Link'
-          type: array
-          title: Input Links
-        output_links:
-          items:
-            $ref: '#/components/schemas/Link'
-          type: array
-          title: Output Links
-      type: object
-      required:
-      - block_id
-      title: Node
-    ExecutionFailureReason:
-      type: string
-      enum:
-      - insufficient_balance
-      - entitlement_required
-      title: ExecutionFailureReason
-      description: Structured reasons for terminal graph execution failures.
-    UserExecutionCostSummary:
-      properties:
-        total_cents:
-          type: integer
-          title: Total Cents
-        run_count:
-          type: integer
-          title: Run Count
-        billable_run_count:
-          type: integer
-          title: Billable Run Count
-        failed_cost_cents:
-          type: integer
-          title: Failed Cost Cents
-        success_run_count:
-          type: integer
-          title: Success Run Count
-          default: 0
-        failed_run_count:
-          type: integer
-          title: Failed Run Count
-          default: 0
-        review_run_count:
-          type: integer
-          title: Review Run Count
-          default: 0
-        total_duration_seconds:
-          type: number
-          title: Total Duration Seconds
-          default: 0
-        duration_run_count:
-          type: integer
-          title: Duration Run Count
-          default: 0
-        by_agent:
-          items:
-            $ref: '#/components/schemas/UserAgentCostRollup'
-          type: array
-          title: By Agent
-        by_expert:
-          items:
-            $ref: '#/components/schemas/UserExpertCostRollup'
-          type: array
-          title: By Expert
-          default: []
-        top_runs:
-          items:
-            $ref: '#/components/schemas/UserTopRun'
-          type: array
-          title: Top Runs
-        daily:
-          items:
-            $ref: '#/components/schemas/UserDailyCost'
-          type: array
-          title: Daily
-      type: object
-      required:
-      - total_cents
-      - run_count
-      - billable_run_count
-      - failed_cost_cents
-      - by_agent
-      - top_runs
-      - daily
-      title: UserExecutionCostSummary
-    Pagination:
-      properties:
-        total_items:
-          type: integer
-          title: Total Items
-          description: Total number of items.
-          examples:
-          - 42
-        total_pages:
-          type: integer
-          title: Total Pages
-          description: Total number of pages.
-          examples:
-          - 2
-        current_page:
-          type: integer
-          title: Current Page
-          description: Current_page page number.
-          examples:
-          - 1
-        page_size:
-          type: integer
-          title: Page Size
-          description: Number of items per page.
-          examples:
-          - 25
-      type: object
-      required:
-      - total_items
-      - total_pages
-      - current_page
-      - page_size
-      title: Pagination
-    SetActiveGraphVersionResponse:
-      properties:
-        skipped_webhook_presets:
-          items:
-            $ref: '#/components/schemas/SkippedWebhookPreset'
-          type: array
-          title: Skipped Webhook Presets
-      type: object
-      title: SetActiveGraphVersionResponse
-      description: 'Response for activating an existing graph version.
-
-
-        Carries any webhook presets that were left pinned to their old version
-
-        because the newly activated version''s trigger block is incompatible and
-
-        needs to be reconfigured.'
     UserExpertCostRollup:
       properties:
         expert_id:
@@ -1579,64 +1376,23 @@ components:
       - cost_cents
       - run_count
       title: UserExpertCostRollup
-    CreateGraph:
+    GraphSettings:
       properties:
-        graph:
-          $ref: '#/components/schemas/Graph'
-        source:
+        human_in_the_loop_safe_mode:
+          type: boolean
+          title: Human In The Loop Safe Mode
+          default: true
+        sensitive_action_safe_mode:
+          type: boolean
+          title: Sensitive Action Safe Mode
+          default: false
+        builder_chat_session_id:
           anyOf:
           - type: string
-            enum:
-            - builder
-            - upload
           - type: 'null'
-          title: Source
+          title: Builder Chat Session Id
       type: object
-      required:
-      - graph
-      title: CreateGraph
-    UserTopRun:
-      properties:
-        execution_id:
-          type: string
-          title: Execution Id
-        graph_id:
-          type: string
-          title: Graph Id
-        cost_cents:
-          type: integer
-          title: Cost Cents
-        started_at:
-          type: string
-          format: date-time
-          title: Started At
-        status:
-          $ref: '#/components/schemas/AgentExecutionStatus'
-        duration_seconds:
-          type: number
-          title: Duration Seconds
-        node_error_count:
-          type: integer
-          title: Node Error Count
-      type: object
-      required:
-      - execution_id
-      - graph_id
-      - cost_cents
-      - started_at
-      - status
-      - duration_seconds
-      - node_error_count
-      title: UserTopRun
-    SetGraphActiveVersion:
-      properties:
-        active_graph_version:
-          type: integer
-          title: Active Graph Version
-      type: object
-      required:
-      - active_graph_version
-      title: SetGraphActiveVersion
+      title: GraphSettings
     GraphExecutionWithNodes:
       properties:
         id:
@@ -1749,270 +1505,6 @@ components:
       - outputs
       - node_executions
       title: GraphExecutionWithNodes
-    Link:
-      properties:
-        id:
-          type: string
-          title: Id
-        source_id:
-          type: string
-          title: Source Id
-        sink_id:
-          type: string
-          title: Sink Id
-        source_name:
-          type: string
-          title: Source Name
-        sink_name:
-          type: string
-          title: Sink Name
-        is_static:
-          type: boolean
-          title: Is Static
-          default: false
-      type: object
-      required:
-      - source_id
-      - sink_id
-      - source_name
-      - sink_name
-      title: Link
-    UserAgentCostRollup:
-      properties:
-        graph_id:
-          type: string
-          title: Graph Id
-        cost_cents:
-          type: integer
-          title: Cost Cents
-        run_count:
-          type: integer
-          title: Run Count
-      type: object
-      required:
-      - graph_id
-      - cost_cents
-      - run_count
-      title: UserAgentCostRollup
-    GraphExecutionsPaginated:
-      properties:
-        executions:
-          items:
-            $ref: '#/components/schemas/GraphExecutionMeta'
-          type: array
-          title: Executions
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - executions
-      - pagination
-      title: GraphExecutionsPaginated
-      description: Response schema for paginated graph executions.
-    Body_postV1Execute_graph_agent:
-      properties:
-        inputs:
-          additionalProperties: true
-          type: object
-          title: Inputs
-        credentials_inputs:
-          additionalProperties:
-            $ref: '#/components/schemas/CredentialsMetaInput'
-          type: object
-          title: Credentials Inputs
-        source:
-          anyOf:
-          - type: string
-            enum:
-            - builder
-            - library
-            - onboarding
-          - type: 'null'
-          title: Source
-        dry_run:
-          type: boolean
-          title: Dry Run
-          default: false
-      type: object
-      title: Body_postV1Execute graph agent
-    CredentialsMetaInput:
-      properties:
-        id:
-          type: string
-          title: Id
-        title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Title
-        provider:
-          type: string
-          title: Provider
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        type:
-          type: string
-          enum:
-          - api_key
-          - oauth2
-          - user_password
-          - host_scoped
-          - device_code
-          title: Type
-      type: object
-      required:
-      - id
-      - provider
-      - type
-      title: CredentialsMetaInput
-      credentials_provider: []
-      credentials_types: []
-    Stats:
-      properties:
-        cost:
-          type: integer
-          title: Cost
-          description: Execution cost (cents)
-          default: 0
-        duration:
-          type: number
-          title: Duration
-          description: Seconds from start to end of run
-          default: 0
-        duration_cpu_only:
-          type: number
-          title: Duration Cpu Only
-          description: CPU sec of duration
-          default: 0
-        node_exec_time:
-          type: number
-          title: Node Exec Time
-          description: Seconds of total node runtime
-          default: 0
-        node_exec_time_cpu_only:
-          type: number
-          title: Node Exec Time Cpu Only
-          description: CPU sec of node_exec_time
-          default: 0
-        node_exec_count:
-          type: integer
-          title: Node Exec Count
-          description: Number of node executions
-          default: 0
-        node_error_count:
-          type: integer
-          title: Node Error Count
-          description: Number of node errors
-          default: 0
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-          description: Error message if any
-        failure_reason:
-          anyOf:
-          - $ref: '#/components/schemas/ExecutionFailureReason'
-          - type: 'null'
-          description: Structured reason for a terminal execution failure
-        activity_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Status
-          description: AI-generated summary of what the agent did
-        correctness_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Correctness Score
-          description: AI-generated score (0.0-1.0) indicating how well the execution achieved its intended purpose
-      additionalProperties: true
-      type: object
-      title: Stats
-    BaseGraph-Input:
-      properties:
-        id:
-          type: string
-          title: Id
-        version:
-          type: integer
-          title: Version
-          default: 1
-        is_active:
-          type: boolean
-          title: Is Active
-          default: true
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        instructions:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Instructions
-        recommended_schedule_cron:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Recommended Schedule Cron
-        forked_from_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Forked From Id
-        forked_from_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Forked From Version
-        nodes:
-          items:
-            $ref: '#/components/schemas/Node'
-          type: array
-          title: Nodes
-        links:
-          items:
-            $ref: '#/components/schemas/Link'
-          type: array
-          title: Links
-      type: object
-      required:
-      - name
-      - description
-      title: BaseGraph
-      description: 'Graph with nodes, links, and computed I/O schema fields.
-
-
-        Used to represent sub-graphs within a `Graph`. Contains the full graph
-
-        structure including nodes and links, plus computed fields for schemas
-
-        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
-    SkippedWebhookPreset:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        pinned_version:
-          type: integer
-          title: Pinned Version
-      type: object
-      required:
-      - id
-      - name
-      - pinned_version
-      title: SkippedWebhookPreset
-      description: 'A webhook preset that was left pinned to its old version because the
-
-        newly activated version swaps or reconfigures the trigger block. The user
-
-        needs to reconfigure the trigger on the new version for it to fire.'
     GraphModel:
       properties:
         id:
@@ -2147,37 +1639,198 @@ components:
         - `Graph`: provides structure (nodes, links, sub_graphs) and computed schemas
 
         - `GraphMeta`: provides user_id, created_at for database records'
-    UserDailyCost:
+    GraphExecutionMeta:
       properties:
-        date:
+        id:
           type: string
-          format: date
-          title: Date
-        cost_cents:
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
           type: integer
-          title: Cost Cents
+          title: Graph Version
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+        credential_inputs:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/CredentialsMetaInput'
+            type: object
+          - type: 'null'
+          title: Credential Inputs
+        nodes_input_masks:
+          anyOf:
+          - additionalProperties:
+              additionalProperties: true
+              type: object
+            type: object
+          - type: 'null'
+          title: Nodes Input Masks
+        preset_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Preset Id
+        status:
+          $ref: '#/components/schemas/AgentExecutionStatus'
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: When execution started running. Null if not yet started (QUEUED).
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+          description: When execution finished. Null if not yet completed (QUEUED, RUNNING, INCOMPLETE, REVIEW).
+        is_shared:
+          type: boolean
+          title: Is Shared
+          default: false
+        share_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Share Token
+        is_dry_run:
+          type: boolean
+          title: Is Dry Run
+          default: false
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+        stats:
+          anyOf:
+          - $ref: '#/components/schemas/Stats'
+          - type: 'null'
+      type: object
+      required:
+      - id
+      - user_id
+      - graph_id
+      - graph_version
+      - inputs
+      - credential_inputs
+      - nodes_input_masks
+      - preset_id
+      - status
+      - stats
+      title: GraphExecutionMeta
+    DeleteGraphResponse:
+      properties:
+        version_counts:
+          type: integer
+          title: Version Counts
+      type: object
+      required:
+      - version_counts
+      title: DeleteGraphResponse
+    UserExecutionCostSummary:
+      properties:
+        total_cents:
+          type: integer
+          title: Total Cents
         run_count:
           type: integer
           title: Run Count
-        success_count:
+        billable_run_count:
           type: integer
-          title: Success Count
-          default: 0
-        failed_count:
+          title: Billable Run Count
+        failed_cost_cents:
           type: integer
-          title: Failed Count
-          default: 0
-        review_count:
+          title: Failed Cost Cents
+        success_run_count:
           type: integer
-          title: Review Count
+          title: Success Run Count
           default: 0
+        failed_run_count:
+          type: integer
+          title: Failed Run Count
+          default: 0
+        review_run_count:
+          type: integer
+          title: Review Run Count
+          default: 0
+        total_duration_seconds:
+          type: number
+          title: Total Duration Seconds
+          default: 0
+        duration_run_count:
+          type: integer
+          title: Duration Run Count
+          default: 0
+        by_agent:
+          items:
+            $ref: '#/components/schemas/UserAgentCostRollup'
+          type: array
+          title: By Agent
+        by_expert:
+          items:
+            $ref: '#/components/schemas/UserExpertCostRollup'
+          type: array
+          title: By Expert
+          default: []
+        top_runs:
+          items:
+            $ref: '#/components/schemas/UserTopRun'
+          type: array
+          title: Top Runs
+        daily:
+          items:
+            $ref: '#/components/schemas/UserDailyCost'
+          type: array
+          title: Daily
       type: object
       required:
-      - date
-      - cost_cents
+      - total_cents
       - run_count
-      title: UserDailyCost
-    GraphMeta:
+      - billable_run_count
+      - failed_cost_cents
+      - by_agent
+      - top_runs
+      - daily
+      title: UserExecutionCostSummary
+    CreateGraph:
+      properties:
+        graph:
+          $ref: '#/components/schemas/Graph'
+        source:
+          anyOf:
+          - type: string
+            enum:
+            - builder
+            - upload
+          - type: 'null'
+          title: Source
+      type: object
+      required:
+      - graph
+      title: CreateGraph
+    BaseGraph-Input:
       properties:
         id:
           type: string
@@ -2185,6 +1838,7 @@ components:
         version:
           type: integer
           title: Version
+          default: 1
         is_active:
           type: boolean
           title: Is Active
@@ -2215,40 +1869,398 @@ components:
           - type: integer
           - type: 'null'
           title: Forked From Version
-        user_id:
+        nodes:
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+          title: Nodes
+        links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Links
+      type: object
+      required:
+      - name
+      - description
+      title: BaseGraph
+      description: 'Graph with nodes, links, and computed I/O schema fields.
+
+
+        Used to represent sub-graphs within a `Graph`. Contains the full graph
+
+        structure including nodes and links, plus computed fields for schemas
+
+        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
+    BaseGraph-Output:
+      properties:
+        id:
           type: string
-          title: User Id
-        created_at:
+          title: Id
+        version:
+          type: integer
+          title: Version
+          default: 1
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        name:
           type: string
-          format: date-time
-          title: Created At
-        organization_id:
+          title: Name
+        description:
+          type: string
+          title: Description
+        instructions:
           anyOf:
           - type: string
           - type: 'null'
-          title: Organization Id
-        team_id:
+          title: Instructions
+        recommended_schedule_cron:
           anyOf:
           - type: string
           - type: 'null'
-          title: Team Id
+          title: Recommended Schedule Cron
+        forked_from_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Forked From Id
+        forked_from_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Forked From Version
+        nodes:
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+          title: Nodes
+        links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Links
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          readOnly: true
+        output_schema:
+          additionalProperties: true
+          type: object
+          title: Output Schema
+          readOnly: true
+        has_external_trigger:
+          type: boolean
+          title: Has External Trigger
+          readOnly: true
+        has_human_in_the_loop:
+          type: boolean
+          title: Has Human In The Loop
+          readOnly: true
+        has_sensitive_action:
+          type: boolean
+          title: Has Sensitive Action
+          readOnly: true
+        trigger_setup_info:
+          anyOf:
+          - $ref: '#/components/schemas/GraphTriggerInfo'
+          - type: 'null'
+          readOnly: true
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      - output_schema
+      - has_external_trigger
+      - has_human_in_the_loop
+      - has_sensitive_action
+      - trigger_setup_info
+      title: BaseGraph
+      description: 'Graph with nodes, links, and computed I/O schema fields.
+
+
+        Used to represent sub-graphs within a `Graph`. Contains the full graph
+
+        structure including nodes and links, plus computed fields for schemas
+
+        and trigger info. Does NOT include user_id or created_at (see GraphModel).'
+    SetGraphActiveVersion:
+      properties:
+        active_graph_version:
+          type: integer
+          title: Active Graph Version
+      type: object
+      required:
+      - active_graph_version
+      title: SetGraphActiveVersion
+    GraphExecutionsPaginated:
+      properties:
+        executions:
+          items:
+            $ref: '#/components/schemas/GraphExecutionMeta'
+          type: array
+          title: Executions
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - executions
+      - pagination
+      title: GraphExecutionsPaginated
+      description: Response schema for paginated graph executions.
+    AgentExecutionStatus:
+      type: string
+      enum:
+      - INCOMPLETE
+      - QUEUED
+      - RUNNING
+      - COMPLETED
+      - TERMINATED
+      - FAILED
+      - REVIEW
+      title: AgentExecutionStatus
+    ExecutionFailureReason:
+      type: string
+      enum:
+      - insufficient_balance
+      - entitlement_required
+      title: ExecutionFailureReason
+      description: Structured reasons for terminal graph execution failures.
+    Link:
+      properties:
+        id:
+          type: string
+          title: Id
+        source_id:
+          type: string
+          title: Source Id
+        sink_id:
+          type: string
+          title: Sink Id
+        source_name:
+          type: string
+          title: Source Name
+        sink_name:
+          type: string
+          title: Sink Name
+        is_static:
+          type: boolean
+          title: Is Static
+          default: false
+      type: object
+      required:
+      - source_id
+      - sink_id
+      - source_name
+      - sink_name
+      title: Link
+    NodeModel:
+      properties:
+        id:
+          type: string
+          title: Id
+        block_id:
+          type: string
+          title: Block Id
+        input_default:
+          additionalProperties: true
+          type: object
+          title: Input Default
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        input_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Input Links
+        output_links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Output Links
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        webhook_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Webhook Id
+      type: object
+      required:
+      - block_id
+      - graph_id
+      - graph_version
+      title: NodeModel
+    SkippedWebhookPreset:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        pinned_version:
+          type: integer
+          title: Pinned Version
       type: object
       required:
       - id
-      - version
       - name
-      - description
-      - user_id
-      - created_at
-      title: GraphMeta
-      description: 'Lightweight graph metadata model representing an existing graph from the database,
+      - pinned_version
+      title: SkippedWebhookPreset
+      description: 'A webhook preset that was left pinned to its old version because the
 
-        for use in listings and summaries.
+        newly activated version swaps or reconfigures the trigger block. The user
+
+        needs to reconfigure the trigger on the new version for it to fire.'
+    GraphTriggerInfo:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        config_schema:
+          additionalProperties: true
+          type: object
+          title: Config Schema
+          description: Input schema for the trigger block
+        credentials_input_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Credentials Input Name
+      type: object
+      required:
+      - provider
+      - config_schema
+      - credentials_input_name
+      title: GraphTriggerInfo
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    Stats:
+      properties:
+        cost:
+          type: integer
+          title: Cost
+          description: Execution cost (cents)
+          default: 0
+        duration:
+          type: number
+          title: Duration
+          description: Seconds from start to end of run
+          default: 0
+        duration_cpu_only:
+          type: number
+          title: Duration Cpu Only
+          description: CPU sec of duration
+          default: 0
+        node_exec_time:
+          type: number
+          title: Node Exec Time
+          description: Seconds of total node runtime
+          default: 0
+        node_exec_time_cpu_only:
+          type: number
+          title: Node Exec Time Cpu Only
+          description: CPU sec of node_exec_time
+          default: 0
+        node_exec_count:
+          type: integer
+          title: Node Exec Count
+          description: Number of node executions
+          default: 0
+        node_error_count:
+          type: integer
+          title: Node Error Count
+          description: Number of node errors
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if any
+        failure_reason:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionFailureReason'
+          - type: 'null'
+          description: Structured reason for a terminal execution failure
+        activity_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Status
+          description: AI-generated summary of what the agent did
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+          description: AI-generated score (0.0-1.0) indicating how well the execution achieved its intended purpose
+      additionalProperties: true
+      type: object
+      title: Stats
+    UpdateGraphResponse:
+      properties:
+        graph:
+          $ref: '#/components/schemas/GraphModel'
+        skipped_webhook_presets:
+          items:
+            $ref: '#/components/schemas/SkippedWebhookPreset'
+          type: array
+          title: Skipped Webhook Presets
+      type: object
+      required:
+      - graph
+      title: UpdateGraphResponse
+      description: 'Response for creating/activating a new graph version.
 
 
-        Lacks `GraphModel`''s nodes, links, and expensive computed fields.
+        Carries the new graph version plus any webhook presets that were left
 
-        Use for list endpoints where full graph data is not needed and performance matters.'
+        pinned to their old version because the new version''s trigger block is
+
+        incompatible and needs to be reconfigured.'
     Graph:
       properties:
         id:
@@ -2309,53 +2321,6 @@ components:
       - description
       title: Graph
       description: Creatable graph model used in API create/update endpoints.
-    GraphTriggerInfo:
-      properties:
-        provider:
-          type: string
-          title: Provider
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        config_schema:
-          additionalProperties: true
-          type: object
-          title: Config Schema
-          description: Input schema for the trigger block
-        credentials_input_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Credentials Input Name
-      type: object
-      required:
-      - provider
-      - config_schema
-      - credentials_input_name
-      title: GraphTriggerInfo
-    ExecutionNode:
-      properties:
-        node_id:
-          type: string
-          title: Node Id
-        input:
-          title: Input
-        output:
-          additionalProperties: true
-          type: object
-          title: Output
-      type: object
-      required:
-      - node_id
-      - input
-      - output
-      title: ExecutionNode
-    Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post:
-      properties:
-        node_input:
-          additionalProperties: true
-          type: object
-          title: Node Input
-      type: object
-      title: Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post
     GraphExecutionResult:
       properties:
         execution_id:
@@ -2385,6 +2350,41 @@ components:
       - nodes
       - output
       title: GraphExecutionResult
+    ExecutionNode:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+        input:
+          title: Input
+        output:
+          additionalProperties: true
+          type: object
+          title: Output
+      type: object
+      required:
+      - node_id
+      - input
+      - output
+      title: ExecutionNode
+    Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post:
+      properties:
+        node_input:
+          additionalProperties: true
+          type: object
+          title: Node Input
+      type: object
+      title: Body_execute_graph_v1_graphs__graph_id__execute__graph_version__post
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

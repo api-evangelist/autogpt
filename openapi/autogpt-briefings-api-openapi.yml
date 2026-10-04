@@ -45,46 +45,7 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: getBriefingsGet latest briefing
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
-    BriefingResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        briefing_date:
-          type: string
-          format: date
-          title: Briefing Date
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        delivered_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Delivered At
-        content:
-          $ref: '#/components/schemas/BriefingContent'
-      type: object
-      required:
-      - id
-      - briefing_date
-      - created_at
-      - delivered_at
-      - content
-      title: BriefingResponse
     BriefingDecisionItem:
       properties:
         node_exec_id:
@@ -208,6 +169,35 @@ components:
       - summary
       - link
       title: BriefingRunItem
+    BriefingResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        briefing_date:
+          type: string
+          format: date
+          title: Briefing Date
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        delivered_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Delivered At
+        content:
+          $ref: '#/components/schemas/BriefingContent'
+      type: object
+      required:
+      - id
+      - briefing_date
+      - created_at
+      - delivered_at
+      - content
+      title: BriefingResponse
     BriefingContent:
       properties:
         generated_at:
@@ -258,6 +248,16 @@ components:
       - run_items
       - decision_items
       title: BriefingContent
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

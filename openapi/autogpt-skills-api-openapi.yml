@@ -167,45 +167,32 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    CopilotSkillDetail:
+    ValidationError:
       properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        triggers:
+        loc:
           items:
-            type: string
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Triggers
-          default: []
-        body:
+          title: Location
+        msg:
           type: string
-          title: Body
-        version:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Version
-        is_default:
-          type: boolean
-          title: Is Default
-          default: false
-        sibling_files:
-          items:
-            type: string
-          type: array
-          title: Sibling Files
-          default: []
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - name
-      - description
-      - body
-      title: CopilotSkillDetail
-      description: Full SKILL.md content surfaced to the library expand-to-view UI.
+      - loc
+      - msg
+      - type
+      title: ValidationError
     UploadCopilotSkillRequest:
       properties:
         content:
@@ -259,32 +246,45 @@ components:
         excluded — they cannot be edited or deleted, so surfacing them in the
 
         user-facing list would add noise without affordances.'
-    ValidationError:
+    CopilotSkillDetail:
       properties:
-        loc:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        triggers:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            type: string
           type: array
-          title: Location
-        msg:
+          title: Triggers
+          default: []
+        body:
           type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Body
+        version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Version
+        is_default:
+          type: boolean
+          title: Is Default
+          default: false
+        sibling_files:
+          items:
+            type: string
+          type: array
+          title: Sibling Files
+          default: []
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - name
+      - description
+      - body
+      title: CopilotSkillDetail
+      description: Full SKILL.md content surfaced to the library expand-to-view UI.
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

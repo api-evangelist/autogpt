@@ -217,59 +217,59 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: postV1Update user timezone
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
-    NotificationPreference:
+    NotificationPreferenceDTO:
       properties:
-        user_id:
-          type: string
-          title: User Id
         email:
           type: string
           format: email
           title: Email
         briefing_frequency:
           $ref: '#/components/schemas/BriefingFrequency'
-          default: WEEKLY
         alerts_enabled:
           type: boolean
           title: Alerts Enabled
-          default: true
         store_verdicts_enabled:
           type: boolean
           title: Store Verdicts Enabled
-          default: true
         daily_limit:
           type: integer
           title: Daily Limit
+          description: Max product emails per day; 0 sends none. Account and billing messages are service mail and ignore it.
           default: 3
       type: object
       required:
-      - user_id
       - email
-      title: NotificationPreference
-      description: 'The volume knob from the Briefing footer, not a checkbox list. Billing
-
-        and account messages are service mail and are not represented here — they
-
-        are sent regardless of these settings.'
-    BriefingFrequency:
-      type: string
-      enum:
-      - DAILY
-      - WEEKLY
-      - MONTHLY
-      - 'OFF'
-      title: BriefingFrequency
+      - briefing_frequency
+      - alerts_enabled
+      - store_verdicts_enabled
+      title: NotificationPreferenceDTO
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     TimezoneResponse:
       properties:
         timezone:
@@ -880,32 +880,6 @@ components:
       required:
       - timezone
       title: TimezoneResponse
-    NotificationPreferenceDTO:
-      properties:
-        email:
-          type: string
-          format: email
-          title: Email
-        briefing_frequency:
-          $ref: '#/components/schemas/BriefingFrequency'
-        alerts_enabled:
-          type: boolean
-          title: Alerts Enabled
-        store_verdicts_enabled:
-          type: boolean
-          title: Store Verdicts Enabled
-        daily_limit:
-          type: integer
-          title: Daily Limit
-          description: Max product emails per day; 0 sends none. Account and billing messages are service mail and ignore it.
-          default: 3
-      type: object
-      required:
-      - email
-      - briefing_frequency
-      - alerts_enabled
-      - store_verdicts_enabled
-      title: NotificationPreferenceDTO
     HTTPValidationError:
       properties:
         detail:
@@ -915,6 +889,48 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    BriefingFrequency:
+      type: string
+      enum:
+      - DAILY
+      - WEEKLY
+      - MONTHLY
+      - 'OFF'
+      title: BriefingFrequency
+    NotificationPreference:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        email:
+          type: string
+          format: email
+          title: Email
+        briefing_frequency:
+          $ref: '#/components/schemas/BriefingFrequency'
+          default: WEEKLY
+        alerts_enabled:
+          type: boolean
+          title: Alerts Enabled
+          default: true
+        store_verdicts_enabled:
+          type: boolean
+          title: Store Verdicts Enabled
+          default: true
+        daily_limit:
+          type: integer
+          title: Daily Limit
+          default: 3
+      type: object
+      required:
+      - user_id
+      - email
+      title: NotificationPreference
+      description: 'The volume knob from the Briefing footer, not a checkbox list. Billing
+
+        and account messages are service mail and are not represented here — they
+
+        are sent regardless of these settings.'
     UpdateTimezoneRequest:
       properties:
         timezone:
@@ -1523,32 +1539,16 @@ components:
       required:
       - timezone
       title: UpdateTimezoneRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

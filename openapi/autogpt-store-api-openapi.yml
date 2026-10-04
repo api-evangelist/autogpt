@@ -1191,239 +1191,6 @@ paths:
     - url: /external-api
 components:
   schemas:
-    SubmissionStatus:
-      type: string
-      enum:
-      - DRAFT
-      - PENDING
-      - APPROVED
-      - REJECTED
-      title: SubmissionStatus
-    Body_postV2Upload_submission_media:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-      type: object
-      required:
-      - file
-      title: Body_postV2Upload submission media
-    StoreAgentsResponse:
-      properties:
-        agents:
-          items:
-            $ref: '#/components/schemas/StoreAgent'
-          type: array
-          title: Agents
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - agents
-      - pagination
-      title: StoreAgentsResponse
-    GraphSettings:
-      properties:
-        human_in_the_loop_safe_mode:
-          type: boolean
-          title: Human In The Loop Safe Mode
-          default: true
-        sensitive_action_safe_mode:
-          type: boolean
-          title: Sensitive Action Safe Mode
-          default: false
-        builder_chat_session_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Builder Chat Session Id
-      type: object
-      title: GraphSettings
-    Profile:
-      properties:
-        username:
-          type: string
-          title: Username
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        avatar_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Avatar Url
-        links:
-          items:
-            type: string
-          type: array
-          title: Links
-      type: object
-      required:
-      - username
-      - name
-      - description
-      - avatar_url
-      - links
-      title: Profile
-      description: Marketplace user profile (only attributes that the user can update)
-    SubmissionStats:
-      properties:
-        total:
-          type: integer
-          title: Total
-        approved:
-          type: integer
-          title: Approved
-        pending:
-          type: integer
-          title: Pending
-        total_runs:
-          type: integer
-          title: Total Runs
-        average_rating:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Average Rating
-      type: object
-      required:
-      - total
-      - approved
-      - pending
-      - total_runs
-      - average_rating
-      title: SubmissionStats
-      description: 'Creator-wide aggregates over a user''s non-deleted submissions.
-
-
-        Computed server-side so values stay accurate regardless of pagination —
-
-        summing client-side over the current page silently undercounts once the
-
-        creator has more submissions than fit on one page.'
-    StoreAgentsSortOptions:
-      type: string
-      enum:
-      - rating
-      - runs
-      - name
-      - updated_at
-      title: StoreAgentsSortOptions
-    StoreReview:
-      properties:
-        score:
-          type: integer
-          title: Score
-        comments:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comments
-      type: object
-      required:
-      - score
-      title: StoreReview
-    StoreReviewCreate:
-      properties:
-        store_listing_version_id:
-          type: string
-          title: Store Listing Version Id
-        score:
-          type: integer
-          title: Score
-        comments:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comments
-      type: object
-      required:
-      - store_listing_version_id
-      - score
-      title: StoreReviewCreate
-    StoreAgent:
-      properties:
-        slug:
-          type: string
-          title: Slug
-        agent_name:
-          type: string
-          title: Agent Name
-        agent_image:
-          type: string
-          title: Agent Image
-        creator:
-          type: string
-          title: Creator
-        creator_avatar:
-          type: string
-          title: Creator Avatar
-        sub_heading:
-          type: string
-          title: Sub Heading
-        description:
-          type: string
-          title: Description
-        runs:
-          type: integer
-          title: Runs
-        rating:
-          type: number
-          title: Rating
-        agent_graph_id:
-          type: string
-          title: Agent Graph Id
-      type: object
-      required:
-      - slug
-      - agent_name
-      - agent_image
-      - creator
-      - creator_avatar
-      - sub_heading
-      - description
-      - runs
-      - rating
-      - agent_graph_id
-      title: StoreAgent
-    ProfileDetails:
-      properties:
-        username:
-          type: string
-          title: Username
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        avatar_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Avatar Url
-        links:
-          items:
-            type: string
-          type: array
-          title: Links
-        is_featured:
-          type: boolean
-          title: Is Featured
-      type: object
-      required:
-      - username
-      - name
-      - description
-      - avatar_url
-      - links
-      - is_featured
-      title: ProfileDetails
-      description: Marketplace user profile (including read-only fields)
     SearchResponse:
       properties:
         items:
@@ -1457,13 +1224,32 @@ components:
       - total_items
       - pagination
       title: SearchResponse
-    StoreCreatorsSortOptions:
-      type: string
-      enum:
-      - agent_rating
-      - agent_runs
-      - num_agents
-      title: StoreCreatorsSortOptions
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     MyUnpublishedAgent:
       properties:
         graph_id:
@@ -1500,156 +1286,77 @@ components:
       - description
       - last_edited
       title: MyUnpublishedAgent
-    BlockCost:
+    LibraryAgentStatus:
+      type: string
+      enum:
+      - COMPLETED
+      - HEALTHY
+      - WAITING
+      - ERROR
+      title: LibraryAgentStatus
+    ProfileDetails:
       properties:
-        cost_amount:
-          type: integer
-          title: Cost Amount
-        cost_filter:
-          additionalProperties: true
-          type: object
-          title: Cost Filter
-        cost_type:
-          $ref: '#/components/schemas/BlockCostType'
-        cost_divisor:
-          type: integer
-          title: Cost Divisor
-          default: 1
-        token_rate:
-          anyOf:
-          - $ref: '#/components/schemas/TokenRateDisplay'
-          - type: 'null'
-      type: object
-      required:
-      - cost_amount
-      - cost_filter
-      - cost_type
-      title: BlockCost
-    MyUnpublishedAgentsResponse:
-      properties:
-        agents:
-          items:
-            $ref: '#/components/schemas/MyUnpublishedAgent'
-          type: array
-          title: Agents
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - agents
-      - pagination
-      title: MyUnpublishedAgentsResponse
-    MarketplaceListingCreator:
-      properties:
+        username:
+          type: string
+          title: Username
         name:
           type: string
           title: Name
+        description:
+          type: string
+          title: Description
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        links:
+          items:
+            type: string
+          type: array
+          title: Links
+        is_featured:
+          type: boolean
+          title: Is Featured
+      type: object
+      required:
+      - username
+      - name
+      - description
+      - avatar_url
+      - links
+      - is_featured
+      title: ProfileDetails
+      description: Marketplace user profile (including read-only fields)
+    SubmissionStatus:
+      type: string
+      enum:
+      - DRAFT
+      - PENDING
+      - APPROVED
+      - REJECTED
+      title: SubmissionStatus
+    MarketplaceListing:
+      properties:
         id:
           type: string
           title: Id
+        name:
+          type: string
+          title: Name
         slug:
           type: string
           title: Slug
+        creator:
+          $ref: '#/components/schemas/MarketplaceListingCreator'
       type: object
       required:
-      - name
       - id
-      - slug
-      title: MarketplaceListingCreator
-      description: Creator information for a marketplace listing.
-    ContentType:
-      type: string
-      enum:
-      - STORE_AGENT
-      - BLOCK
-      - INTEGRATION
-      - DOCUMENTATION
-      - LIBRARY_AGENT
-      - WORKSPACE_FILE
-      - CHAT_SESSION
-      title: ContentType
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    MyAgentsSortBy:
-      type: string
-      enum:
-      - most_recent
       - name
-      title: MyAgentsSortBy
-    StoreSubmissionsResponse:
-      properties:
-        submissions:
-          items:
-            $ref: '#/components/schemas/StoreSubmission'
-          type: array
-          title: Submissions
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-        stats:
-          $ref: '#/components/schemas/SubmissionStats'
-      type: object
-      required:
-      - submissions
-      - pagination
-      - stats
-      title: StoreSubmissionsResponse
-    Pagination:
-      properties:
-        total_items:
-          type: integer
-          title: Total Items
-          description: Total number of items.
-          examples:
-          - 42
-        total_pages:
-          type: integer
-          title: Total Pages
-          description: Total number of pages.
-          examples:
-          - 2
-        current_page:
-          type: integer
-          title: Current Page
-          description: Current_page page number.
-          examples:
-          - 1
-        page_size:
-          type: integer
-          title: Page Size
-          description: Number of items per page.
-          examples:
-          - 25
-      type: object
-      required:
-      - total_items
-      - total_pages
-      - current_page
-      - page_size
-      title: Pagination
+      - slug
+      - creator
+      title: MarketplaceListing
+      description: Marketplace listing information for a library agent.
     GraphModelWithoutNodes:
       properties:
         id:
@@ -1760,6 +1467,134 @@ components:
         is not desired. Inherits all computed fields from GraphModel but marks
 
         nodes and links as excluded from JSON output.'
+    BlockInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        inputSchema:
+          additionalProperties: true
+          type: object
+          title: Inputschema
+        outputSchema:
+          additionalProperties: true
+          type: object
+          title: Outputschema
+        costs:
+          items:
+            $ref: '#/components/schemas/BlockCost'
+          type: array
+          title: Costs
+        description:
+          type: string
+          title: Description
+        categories:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Categories
+        contributors:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Contributors
+        staticOutput:
+          type: boolean
+          title: Staticoutput
+        uiType:
+          type: string
+          title: Uitype
+      type: object
+      required:
+      - id
+      - name
+      - inputSchema
+      - outputSchema
+      - costs
+      - description
+      - categories
+      - contributors
+      - staticOutput
+      - uiType
+      title: BlockInfo
+    TokenRateDisplay:
+      properties:
+        input_usd_per_1m:
+          type: number
+          minimum: 0.0
+          title: Input Usd Per 1M
+        output_usd_per_1m:
+          type: number
+          minimum: 0.0
+          title: Output Usd Per 1M
+        cache_read_usd_per_1m:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Cache Read Usd Per 1M
+        cache_creation_usd_per_1m:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Cache Creation Usd Per 1M
+      type: object
+      required:
+      - input_usd_per_1m
+      - output_usd_per_1m
+      title: TokenRateDisplay
+      description: 'Public per-1M-token USD rates surfaced to the builder UI.
+
+
+        Populated only on LLM block costs whose model has a TOKEN_COST rate.
+
+        cache_* fields are set only when the provider publishes a distinct
+
+        cached-token rate (Anthropic). Display-only — billing always uses the
+
+        internal credit math in `BlockCost.cost_amount`.'
+    StoreReviewCreate:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        score:
+          type: integer
+          title: Score
+        comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comments
+      type: object
+      required:
+      - store_listing_version_id
+      - score
+      title: StoreReviewCreate
+    GraphSettings:
+      properties:
+        human_in_the_loop_safe_mode:
+          type: boolean
+          title: Human In The Loop Safe Mode
+          default: true
+        sensitive_action_safe_mode:
+          type: boolean
+          title: Sensitive Action Safe Mode
+          default: false
+        builder_chat_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Builder Chat Session Id
+      type: object
+      title: GraphSettings
     UnifiedSearchResult:
       properties:
         content_type:
@@ -1805,14 +1640,74 @@ components:
       - searchable_text
       title: UnifiedSearchResult
       description: A single result from unified hybrid search across all content types.
-    LibraryAgentStatus:
+    Body_postV2Upload_submission_media:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_postV2Upload submission media
+    ChangelogEntry:
+      properties:
+        version:
+          type: string
+          title: Version
+        changes_summary:
+          type: string
+          title: Changes Summary
+        date:
+          type: string
+          format: date-time
+          title: Date
+      type: object
+      required:
+      - version
+      - changes_summary
+      - date
+      title: ChangelogEntry
+    Profile:
+      properties:
+        username:
+          type: string
+          title: Username
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        links:
+          items:
+            type: string
+          type: array
+          title: Links
+      type: object
+      required:
+      - username
+      - name
+      - description
+      - avatar_url
+      - links
+      title: Profile
+      description: Marketplace user profile (only attributes that the user can update)
+    BlockCostType:
       type: string
       enum:
-      - COMPLETED
-      - HEALTHY
-      - WAITING
-      - ERROR
-      title: LibraryAgentStatus
+      - run
+      - byte
+      - second
+      - items
+      - cost_usd
+      - tokens
+      title: BlockCostType
     LibraryAgent:
       properties:
         id:
@@ -1995,16 +1890,245 @@ components:
       description: 'Represents an agent in the library, including metadata for display and
 
         user interaction within the system.'
-    BlockCostType:
+    StoreSubmissionEditRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        sub_heading:
+          type: string
+          title: Sub Heading
+        video_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Url
+        agent_output_demo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Output Demo Url
+        image_urls:
+          items:
+            type: string
+          type: array
+          title: Image Urls
+          default: []
+        description:
+          type: string
+          title: Description
+          default: ''
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+          default: []
+        changes_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Changes Summary
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+      type: object
+      required:
+      - name
+      - sub_heading
+      title: StoreSubmissionEditRequest
+    StoreReview:
+      properties:
+        score:
+          type: integer
+          title: Score
+        comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comments
+      type: object
+      required:
+      - score
+      title: StoreReview
+    ContentType:
       type: string
       enum:
-      - run
-      - byte
-      - second
-      - items
-      - cost_usd
-      - tokens
-      title: BlockCostType
+      - STORE_AGENT
+      - BLOCK
+      - INTEGRATION
+      - DOCUMENTATION
+      - LIBRARY_AGENT
+      - WORKSPACE_FILE
+      - CHAT_SESSION
+      title: ContentType
+    StoreAgentDetails:
+      properties:
+        store_listing_version_id:
+          type: string
+          title: Store Listing Version Id
+        slug:
+          type: string
+          title: Slug
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_video:
+          type: string
+          title: Agent Video
+        agent_output_demo:
+          type: string
+          title: Agent Output Demo
+        agent_image:
+          items:
+            type: string
+          type: array
+          title: Agent Image
+        creator:
+          type: string
+          title: Creator
+        creator_avatar:
+          type: string
+          title: Creator Avatar
+        sub_heading:
+          type: string
+          title: Sub Heading
+        description:
+          type: string
+          title: Description
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+        runs:
+          type: integer
+          title: Runs
+        rating:
+          type: number
+          title: Rating
+        versions:
+          items:
+            type: string
+          type: array
+          title: Versions
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_versions:
+          items:
+            type: string
+          type: array
+          title: Graph Versions
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+        recommended_schedule_cron:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Schedule Cron
+        owning_org_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owning Org Id
+        active_version_id:
+          type: string
+          title: Active Version Id
+        has_approved_version:
+          type: boolean
+          title: Has Approved Version
+        changelog:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChangelogEntry'
+            type: array
+          - type: 'null'
+          title: Changelog
+      type: object
+      required:
+      - store_listing_version_id
+      - slug
+      - agent_name
+      - agent_video
+      - agent_output_demo
+      - agent_image
+      - creator
+      - creator_avatar
+      - sub_heading
+      - description
+      - categories
+      - runs
+      - rating
+      - versions
+      - graph_id
+      - graph_versions
+      - last_updated
+      - active_version_id
+      - has_approved_version
+      title: StoreAgentDetails
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BlockCost:
+      properties:
+        cost_amount:
+          type: integer
+          title: Cost Amount
+        cost_filter:
+          additionalProperties: true
+          type: object
+          title: Cost Filter
+        cost_type:
+          $ref: '#/components/schemas/BlockCostType'
+        cost_divisor:
+          type: integer
+          title: Cost Divisor
+          default: 1
+        token_rate:
+          anyOf:
+          - $ref: '#/components/schemas/TokenRateDisplay'
+          - type: 'null'
+      type: object
+      required:
+      - cost_amount
+      - cost_filter
+      - cost_type
+      title: BlockCost
+    StoreAgentsSortOptions:
+      type: string
+      enum:
+      - rating
+      - runs
+      - name
+      - updated_at
+      title: StoreAgentsSortOptions
+    MyAgentsSortBy:
+      type: string
+      enum:
+      - most_recent
+      - name
+      title: MyAgentsSortBy
     StoreSubmissionRequest:
       properties:
         graph_id:
@@ -2075,148 +2199,114 @@ components:
       - name
       - sub_heading
       title: StoreSubmissionRequest
-    StoreSubmissionEditRequest:
+    CreatorDetails:
       properties:
+        username:
+          type: string
+          title: Username
         name:
           type: string
           title: Name
-        sub_heading:
-          type: string
-          title: Sub Heading
-        video_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Video Url
-        agent_output_demo_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Output Demo Url
-        image_urls:
-          items:
-            type: string
-          type: array
-          title: Image Urls
-          default: []
         description:
           type: string
           title: Description
-          default: ''
-        instructions:
+        avatar_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Instructions
-        categories:
+          title: Avatar Url
+        links:
           items:
             type: string
           type: array
-          title: Categories
-          default: []
-        changes_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Changes Summary
-        recommended_schedule_cron:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Recommended Schedule Cron
+          title: Links
+        is_featured:
+          type: boolean
+          title: Is Featured
+        num_agents:
+          type: integer
+          title: Num Agents
+        agent_runs:
+          type: integer
+          title: Agent Runs
+        agent_rating:
+          type: number
+          title: Agent Rating
+        top_categories:
+          items:
+            type: string
+          type: array
+          title: Top Categories
       type: object
       required:
+      - username
       - name
-      - sub_heading
-      title: StoreSubmissionEditRequest
-    HTTPValidationError:
+      - description
+      - avatar_url
+      - links
+      - is_featured
+      - num_agents
+      - agent_runs
+      - agent_rating
+      - top_categories
+      title: CreatorDetails
+      description: Marketplace creator profile details, including aggregated stats
+    StoreSubmissionsResponse:
       properties:
-        detail:
+        submissions:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            $ref: '#/components/schemas/StoreSubmission'
           type: array
-          title: Detail
+          title: Submissions
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        stats:
+          $ref: '#/components/schemas/SubmissionStats'
       type: object
-      title: HTTPValidationError
-    CreatorsResponse:
+      required:
+      - submissions
+      - pagination
+      - stats
+      title: StoreSubmissionsResponse
+    RecentExecution:
       properties:
-        creators:
+        status:
+          type: string
+          title: Status
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+        activity_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Summary
+      type: object
+      required:
+      - status
+      title: RecentExecution
+      description: 'Summary of a recent execution for quality assessment.
+
+
+        Used by the LLM to understand the agent''s recent performance with specific examples
+
+        rather than just aggregate statistics.'
+    MyUnpublishedAgentsResponse:
+      properties:
+        agents:
           items:
-            $ref: '#/components/schemas/CreatorDetails'
+            $ref: '#/components/schemas/MyUnpublishedAgent'
           type: array
-          title: Creators
+          title: Agents
         pagination:
           $ref: '#/components/schemas/Pagination'
       type: object
       required:
-      - creators
+      - agents
       - pagination
-      title: CreatorsResponse
-    ImageURLResponse:
-      properties:
-        image_url:
-          type: string
-          title: Image Url
-      type: object
-      required:
-      - image_url
-      title: ImageURLResponse
-    BlockInfo:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        inputSchema:
-          additionalProperties: true
-          type: object
-          title: Inputschema
-        outputSchema:
-          additionalProperties: true
-          type: object
-          title: Outputschema
-        costs:
-          items:
-            $ref: '#/components/schemas/BlockCost'
-          type: array
-          title: Costs
-        description:
-          type: string
-          title: Description
-        categories:
-          items:
-            additionalProperties:
-              type: string
-            type: object
-          type: array
-          title: Categories
-        contributors:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Contributors
-        staticOutput:
-          type: boolean
-          title: Staticoutput
-        uiType:
-          type: string
-          title: Uitype
-      type: object
-      required:
-      - id
-      - name
-      - inputSchema
-      - outputSchema
-      - costs
-      - description
-      - categories
-      - contributors
-      - staticOutput
-      - uiType
-      title: BlockInfo
+      title: MyUnpublishedAgentsResponse
     StoreSubmission:
       properties:
         listing_id:
@@ -2336,234 +2426,6 @@ components:
       - changes_summary
       - status
       title: StoreSubmission
-    StoreAgentDetails:
-      properties:
-        store_listing_version_id:
-          type: string
-          title: Store Listing Version Id
-        slug:
-          type: string
-          title: Slug
-        agent_name:
-          type: string
-          title: Agent Name
-        agent_video:
-          type: string
-          title: Agent Video
-        agent_output_demo:
-          type: string
-          title: Agent Output Demo
-        agent_image:
-          items:
-            type: string
-          type: array
-          title: Agent Image
-        creator:
-          type: string
-          title: Creator
-        creator_avatar:
-          type: string
-          title: Creator Avatar
-        sub_heading:
-          type: string
-          title: Sub Heading
-        description:
-          type: string
-          title: Description
-        instructions:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Instructions
-        categories:
-          items:
-            type: string
-          type: array
-          title: Categories
-        runs:
-          type: integer
-          title: Runs
-        rating:
-          type: number
-          title: Rating
-        versions:
-          items:
-            type: string
-          type: array
-          title: Versions
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_versions:
-          items:
-            type: string
-          type: array
-          title: Graph Versions
-        last_updated:
-          type: string
-          format: date-time
-          title: Last Updated
-        recommended_schedule_cron:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Recommended Schedule Cron
-        owning_org_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owning Org Id
-        active_version_id:
-          type: string
-          title: Active Version Id
-        has_approved_version:
-          type: boolean
-          title: Has Approved Version
-        changelog:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ChangelogEntry'
-            type: array
-          - type: 'null'
-          title: Changelog
-      type: object
-      required:
-      - store_listing_version_id
-      - slug
-      - agent_name
-      - agent_video
-      - agent_output_demo
-      - agent_image
-      - creator
-      - creator_avatar
-      - sub_heading
-      - description
-      - categories
-      - runs
-      - rating
-      - versions
-      - graph_id
-      - graph_versions
-      - last_updated
-      - active_version_id
-      - has_approved_version
-      title: StoreAgentDetails
-    TokenRateDisplay:
-      properties:
-        input_usd_per_1m:
-          type: number
-          minimum: 0.0
-          title: Input Usd Per 1M
-        output_usd_per_1m:
-          type: number
-          minimum: 0.0
-          title: Output Usd Per 1M
-        cache_read_usd_per_1m:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: 'null'
-          title: Cache Read Usd Per 1M
-        cache_creation_usd_per_1m:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: 'null'
-          title: Cache Creation Usd Per 1M
-      type: object
-      required:
-      - input_usd_per_1m
-      - output_usd_per_1m
-      title: TokenRateDisplay
-      description: 'Public per-1M-token USD rates surfaced to the builder UI.
-
-
-        Populated only on LLM block costs whose model has a TOKEN_COST rate.
-
-        cache_* fields are set only when the provider publishes a distinct
-
-        cached-token rate (Anthropic). Display-only — billing always uses the
-
-        internal credit math in `BlockCost.cost_amount`.'
-    ChangelogEntry:
-      properties:
-        version:
-          type: string
-          title: Version
-        changes_summary:
-          type: string
-          title: Changes Summary
-        date:
-          type: string
-          format: date-time
-          title: Date
-      type: object
-      required:
-      - version
-      - changes_summary
-      - date
-      title: ChangelogEntry
-    UnifiedSearchResponse:
-      properties:
-        results:
-          items:
-            $ref: '#/components/schemas/UnifiedSearchResult'
-          type: array
-          title: Results
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - results
-      - pagination
-      title: UnifiedSearchResponse
-      description: Response model for unified search across all content types.
-    MarketplaceListing:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        slug:
-          type: string
-          title: Slug
-        creator:
-          $ref: '#/components/schemas/MarketplaceListingCreator'
-      type: object
-      required:
-      - id
-      - name
-      - slug
-      - creator
-      title: MarketplaceListing
-      description: Marketplace listing information for a library agent.
-    RecentExecution:
-      properties:
-        status:
-          type: string
-          title: Status
-        correctness_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Correctness Score
-        activity_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Summary
-      type: object
-      required:
-      - status
-      title: RecentExecution
-      description: 'Summary of a recent execution for quality assessment.
-
-
-        Used by the LLM to understand the agent''s recent performance with specific examples
-
-        rather than just aggregate statistics.'
     GraphTriggerInfo:
       properties:
         provider:
@@ -2586,58 +2448,196 @@ components:
       - config_schema
       - credentials_input_name
       title: GraphTriggerInfo
-    CreatorDetails:
+    Pagination:
       properties:
-        username:
-          type: string
-          title: Username
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    MarketplaceListingCreator:
+      properties:
         name:
           type: string
           title: Name
+        id:
+          type: string
+          title: Id
+        slug:
+          type: string
+          title: Slug
+      type: object
+      required:
+      - name
+      - id
+      - slug
+      title: MarketplaceListingCreator
+      description: Creator information for a marketplace listing.
+    StoreCreatorsSortOptions:
+      type: string
+      enum:
+      - agent_rating
+      - agent_runs
+      - num_agents
+      title: StoreCreatorsSortOptions
+    UnifiedSearchResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/UnifiedSearchResult'
+          type: array
+          title: Results
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - results
+      - pagination
+      title: UnifiedSearchResponse
+      description: Response model for unified search across all content types.
+    StoreAgent:
+      properties:
+        slug:
+          type: string
+          title: Slug
+        agent_name:
+          type: string
+          title: Agent Name
+        agent_image:
+          type: string
+          title: Agent Image
+        creator:
+          type: string
+          title: Creator
+        creator_avatar:
+          type: string
+          title: Creator Avatar
+        sub_heading:
+          type: string
+          title: Sub Heading
         description:
           type: string
           title: Description
-        avatar_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Avatar Url
-        links:
-          items:
-            type: string
-          type: array
-          title: Links
-        is_featured:
-          type: boolean
-          title: Is Featured
-        num_agents:
+        runs:
           type: integer
-          title: Num Agents
-        agent_runs:
-          type: integer
-          title: Agent Runs
-        agent_rating:
+          title: Runs
+        rating:
           type: number
-          title: Agent Rating
-        top_categories:
-          items:
-            type: string
-          type: array
-          title: Top Categories
+          title: Rating
+        agent_graph_id:
+          type: string
+          title: Agent Graph Id
       type: object
       required:
-      - username
-      - name
+      - slug
+      - agent_name
+      - agent_image
+      - creator
+      - creator_avatar
+      - sub_heading
       - description
-      - avatar_url
-      - links
-      - is_featured
-      - num_agents
-      - agent_runs
-      - agent_rating
-      - top_categories
-      title: CreatorDetails
-      description: Marketplace creator profile details, including aggregated stats
+      - runs
+      - rating
+      - agent_graph_id
+      title: StoreAgent
+    ImageURLResponse:
+      properties:
+        image_url:
+          type: string
+          title: Image Url
+      type: object
+      required:
+      - image_url
+      title: ImageURLResponse
+    SubmissionStats:
+      properties:
+        total:
+          type: integer
+          title: Total
+        approved:
+          type: integer
+          title: Approved
+        pending:
+          type: integer
+          title: Pending
+        total_runs:
+          type: integer
+          title: Total Runs
+        average_rating:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Rating
+      type: object
+      required:
+      - total
+      - approved
+      - pending
+      - total_runs
+      - average_rating
+      title: SubmissionStats
+      description: 'Creator-wide aggregates over a user''s non-deleted submissions.
+
+
+        Computed server-side so values stay accurate regardless of pagination —
+
+        summing client-side over the current page silently undercounts once the
+
+        creator has more submissions than fit on one page.'
+    CreatorsResponse:
+      properties:
+        creators:
+          items:
+            $ref: '#/components/schemas/CreatorDetails'
+          type: array
+          title: Creators
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - creators
+      - pagination
+      title: CreatorsResponse
+    StoreAgentsResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/StoreAgent'
+          type: array
+          title: Agents
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - agents
+      - pagination
+      title: StoreAgentsResponse
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

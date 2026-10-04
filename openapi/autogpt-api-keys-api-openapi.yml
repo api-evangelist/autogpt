@@ -199,33 +199,23 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: postV1Suspend api key
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
-    APIKeyStatus:
+    APIKeyPermission:
       type: string
       enum:
-      - ACTIVE
-      - REVOKED
-      - SUSPENDED
-      title: APIKeyStatus
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - IDENTITY
+      - EXECUTE_GRAPH
+      - READ_GRAPH
+      - WRITE_GRAPH
+      - EXECUTE_BLOCK
+      - READ_BLOCK
+      - READ_STORE
+      - WRITE_LIBRARY
+      - USE_TOOLS
+      - MANAGE_INTEGRATIONS
+      - READ_INTEGRATIONS
+      - DELETE_INTEGRATIONS
+      title: APIKeyPermission
     CreateAPIKeyResponse:
       properties:
         api_key:
@@ -238,6 +228,41 @@ components:
       - api_key
       - plain_text_key
       title: CreateAPIKeyResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     APIKeyInfo:
       properties:
         user_id:
@@ -322,33 +347,6 @@ components:
       - tail
       - status
       title: APIKeyInfo
-    UpdatePermissionsRequest:
-      properties:
-        permissions:
-          items:
-            $ref: '#/components/schemas/APIKeyPermission'
-          type: array
-          title: Permissions
-      type: object
-      required:
-      - permissions
-      title: UpdatePermissionsRequest
-    APIKeyPermission:
-      type: string
-      enum:
-      - IDENTITY
-      - EXECUTE_GRAPH
-      - READ_GRAPH
-      - WRITE_GRAPH
-      - EXECUTE_BLOCK
-      - READ_BLOCK
-      - READ_STORE
-      - WRITE_LIBRARY
-      - USE_TOOLS
-      - MANAGE_INTEGRATIONS
-      - READ_INTEGRATIONS
-      - DELETE_INTEGRATIONS
-      title: APIKeyPermission
     CreateAPIKeyRequest:
       properties:
         name:
@@ -369,32 +367,34 @@ components:
       - name
       - permissions
       title: CreateAPIKeyRequest
-    ValidationError:
+    UpdatePermissionsRequest:
       properties:
-        loc:
+        permissions:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/APIKeyPermission'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Permissions
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - permissions
+      title: UpdatePermissionsRequest
+    APIKeyStatus:
+      type: string
+      enum:
+      - ACTIVE
+      - REVOKED
+      - SUSPENDED
+      title: APIKeyStatus
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

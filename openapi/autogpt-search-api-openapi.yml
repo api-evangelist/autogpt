@@ -55,17 +55,34 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: getSearchGlobal search
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
+    GlobalSearchResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Agents
+        files:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Files
+        chats:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Chats
+      type: object
+      title: GlobalSearchResponse
+      description: 'Top-N hits bucketed by item type.
+
+
+        For a non-empty query this contains hybrid-search results.
+
+        For an empty query this contains the most-recently-updated items
+
+        per bucket (cached per-user with a short TTL).'
     SearchResultItem:
       properties:
         id:
@@ -116,42 +133,6 @@ components:
         buckets through a single component. Type-specific details live in
 
         ``metadata`` (e.g. mime_type for files, creator for store agents).'
-    GlobalSearchResponse:
-      properties:
-        agents:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Agents
-        files:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Files
-        chats:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Chats
-      type: object
-      title: GlobalSearchResponse
-      description: 'Top-N hits bucketed by item type.
-
-
-        For a non-empty query this contains hybrid-search results.
-
-        For an empty query this contains the most-recently-updated items
-
-        per bucket (cached per-user with a short TTL).'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -178,6 +159,25 @@ components:
       - msg
       - type
       title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

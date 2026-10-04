@@ -42,30 +42,7 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: postV2Proxy otto chat request
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
-    Document:
-      properties:
-        url:
-          type: string
-          title: Url
-        relevance_score:
-          type: number
-          title: Relevance Score
-      type: object
-      required:
-      - url
-      - relevance_score
-      title: Document
     ApiResponse:
       properties:
         answer:
@@ -113,28 +90,6 @@ components:
       - conversation_history
       - message_id
       title: ChatRequest
-    Message:
-      properties:
-        query:
-          type: string
-          title: Query
-        response:
-          type: string
-          title: Response
-      type: object
-      required:
-      - query
-      - response
-      title: Message
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -161,6 +116,51 @@ components:
       - msg
       - type
       title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Document:
+      properties:
+        url:
+          type: string
+          title: Url
+        relevance_score:
+          type: number
+          title: Relevance Score
+      type: object
+      required:
+      - url
+      - relevance_score
+      title: Document
+    Message:
+      properties:
+        query:
+          type: string
+          title: Query
+        response:
+          type: string
+          title: Response
+      type: object
+      required:
+      - query
+      - response
+      title: Message
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

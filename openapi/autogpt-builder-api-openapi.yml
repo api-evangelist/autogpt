@@ -236,6 +236,235 @@ paths:
       x-operation-id-original: getV2Get builder suggestions
 components:
   schemas:
+    TokenRateDisplay:
+      properties:
+        input_usd_per_1m:
+          type: number
+          minimum: 0.0
+          title: Input Usd Per 1M
+        output_usd_per_1m:
+          type: number
+          minimum: 0.0
+          title: Output Usd Per 1M
+        cache_read_usd_per_1m:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Cache Read Usd Per 1M
+        cache_creation_usd_per_1m:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Cache Creation Usd Per 1M
+      type: object
+      required:
+      - input_usd_per_1m
+      - output_usd_per_1m
+      title: TokenRateDisplay
+      description: 'Public per-1M-token USD rates surfaced to the builder UI.
+
+
+        Populated only on LLM block costs whose model has a TOKEN_COST rate.
+
+        cache_* fields are set only when the provider publishes a distinct
+
+        cached-token rate (Anthropic). Display-only — billing always uses the
+
+        internal credit math in `BlockCost.cost_amount`.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SuggestionsResponse:
+      properties:
+        recent_searches:
+          items:
+            $ref: '#/components/schemas/SearchEntry'
+          type: array
+          title: Recent Searches
+        providers:
+          items:
+            type: string
+            description: Provider name for integrations. Can be any string value, including custom provider names.
+          type: array
+          title: Providers
+        top_blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfo'
+          type: array
+          title: Top Blocks
+      type: object
+      required:
+      - recent_searches
+      - providers
+      - top_blocks
+      title: SuggestionsResponse
+    ProviderResponse:
+      properties:
+        providers:
+          items:
+            $ref: '#/components/schemas/Provider'
+          type: array
+          title: Providers
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - providers
+      - pagination
+      title: ProviderResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BlockCategoryResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        total_blocks:
+          type: integer
+          title: Total Blocks
+        blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfo'
+          type: array
+          title: Blocks
+      type: object
+      required:
+      - name
+      - total_blocks
+      - blocks
+      title: BlockCategoryResponse
+    BlockCost:
+      properties:
+        cost_amount:
+          type: integer
+          title: Cost Amount
+        cost_filter:
+          additionalProperties: true
+          type: object
+          title: Cost Filter
+        cost_type:
+          $ref: '#/components/schemas/BlockCostType'
+        cost_divisor:
+          type: integer
+          title: Cost Divisor
+          default: 1
+        token_rate:
+          anyOf:
+          - $ref: '#/components/schemas/TokenRateDisplay'
+          - type: 'null'
+      type: object
+      required:
+      - cost_amount
+      - cost_filter
+      - cost_type
+      title: BlockCost
+    Provider:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        description:
+          type: string
+          title: Description
+        integration_count:
+          type: integer
+          title: Integration Count
+      type: object
+      required:
+      - name
+      - description
+      - integration_count
+      title: Provider
+    BlockResponse:
+      properties:
+        blocks:
+          items:
+            $ref: '#/components/schemas/BlockInfo'
+          type: array
+          title: Blocks
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - blocks
+      - pagination
+      title: BlockResponse
+    BlockCostType:
+      type: string
+      enum:
+      - run
+      - byte
+      - second
+      - items
+      - cost_usd
+      - tokens
+      title: BlockCostType
+    CountResponse:
+      properties:
+        all_blocks:
+          type: integer
+          title: All Blocks
+        input_blocks:
+          type: integer
+          title: Input Blocks
+        action_blocks:
+          type: integer
+          title: Action Blocks
+        output_blocks:
+          type: integer
+          title: Output Blocks
+        integrations:
+          type: integer
+          title: Integrations
+        marketplace_agents:
+          type: integer
+          title: Marketplace Agents
+        my_agents:
+          type: integer
+          title: My Agents
+      type: object
+      required:
+      - all_blocks
+      - input_blocks
+      - action_blocks
+      - output_blocks
+      - integrations
+      - marketplace_agents
+      - my_agents
+      title: CountResponse
     Pagination:
       properties:
         total_items:
@@ -325,167 +554,6 @@ components:
       - staticOutput
       - uiType
       title: BlockInfo
-    Provider:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        description:
-          type: string
-          title: Description
-        integration_count:
-          type: integer
-          title: Integration Count
-      type: object
-      required:
-      - name
-      - description
-      - integration_count
-      title: Provider
-    BlockCostType:
-      type: string
-      enum:
-      - run
-      - byte
-      - second
-      - items
-      - cost_usd
-      - tokens
-      title: BlockCostType
-    BlockCost:
-      properties:
-        cost_amount:
-          type: integer
-          title: Cost Amount
-        cost_filter:
-          additionalProperties: true
-          type: object
-          title: Cost Filter
-        cost_type:
-          $ref: '#/components/schemas/BlockCostType'
-        cost_divisor:
-          type: integer
-          title: Cost Divisor
-          default: 1
-        token_rate:
-          anyOf:
-          - $ref: '#/components/schemas/TokenRateDisplay'
-          - type: 'null'
-      type: object
-      required:
-      - cost_amount
-      - cost_filter
-      - cost_type
-      title: BlockCost
-    ProviderResponse:
-      properties:
-        providers:
-          items:
-            $ref: '#/components/schemas/Provider'
-          type: array
-          title: Providers
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - providers
-      - pagination
-      title: ProviderResponse
-    CountResponse:
-      properties:
-        all_blocks:
-          type: integer
-          title: All Blocks
-        input_blocks:
-          type: integer
-          title: Input Blocks
-        action_blocks:
-          type: integer
-          title: Action Blocks
-        output_blocks:
-          type: integer
-          title: Output Blocks
-        integrations:
-          type: integer
-          title: Integrations
-        marketplace_agents:
-          type: integer
-          title: Marketplace Agents
-        my_agents:
-          type: integer
-          title: My Agents
-      type: object
-      required:
-      - all_blocks
-      - input_blocks
-      - action_blocks
-      - output_blocks
-      - integrations
-      - marketplace_agents
-      - my_agents
-      title: CountResponse
-    TokenRateDisplay:
-      properties:
-        input_usd_per_1m:
-          type: number
-          minimum: 0.0
-          title: Input Usd Per 1M
-        output_usd_per_1m:
-          type: number
-          minimum: 0.0
-          title: Output Usd Per 1M
-        cache_read_usd_per_1m:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: 'null'
-          title: Cache Read Usd Per 1M
-        cache_creation_usd_per_1m:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: 'null'
-          title: Cache Creation Usd Per 1M
-      type: object
-      required:
-      - input_usd_per_1m
-      - output_usd_per_1m
-      title: TokenRateDisplay
-      description: 'Public per-1M-token USD rates surfaced to the builder UI.
-
-
-        Populated only on LLM block costs whose model has a TOKEN_COST rate.
-
-        cache_* fields are set only when the provider publishes a distinct
-
-        cached-token rate (Anthropic). Display-only — billing always uses the
-
-        internal credit math in `BlockCost.cost_amount`.'
-    SuggestionsResponse:
-      properties:
-        recent_searches:
-          items:
-            $ref: '#/components/schemas/SearchEntry'
-          type: array
-          title: Recent Searches
-        providers:
-          items:
-            type: string
-            description: Provider name for integrations. Can be any string value, including custom provider names.
-          type: array
-          title: Providers
-        top_blocks:
-          items:
-            $ref: '#/components/schemas/BlockInfo'
-          type: array
-          title: Top Blocks
-      type: object
-      required:
-      - recent_searches
-      - providers
-      - top_blocks
-      title: SuggestionsResponse
     SearchEntry:
       properties:
         search_query:
@@ -519,74 +587,6 @@ components:
           title: Search Id
       type: object
       title: SearchEntry
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    BlockCategoryResponse:
-      properties:
-        name:
-          type: string
-          title: Name
-        total_blocks:
-          type: integer
-          title: Total Blocks
-        blocks:
-          items:
-            $ref: '#/components/schemas/BlockInfo'
-          type: array
-          title: Blocks
-      type: object
-      required:
-      - name
-      - total_blocks
-      - blocks
-      title: BlockCategoryResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    BlockResponse:
-      properties:
-        blocks:
-          items:
-            $ref: '#/components/schemas/BlockInfo'
-          type: array
-          title: Blocks
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - blocks
-      - pagination
-      title: BlockResponse
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

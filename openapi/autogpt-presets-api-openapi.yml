@@ -269,311 +269,37 @@ paths:
       x-operation-id-original: postV2Execute a preset
 components:
   schemas:
-    CredentialsMetaInput:
+    TriggeredPresetSetupRequest:
       properties:
-        id:
-          type: string
-          title: Id
-        title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Title
-        provider:
-          type: string
-          title: Provider
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        type:
-          type: string
-          enum:
-          - api_key
-          - oauth2
-          - user_password
-          - host_scoped
-          - device_code
-          title: Type
-      type: object
-      required:
-      - id
-      - provider
-      - type
-      title: CredentialsMetaInput
-      credentials_provider: []
-      credentials_types: []
-    LibraryAgentPresetResponse:
-      properties:
-        presets:
-          items:
-            $ref: '#/components/schemas/LibraryAgentPreset'
-          type: array
-          title: Presets
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      type: object
-      required:
-      - presets
-      - pagination
-      title: LibraryAgentPresetResponse
-      description: Response schema for a list of agent presets and pagination info.
-    Pagination:
-      properties:
-        total_items:
-          type: integer
-          title: Total Items
-          description: Total number of items.
-          examples:
-          - 42
-        total_pages:
-          type: integer
-          title: Total Pages
-          description: Total number of pages.
-          examples:
-          - 2
-        current_page:
-          type: integer
-          title: Current Page
-          description: Current_page page number.
-          examples:
-          - 1
-        page_size:
-          type: integer
-          title: Page Size
-          description: Number of items per page.
-          examples:
-          - 25
-      type: object
-      required:
-      - total_items
-      - total_pages
-      - current_page
-      - page_size
-      title: Pagination
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    Stats:
-      properties:
-        cost:
-          type: integer
-          title: Cost
-          description: Execution cost (cents)
-          default: 0
-        duration:
-          type: number
-          title: Duration
-          description: Seconds from start to end of run
-          default: 0
-        duration_cpu_only:
-          type: number
-          title: Duration Cpu Only
-          description: CPU sec of duration
-          default: 0
-        node_exec_time:
-          type: number
-          title: Node Exec Time
-          description: Seconds of total node runtime
-          default: 0
-        node_exec_time_cpu_only:
-          type: number
-          title: Node Exec Time Cpu Only
-          description: CPU sec of node_exec_time
-          default: 0
-        node_exec_count:
-          type: integer
-          title: Node Exec Count
-          description: Number of node executions
-          default: 0
-        node_error_count:
-          type: integer
-          title: Node Error Count
-          description: Number of node errors
-          default: 0
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-          description: Error message if any
-        failure_reason:
-          anyOf:
-          - $ref: '#/components/schemas/ExecutionFailureReason'
-          - type: 'null'
-          description: Structured reason for a terminal execution failure
-        activity_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Status
-          description: AI-generated summary of what the agent did
-        correctness_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Correctness Score
-          description: AI-generated score (0.0-1.0) indicating how well the execution achieved its intended purpose
-      additionalProperties: true
-      type: object
-      title: Stats
-    AgentExecutionStatus:
-      type: string
-      enum:
-      - INCOMPLETE
-      - QUEUED
-      - RUNNING
-      - COMPLETED
-      - TERMINATED
-      - FAILED
-      - REVIEW
-      title: AgentExecutionStatus
-    Body_postV2Execute_a_preset:
-      properties:
-        inputs:
-          additionalProperties: true
-          type: object
-          title: Inputs
-        credential_inputs:
-          additionalProperties:
-            $ref: '#/components/schemas/CredentialsMetaInput'
-          type: object
-          title: Credential Inputs
-      type: object
-      title: Body_postV2Execute a preset
-    LibraryAgentPresetUpdatable:
-      properties:
-        inputs:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Inputs
-        credentials:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/CredentialsMetaInput'
-            type: object
-          - type: 'null'
-          title: Credentials
         name:
-          anyOf:
-          - type: string
-          - type: 'null'
+          type: string
           title: Name
         description:
-          anyOf:
-          - type: string
-          - type: 'null'
+          type: string
           title: Description
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-      type: object
-      title: LibraryAgentPresetUpdatable
-      description: Request model used when updating a preset for a library agent.
-    LibraryAgentPreset:
-      properties:
+          default: ''
         graph_id:
           type: string
           title: Graph Id
         graph_version:
           type: integer
           title: Graph Version
-        inputs:
+        trigger_config:
           additionalProperties: true
           type: object
-          title: Inputs
-        credentials:
+          title: Trigger Config
+        agent_credentials:
           additionalProperties:
             $ref: '#/components/schemas/CredentialsMetaInput'
           type: object
-          title: Credentials
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        is_active:
-          type: boolean
-          title: Is Active
-          default: true
-        id:
-          type: string
-          title: Id
-        user_id:
-          type: string
-          title: User Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        organization_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Organization Id
-        team_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Team Id
-        webhook_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Webhook Id
-        webhook:
-          anyOf:
-          - $ref: '#/components/schemas/Webhook'
-          - type: 'null'
-        expert_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expert Id
+          title: Agent Credentials
       type: object
       required:
+      - name
       - graph_id
       - graph_version
-      - inputs
-      - credentials
-      - name
-      - description
-      - id
-      - user_id
-      - created_at
-      - updated_at
-      - webhook
-      title: LibraryAgentPreset
-      description: Represents a preset configuration for a library agent.
+      - trigger_config
+      title: TriggeredPresetSetupRequest
     LibraryAgentPresetCreatable:
       properties:
         graph_id:
@@ -618,137 +344,63 @@ components:
         are created through ``POST /presets/setup-trigger``, which provisions a
 
         webhook owned by the caller server-side.'
-    TriggeredPresetSetupRequest:
+    ValidationError:
       properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-          default: ''
-        graph_id:
-          type: string
-          title: Graph Id
-        graph_version:
-          type: integer
-          title: Graph Version
-        trigger_config:
-          additionalProperties: true
-          type: object
-          title: Trigger Config
-        agent_credentials:
-          additionalProperties:
-            $ref: '#/components/schemas/CredentialsMetaInput'
-          type: object
-          title: Agent Credentials
-      type: object
-      required:
-      - name
-      - graph_id
-      - graph_version
-      - trigger_config
-      title: TriggeredPresetSetupRequest
-    HTTPValidationError:
-      properties:
-        detail:
+        loc:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    LibraryAgentPresetCreatableFromGraphExecution:
-      properties:
-        graph_execution_id:
+          title: Location
+        msg:
           type: string
-          title: Graph Execution Id
-        name:
+          title: Message
+        type:
           type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        is_active:
-          type: boolean
-          title: Is Active
-          default: true
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - graph_execution_id
-      - name
-      - description
-      title: LibraryAgentPresetCreatableFromGraphExecution
-      description: Request model used when creating a new preset for a library agent.
-    Webhook:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CredentialsMetaInput:
       properties:
         id:
           type: string
           title: Id
-        user_id:
-          type: string
-          title: User Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
         provider:
           type: string
           title: Provider
           description: Provider name for integrations. Can be any string value, including custom provider names.
-        credentials_id:
+        type:
           type: string
-          title: Credentials Id
-        webhook_type:
-          type: string
-          title: Webhook Type
-        resource:
-          type: string
-          title: Resource
-        events:
-          items:
-            type: string
-          type: array
-          title: Events
-        config:
-          additionalProperties: true
-          type: object
-          title: Config
-        secret:
-          type: string
-          title: Secret
-        organization_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Organization Id
-        team_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Team Id
-        provider_webhook_id:
-          type: string
-          title: Provider Webhook Id
-        url:
-          type: string
-          title: Url
-          readOnly: true
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
       type: object
       required:
-      - user_id
+      - id
       - provider
-      - credentials_id
-      - webhook_type
-      - resource
-      - events
-      - secret
-      - provider_webhook_id
-      - url
-      title: Webhook
-    ExecutionFailureReason:
-      type: string
-      enum:
-      - insufficient_balance
-      - entitlement_required
-      title: ExecutionFailureReason
-      description: Structured reasons for terminal graph execution failures.
+      - type
+      title: CredentialsMetaInput
+      credentials_provider: []
+      credentials_types: []
     GraphExecutionMeta:
       properties:
         id:
@@ -850,6 +502,354 @@ components:
       - status
       - stats
       title: GraphExecutionMeta
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LibraryAgentPresetResponse:
+      properties:
+        presets:
+          items:
+            $ref: '#/components/schemas/LibraryAgentPreset'
+          type: array
+          title: Presets
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      type: object
+      required:
+      - presets
+      - pagination
+      title: LibraryAgentPresetResponse
+      description: Response schema for a list of agent presets and pagination info.
+    LibraryAgentPresetCreatableFromGraphExecution:
+      properties:
+        graph_execution_id:
+          type: string
+          title: Graph Execution Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - graph_execution_id
+      - name
+      - description
+      title: LibraryAgentPresetCreatableFromGraphExecution
+      description: Request model used when creating a new preset for a library agent.
+    Webhook:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        credentials_id:
+          type: string
+          title: Credentials Id
+        webhook_type:
+          type: string
+          title: Webhook Type
+        resource:
+          type: string
+          title: Resource
+        events:
+          items:
+            type: string
+          type: array
+          title: Events
+        config:
+          additionalProperties: true
+          type: object
+          title: Config
+        secret:
+          type: string
+          title: Secret
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        provider_webhook_id:
+          type: string
+          title: Provider Webhook Id
+        url:
+          type: string
+          title: Url
+          readOnly: true
+      type: object
+      required:
+      - user_id
+      - provider
+      - credentials_id
+      - webhook_type
+      - resource
+      - events
+      - secret
+      - provider_webhook_id
+      - url
+      title: Webhook
+    LibraryAgentPresetUpdatable:
+      properties:
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+        credentials:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/CredentialsMetaInput'
+            type: object
+          - type: 'null'
+          title: Credentials
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: LibraryAgentPresetUpdatable
+      description: Request model used when updating a preset for a library agent.
+    Body_postV2Execute_a_preset:
+      properties:
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credential_inputs:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Credential Inputs
+      type: object
+      title: Body_postV2Execute a preset
+    LibraryAgentPreset:
+      properties:
+        graph_id:
+          type: string
+          title: Graph Id
+        graph_version:
+          type: integer
+          title: Graph Version
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        credentials:
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialsMetaInput'
+          type: object
+          title: Credentials
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        organization_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization Id
+        team_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Id
+        webhook_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Webhook Id
+        webhook:
+          anyOf:
+          - $ref: '#/components/schemas/Webhook'
+          - type: 'null'
+        expert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expert Id
+      type: object
+      required:
+      - graph_id
+      - graph_version
+      - inputs
+      - credentials
+      - name
+      - description
+      - id
+      - user_id
+      - created_at
+      - updated_at
+      - webhook
+      title: LibraryAgentPreset
+      description: Represents a preset configuration for a library agent.
+    Pagination:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total number of items.
+          examples:
+          - 42
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Total number of pages.
+          examples:
+          - 2
+        current_page:
+          type: integer
+          title: Current Page
+          description: Current_page page number.
+          examples:
+          - 1
+        page_size:
+          type: integer
+          title: Page Size
+          description: Number of items per page.
+          examples:
+          - 25
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - page_size
+      title: Pagination
+    AgentExecutionStatus:
+      type: string
+      enum:
+      - INCOMPLETE
+      - QUEUED
+      - RUNNING
+      - COMPLETED
+      - TERMINATED
+      - FAILED
+      - REVIEW
+      title: AgentExecutionStatus
+    Stats:
+      properties:
+        cost:
+          type: integer
+          title: Cost
+          description: Execution cost (cents)
+          default: 0
+        duration:
+          type: number
+          title: Duration
+          description: Seconds from start to end of run
+          default: 0
+        duration_cpu_only:
+          type: number
+          title: Duration Cpu Only
+          description: CPU sec of duration
+          default: 0
+        node_exec_time:
+          type: number
+          title: Node Exec Time
+          description: Seconds of total node runtime
+          default: 0
+        node_exec_time_cpu_only:
+          type: number
+          title: Node Exec Time Cpu Only
+          description: CPU sec of node_exec_time
+          default: 0
+        node_exec_count:
+          type: integer
+          title: Node Exec Count
+          description: Number of node executions
+          default: 0
+        node_error_count:
+          type: integer
+          title: Node Error Count
+          description: Number of node errors
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if any
+        failure_reason:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionFailureReason'
+          - type: 'null'
+          description: Structured reason for a terminal execution failure
+        activity_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Status
+          description: AI-generated summary of what the agent did
+        correctness_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Correctness Score
+          description: AI-generated score (0.0-1.0) indicating how well the execution achieved its intended purpose
+      additionalProperties: true
+      type: object
+      title: Stats
+    ExecutionFailureReason:
+      type: string
+      enum:
+      - insufficient_balance
+      - entitlement_required
+      title: ExecutionFailureReason
+      description: Structured reasons for terminal graph execution failures.
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

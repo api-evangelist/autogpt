@@ -116,6 +116,16 @@ paths:
       - HTTPBearer: []
 components:
   schemas:
+    FindAgentRequest:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Search query for finding agents
+      type: object
+      required:
+      - query
+      title: FindAgentRequest
     RunAgentRequest:
       properties:
         username_agent_slug:
@@ -174,16 +184,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    FindAgentRequest:
-      properties:
-        query:
-          type: string
-          title: Query
-          description: Search query for finding agents
-      type: object
-      required:
-      - query
-      title: FindAgentRequest
     ValidationError:
       properties:
         loc:

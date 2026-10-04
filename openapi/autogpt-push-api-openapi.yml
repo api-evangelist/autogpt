@@ -78,72 +78,6 @@ paths:
       x-operation-id-original: getPushGet vapid public key for push subscription
 components:
   schemas:
-    PushUnsubscribeRequest:
-      properties:
-        endpoint:
-          type: string
-          maxLength: 2048
-          minLength: 1
-          title: Endpoint
-      type: object
-      required:
-      - endpoint
-      title: PushUnsubscribeRequest
-    VapidPublicKeyResponse:
-      properties:
-        public_key:
-          type: string
-          title: Public Key
-      type: object
-      required:
-      - public_key
-      title: VapidPublicKeyResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    PushSubscribeRequest:
-      properties:
-        endpoint:
-          type: string
-          maxLength: 2048
-          minLength: 1
-          title: Endpoint
-        keys:
-          $ref: '#/components/schemas/PushSubscriptionKeys'
-        user_agent:
-          anyOf:
-          - type: string
-            maxLength: 512
-          - type: 'null'
-          title: User Agent
-      type: object
-      required:
-      - endpoint
-      - keys
-      title: PushSubscribeRequest
-    PushSubscriptionKeys:
-      properties:
-        p256dh:
-          type: string
-          maxLength: 512
-          minLength: 1
-          title: P256Dh
-        auth:
-          type: string
-          maxLength: 512
-          minLength: 1
-          title: Auth
-      type: object
-      required:
-      - p256dh
-      - auth
-      title: PushSubscriptionKeys
     ValidationError:
       properties:
         loc:
@@ -170,6 +104,72 @@ components:
       - msg
       - type
       title: ValidationError
+    PushUnsubscribeRequest:
+      properties:
+        endpoint:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Endpoint
+      type: object
+      required:
+      - endpoint
+      title: PushUnsubscribeRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PushSubscriptionKeys:
+      properties:
+        p256dh:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: P256Dh
+        auth:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Auth
+      type: object
+      required:
+      - p256dh
+      - auth
+      title: PushSubscriptionKeys
+    VapidPublicKeyResponse:
+      properties:
+        public_key:
+          type: string
+          title: Public Key
+      type: object
+      required:
+      - public_key
+      title: VapidPublicKeyResponse
+    PushSubscribeRequest:
+      properties:
+        endpoint:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Endpoint
+        keys:
+          $ref: '#/components/schemas/PushSubscriptionKeys'
+        user_agent:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: User Agent
+      type: object
+      required:
+      - endpoint
+      - keys
+      title: PushSubscribeRequest
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

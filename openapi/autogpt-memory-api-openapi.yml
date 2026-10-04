@@ -272,17 +272,33 @@ paths:
       security:
       - HTTPBearerJWT: []
 components:
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     EraseMemoryResponse:
       properties:
         expert_id:
@@ -304,6 +320,28 @@ components:
       description: 'Result of a scope wipe. ``deleted_nodes`` counts every node removed —
 
         entities, episodes (raw text included), and communities.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ForgetFactResponse:
+      properties:
+        uuid:
+          type: string
+          title: Uuid
+        forgotten:
+          type: boolean
+          title: Forgotten
+      type: object
+      required:
+      - uuid
+      - forgotten
+      title: ForgetFactResponse
     MemoryFact:
       properties:
         uuid:
@@ -337,19 +375,6 @@ components:
       - target
       title: MemoryFact
       description: One live fact edge, as shown in the recent-memories list.
-    ForgetFactResponse:
-      properties:
-        uuid:
-          type: string
-          title: Uuid
-        forgotten:
-          type: boolean
-          title: Forgotten
-      type: object
-      required:
-      - uuid
-      - forgotten
-      title: ForgetFactResponse
     MemoryScopeOverview:
       properties:
         expert_id:
@@ -375,15 +400,6 @@ components:
       description: 'Counts for one memory scope, shown on the settings page and in the
 
         erase-confirmation dialog.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     MemoryFactListResponse:
       properties:
         expert_id:
@@ -400,32 +416,16 @@ components:
       required:
       - items
       title: MemoryFactListResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey
