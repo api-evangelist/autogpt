@@ -449,6 +449,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Admin
+  tags_raw:
   - admin
   properties:
   - type: OpenAPI
@@ -467,6 +469,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - APIKeys
+  tags_raw:
   - api-keys
   properties:
   - type: OpenAPI
@@ -485,6 +489,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Authentication
+  tags_raw:
   - auth
   properties:
   - type: OpenAPI
@@ -521,6 +527,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Chat
+  tags_raw:
   - chat
   properties:
   - type: OpenAPI
@@ -539,6 +547,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Credit
+  tags_raw:
   - credits
   properties:
   - type: OpenAPI
@@ -557,6 +567,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Email
+  tags_raw:
   - email
   properties:
   - type: OpenAPI
@@ -575,6 +587,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Execution
+  tags_raw:
   - executions
   properties:
   - type: OpenAPI
@@ -593,6 +607,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Experts
+  tags_raw:
   - experts
   properties:
   - type: OpenAPI
@@ -611,6 +627,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - File
+  tags_raw:
   - files
   properties:
   - type: OpenAPI
@@ -629,6 +647,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Invitations
+  tags_raw:
   - invitations
   properties:
   - type: OpenAPI
@@ -647,6 +667,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Library
+  tags_raw:
   - library
   properties:
   - type: OpenAPI
@@ -665,6 +687,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - MCP
+  tags_raw:
   - mcp
   properties:
   - type: OpenAPI
@@ -683,6 +707,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Memory
+  tags_raw:
   - memory
   properties:
   - type: OpenAPI
@@ -701,6 +727,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Onboarding
+  tags_raw:
   - onboarding
   properties:
   - type: OpenAPI
@@ -719,6 +747,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Organization
+  tags_raw:
   - orgs
   properties:
   - type: OpenAPI
@@ -755,6 +785,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Presets
+  tags_raw:
   - presets
   properties:
   - type: OpenAPI
@@ -791,6 +823,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Schedule
+  tags_raw:
   - schedules
   properties:
   - type: OpenAPI
@@ -809,6 +843,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Skills
+  tags_raw:
   - skills
   properties:
   - type: OpenAPI
@@ -827,6 +863,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Transfers
+  tags_raw:
   - transfers
   properties:
   - type: OpenAPI
@@ -840,6 +878,9 @@ apis:
   - type: Documentation
     url: https://agpt.co/docs
 common:
+  - type: CapabilityMap
+    url: capabilities/autogpt-capability-edges.yml
+    name: AutoGPT Business Capability Map
   - type: Overlay
     url: overlays/autogpt-external-api-overlay.yaml
   - type: Website
