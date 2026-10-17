@@ -80,6 +80,102 @@ paths:
       x-operation-id-original: postV1One click email unsubscribe
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PostmarkClickWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: Click
+          title: Recordtype
+          default: Click
+        MessageStream:
+          type: string
+          title: Messagestream
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+        Recipient:
+          type: string
+          title: Recipient
+        MessageID:
+          type: string
+          title: Messageid
+        ReceivedAt:
+          type: string
+          title: Receivedat
+        Platform:
+          type: string
+          title: Platform
+        ClickLocation:
+          type: string
+          title: Clicklocation
+        OriginalLink:
+          type: string
+          title: Originallink
+        Tag:
+          type: string
+          title: Tag
+        UserAgent:
+          type: string
+          title: Useragent
+        OS:
+          additionalProperties:
+            type: string
+          type: object
+          title: Os
+        Client:
+          additionalProperties:
+            type: string
+          type: object
+          title: Client
+        Geo:
+          additionalProperties:
+            type: string
+          type: object
+          title: Geo
+      type: object
+      required:
+      - MessageStream
+      - Metadata
+      - Recipient
+      - MessageID
+      - ReceivedAt
+      - Platform
+      - ClickLocation
+      - OriginalLink
+      - Tag
+      - UserAgent
+      - OS
+      - Client
+      - Geo
+      title: PostmarkClickWebhook
     PostmarkBounceWebhook:
       properties:
         RecordType:
@@ -167,207 +263,6 @@ components:
       - Description
       - Metadata
       title: PostmarkBounceWebhook
-    PostmarkSubscriptionChangeWebhook:
-      properties:
-        RecordType:
-          type: string
-          const: SubscriptionChange
-          title: Recordtype
-          default: SubscriptionChange
-        MessageID:
-          type: string
-          title: Messageid
-        ServerID:
-          type: integer
-          title: Serverid
-        MessageStream:
-          type: string
-          title: Messagestream
-        ChangedAt:
-          type: string
-          title: Changedat
-        Recipient:
-          type: string
-          title: Recipient
-        Origin:
-          type: string
-          title: Origin
-        SuppressSending:
-          type: boolean
-          title: Suppresssending
-        SuppressionReason:
-          type: string
-          title: Suppressionreason
-        Tag:
-          type: string
-          title: Tag
-        Metadata:
-          additionalProperties:
-            type: string
-          type: object
-          title: Metadata
-      type: object
-      required:
-      - MessageID
-      - ServerID
-      - MessageStream
-      - ChangedAt
-      - Recipient
-      - Origin
-      - SuppressSending
-      - SuppressionReason
-      - Tag
-      - Metadata
-      title: PostmarkSubscriptionChangeWebhook
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    PostmarkDeliveryWebhook:
-      properties:
-        RecordType:
-          type: string
-          const: Delivery
-          title: Recordtype
-          default: Delivery
-        ServerID:
-          type: integer
-          title: Serverid
-        MessageStream:
-          type: string
-          title: Messagestream
-        MessageID:
-          type: string
-          title: Messageid
-        Recipient:
-          type: string
-          title: Recipient
-        Tag:
-          type: string
-          title: Tag
-        DeliveredAt:
-          type: string
-          title: Deliveredat
-        Details:
-          type: string
-          title: Details
-        Metadata:
-          additionalProperties:
-            type: string
-          type: object
-          title: Metadata
-      type: object
-      required:
-      - ServerID
-      - MessageStream
-      - MessageID
-      - Recipient
-      - Tag
-      - DeliveredAt
-      - Details
-      - Metadata
-      title: PostmarkDeliveryWebhook
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    PostmarkClickWebhook:
-      properties:
-        RecordType:
-          type: string
-          const: Click
-          title: Recordtype
-          default: Click
-        MessageStream:
-          type: string
-          title: Messagestream
-        Metadata:
-          additionalProperties:
-            type: string
-          type: object
-          title: Metadata
-        Recipient:
-          type: string
-          title: Recipient
-        MessageID:
-          type: string
-          title: Messageid
-        ReceivedAt:
-          type: string
-          title: Receivedat
-        Platform:
-          type: string
-          title: Platform
-        ClickLocation:
-          type: string
-          title: Clicklocation
-        OriginalLink:
-          type: string
-          title: Originallink
-        Tag:
-          type: string
-          title: Tag
-        UserAgent:
-          type: string
-          title: Useragent
-        OS:
-          additionalProperties:
-            type: string
-          type: object
-          title: Os
-        Client:
-          additionalProperties:
-            type: string
-          type: object
-          title: Client
-        Geo:
-          additionalProperties:
-            type: string
-          type: object
-          title: Geo
-      type: object
-      required:
-      - MessageStream
-      - Metadata
-      - Recipient
-      - MessageID
-      - ReceivedAt
-      - Platform
-      - ClickLocation
-      - OriginalLink
-      - Tag
-      - UserAgent
-      - OS
-      - Client
-      - Geo
-      title: PostmarkClickWebhook
     PostmarkSpamComplaintWebhook:
       properties:
         RecordType:
@@ -456,6 +351,85 @@ components:
       - Description
       - Metadata
       title: PostmarkSpamComplaintWebhook
+    PostmarkBounceEnum:
+      type: integer
+      enum:
+      - 1
+      - 2
+      - 16
+      - 32
+      - 64
+      - 128
+      - 256
+      - 512
+      - 1024
+      - 2048
+      - 4096
+      - 8192
+      - 16384
+      - 100000
+      - 100001
+      - 100002
+      - 100003
+      - 100006
+      - 100007
+      - 100008
+      - 100009
+      - 100010
+      title: PostmarkBounceEnum
+    PostmarkDeliveryWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: Delivery
+          title: Recordtype
+          default: Delivery
+        ServerID:
+          type: integer
+          title: Serverid
+        MessageStream:
+          type: string
+          title: Messagestream
+        MessageID:
+          type: string
+          title: Messageid
+        Recipient:
+          type: string
+          title: Recipient
+        Tag:
+          type: string
+          title: Tag
+        DeliveredAt:
+          type: string
+          title: Deliveredat
+        Details:
+          type: string
+          title: Details
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - ServerID
+      - MessageStream
+      - MessageID
+      - Recipient
+      - Tag
+      - DeliveredAt
+      - Details
+      - Metadata
+      title: PostmarkDeliveryWebhook
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     PostmarkOpenWebhook:
       properties:
         RecordType:
@@ -526,32 +500,58 @@ components:
       - Client
       - Geo
       title: PostmarkOpenWebhook
-    PostmarkBounceEnum:
-      type: integer
-      enum:
-      - 1
-      - 2
-      - 16
-      - 32
-      - 64
-      - 128
-      - 256
-      - 512
-      - 1024
-      - 2048
-      - 4096
-      - 8192
-      - 16384
-      - 100000
-      - 100001
-      - 100002
-      - 100003
-      - 100006
-      - 100007
-      - 100008
-      - 100009
-      - 100010
-      title: PostmarkBounceEnum
+    PostmarkSubscriptionChangeWebhook:
+      properties:
+        RecordType:
+          type: string
+          const: SubscriptionChange
+          title: Recordtype
+          default: SubscriptionChange
+        MessageID:
+          type: string
+          title: Messageid
+        ServerID:
+          type: integer
+          title: Serverid
+        MessageStream:
+          type: string
+          title: Messagestream
+        ChangedAt:
+          type: string
+          title: Changedat
+        Recipient:
+          type: string
+          title: Recipient
+        Origin:
+          type: string
+          title: Origin
+        SuppressSending:
+          type: boolean
+          title: Suppresssending
+        SuppressionReason:
+          type: string
+          title: Suppressionreason
+        Tag:
+          type: string
+          title: Tag
+        Metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - MessageID
+      - ServerID
+      - MessageStream
+      - ChangedAt
+      - Recipient
+      - Origin
+      - SuppressSending
+      - SuppressionReason
+      - Tag
+      - Metadata
+      title: PostmarkSubscriptionChangeWebhook
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey

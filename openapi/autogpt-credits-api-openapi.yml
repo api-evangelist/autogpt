@@ -400,80 +400,6 @@ components:
       - msg
       - type
       title: ValidationError
-    InvoiceListItem:
-      properties:
-        id:
-          type: string
-          title: Id
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        total_cents:
-          type: integer
-          title: Total Cents
-        amount_paid_cents:
-          type: integer
-          title: Amount Paid Cents
-        currency:
-          type: string
-          title: Currency
-          default: usd
-        status:
-          type: string
-          title: Status
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        hosted_invoice_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Hosted Invoice Url
-        invoice_pdf_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Invoice Pdf Url
-      type: object
-      required:
-      - id
-      - created_at
-      - total_cents
-      - amount_paid_cents
-      - status
-      title: InvoiceListItem
-      description: 'A single invoice surfaced from Stripe for the billing UI.
-
-
-        Mirrors the subset of `stripe.Invoice` we expose to the client. ``hosted_invoice_url``
-
-        opens the Stripe-hosted view; ``invoice_pdf_url`` lets users download the PDF directly.
-
-
-        ``total_cents`` is the invoice total (what the user owes / will be charged); use it
-
-        for the displayed amount. ``amount_paid_cents`` is what Stripe has actually settled
-
-        so far — `0` for ``open``/``draft`` invoices — and is kept for callers that need to
-
-        show outstanding balances separately.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     TransactionHistory:
       properties:
         transactions:
@@ -492,85 +418,16 @@ components:
       - transactions
       - next_transaction_time
       title: TransactionHistory
-    SubscriptionTierRequest:
-      properties:
-        tier:
-          type: string
-          enum:
-          - NO_TIER
-          - BASIC
-          - PRO
-          - MAX
-          - BUSINESS
-          title: Tier
-        success_url:
-          type: string
-          title: Success Url
-          default: ''
-        cancel_url:
-          type: string
-          title: Cancel Url
-          default: ''
-        billing_cycle:
-          type: string
-          enum:
-          - monthly
-          - yearly
-          title: Billing Cycle
-          default: monthly
-      type: object
-      required:
-      - tier
-      title: SubscriptionTierRequest
-    CreditTransactionItem:
-      properties:
-        transaction_key:
-          type: string
-          title: Transaction Key
-          default: ''
-        transaction_time:
-          type: string
-          format: date-time
-          title: Transaction Time
-          default: '0001-01-01T00:00:00Z'
-        transaction_type:
-          $ref: '#/components/schemas/CreditTransactionType'
-          default: USAGE
-        amount:
-          type: integer
-          title: Amount
-          default: 0
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        usage_graph_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Usage Graph Id
-        usage_execution_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Usage Execution Id
-        usage_node_count:
-          type: integer
-          title: Usage Node Count
-          default: 0
-        usage_start_time:
-          type: string
-          format: date-time
-          title: Usage Start Time
-          default: '9999-12-31T23:59:59.999999Z'
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - user_id
-      title: CreditTransactionItem
+    CreditTransactionType:
+      type: string
+      enum:
+      - TOP_UP
+      - USAGE
+      - GRANT
+      - REFUND
+      - CARD_CHECK
+      - SUBSCRIPTION
+      title: CreditTransactionType
     SubscriptionStatusResponse:
       properties:
         tier:
@@ -663,16 +520,6 @@ components:
       - tier_costs
       - proration_credit_cents
       title: SubscriptionStatusResponse
-    CreditTransactionType:
-      type: string
-      enum:
-      - TOP_UP
-      - USAGE
-      - GRANT
-      - REFUND
-      - CARD_CHECK
-      - SUBSCRIPTION
-      title: CreditTransactionType
     AutoTopUpConfig:
       properties:
         amount:
@@ -695,6 +542,129 @@ components:
       required:
       - credit_amount
       title: RequestTopUp
+    InvoiceListItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        total_cents:
+          type: integer
+          title: Total Cents
+        amount_paid_cents:
+          type: integer
+          title: Amount Paid Cents
+        currency:
+          type: string
+          title: Currency
+          default: usd
+        status:
+          type: string
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        hosted_invoice_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hosted Invoice Url
+        invoice_pdf_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Pdf Url
+      type: object
+      required:
+      - id
+      - created_at
+      - total_cents
+      - amount_paid_cents
+      - status
+      title: InvoiceListItem
+      description: 'A single invoice surfaced from Stripe for the billing UI.
+
+
+        Mirrors the subset of `stripe.Invoice` we expose to the client. ``hosted_invoice_url``
+
+        opens the Stripe-hosted view; ``invoice_pdf_url`` lets users download the PDF directly.
+
+
+        ``total_cents`` is the invoice total (what the user owes / will be charged); use it
+
+        for the displayed amount. ``amount_paid_cents`` is what Stripe has actually settled
+
+        so far — `0` for ``open``/``draft`` invoices — and is kept for callers that need to
+
+        show outstanding balances separately.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CreditTransactionItem:
+      properties:
+        transaction_key:
+          type: string
+          title: Transaction Key
+          default: ''
+        transaction_time:
+          type: string
+          format: date-time
+          title: Transaction Time
+          default: '0001-01-01T00:00:00Z'
+        transaction_type:
+          $ref: '#/components/schemas/CreditTransactionType'
+          default: USAGE
+        amount:
+          type: integer
+          title: Amount
+          default: 0
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        usage_graph_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usage Graph Id
+        usage_execution_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Usage Execution Id
+        usage_node_count:
+          type: integer
+          title: Usage Node Count
+          default: 0
+        usage_start_time:
+          type: string
+          format: date-time
+          title: Usage Start Time
+          default: '9999-12-31T23:59:59.999999Z'
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - user_id
+      title: CreditTransactionItem
     RefundRequest:
       properties:
         id:
@@ -739,6 +709,36 @@ components:
       - created_at
       - updated_at
       title: RefundRequest
+    SubscriptionTierRequest:
+      properties:
+        tier:
+          type: string
+          enum:
+          - NO_TIER
+          - BASIC
+          - PRO
+          - MAX
+          - BUSINESS
+          title: Tier
+        success_url:
+          type: string
+          title: Success Url
+          default: ''
+        cancel_url:
+          type: string
+          title: Cancel Url
+          default: ''
+        billing_cycle:
+          type: string
+          enum:
+          - monthly
+          - yearly
+          title: Billing Cycle
+          default: monthly
+      type: object
+      required:
+      - tier
+      title: SubscriptionTierRequest
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

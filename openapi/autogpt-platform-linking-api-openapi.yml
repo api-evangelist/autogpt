@@ -255,15 +255,26 @@ paths:
       x-operation-id-original: postPlatform-linkingConfirm a user link token (user must be authenticated)
 components:
   schemas:
-    DeleteLinkResponse:
+    PendingInstallInfo:
       properties:
-        success:
-          type: boolean
-          title: Success
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Name
+        open_bot_url:
+          type: string
+          title: Open Bot Url
       type: object
       required:
-      - success
-      title: DeleteLinkResponse
+      - open_bot_url
+      title: PendingInstallInfo
+      description: 'The caller added the bot to a server but hasn''t linked an account yet.
+
+
+        ``open_bot_url`` deep-links into the bot''s chat on the platform, where the
+
+        next step (the bot''s Link Account prompt) is waiting.'
     ValidationError:
       properties:
         loc:
@@ -290,42 +301,15 @@ components:
       - msg
       - type
       title: ValidationError
-    LinkTokenInfoResponse:
+    DeleteLinkResponse:
       properties:
-        platform:
-          type: string
-          title: Platform
-        link_type:
-          $ref: '#/components/schemas/LinkType'
-        server_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Server Name
-        server_noun:
-          type: string
-          title: Server Noun
-          default: server
+        success:
+          type: boolean
+          title: Success
       type: object
       required:
-      - platform
-      - link_type
-      title: LinkTokenInfoResponse
-    LinkType:
-      type: string
-      enum:
-      - SERVER
-      - USER
-      title: LinkType
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - success
+      title: DeleteLinkResponse
     PlatformLinkInfo:
       properties:
         id:
@@ -358,6 +342,55 @@ components:
       - server_name
       - linked_at
       title: PlatformLinkInfo
+    ConfirmLinkRequest:
+      properties:
+        telegram_auth:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Telegram Auth
+      type: object
+      title: ConfirmLinkRequest
+      description: 'Optional confirm payload. ``telegram_auth`` carries the signed identity
+
+        Telegram appends when the user reached this page via a login_url button —
+
+        when present it must verify, and the link token must belong to that same
+
+        Telegram user.'
+    LinkType:
+      type: string
+      enum:
+      - SERVER
+      - USER
+      title: LinkType
+    ConfirmUserLinkResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        link_type:
+          $ref: '#/components/schemas/LinkType'
+          default: USER
+        platform:
+          type: string
+          title: Platform
+        platform_user_id:
+          type: string
+          title: Platform User Id
+        return_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Return Url
+      type: object
+      required:
+      - success
+      - platform
+      - platform_user_id
+      title: ConfirmUserLinkResponse
     ConfirmLinkResponse:
       properties:
         success:
@@ -389,97 +422,15 @@ components:
       - platform_server_id
       - server_name
       title: ConfirmLinkResponse
-    ConfirmUserLinkResponse:
+    HTTPValidationError:
       properties:
-        success:
-          type: boolean
-          title: Success
-        link_type:
-          $ref: '#/components/schemas/LinkType'
-          default: USER
-        platform:
-          type: string
-          title: Platform
-        platform_user_id:
-          type: string
-          title: Platform User Id
-        return_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Return Url
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - success
-      - platform
-      - platform_user_id
-      title: ConfirmUserLinkResponse
-    PendingInstallInfo:
-      properties:
-        server_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Server Name
-        open_bot_url:
-          type: string
-          title: Open Bot Url
-      type: object
-      required:
-      - open_bot_url
-      title: PendingInstallInfo
-      description: 'The caller added the bot to a server but hasn''t linked an account yet.
-
-
-        ``open_bot_url`` deep-links into the bot''s chat on the platform, where the
-
-        next step (the bot''s Link Account prompt) is waiting.'
-    ConfirmLinkRequest:
-      properties:
-        telegram_auth:
-          anyOf:
-          - additionalProperties:
-              type: string
-            type: object
-          - type: 'null'
-          title: Telegram Auth
-      type: object
-      title: ConfirmLinkRequest
-      description: 'Optional confirm payload. ``telegram_auth`` carries the signed identity
-
-        Telegram appends when the user reached this page via a login_url button —
-
-        when present it must verify, and the link token must belong to that same
-
-        Telegram user.'
-    PlatformUserLinkInfo:
-      properties:
-        id:
-          type: string
-          title: Id
-        platform:
-          type: string
-          title: Platform
-        platform_user_id:
-          type: string
-          title: Platform User Id
-        platform_username:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Platform Username
-        linked_at:
-          type: string
-          format: date-time
-          title: Linked At
-      type: object
-      required:
-      - id
-      - platform
-      - platform_user_id
-      - platform_username
-      - linked_at
-      title: PlatformUserLinkInfo
+      title: HTTPValidationError
     BotPlatformInfo:
       properties:
         platform:
@@ -525,6 +476,55 @@ components:
         Platforms whose adapter isn''t configured (missing token/credentials) are
 
         omitted from the response entirely — the Bots settings page hides them.'
+    PlatformUserLinkInfo:
+      properties:
+        id:
+          type: string
+          title: Id
+        platform:
+          type: string
+          title: Platform
+        platform_user_id:
+          type: string
+          title: Platform User Id
+        platform_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform Username
+        linked_at:
+          type: string
+          format: date-time
+          title: Linked At
+      type: object
+      required:
+      - id
+      - platform
+      - platform_user_id
+      - platform_username
+      - linked_at
+      title: PlatformUserLinkInfo
+    LinkTokenInfoResponse:
+      properties:
+        platform:
+          type: string
+          title: Platform
+        link_type:
+          $ref: '#/components/schemas/LinkType'
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Name
+        server_noun:
+          type: string
+          title: Server Noun
+          default: server
+      type: object
+      required:
+      - platform
+      - link_type
+      title: LinkTokenInfoResponse
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

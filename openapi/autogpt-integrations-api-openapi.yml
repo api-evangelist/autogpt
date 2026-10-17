@@ -978,64 +978,47 @@ paths:
     - url: /external-api
 components:
   schemas:
-    ValidationError:
+    PickerTokenResponse:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        access_token:
           type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    Body_postV1Exchange_oauth_code_for_tokens:
-      properties:
-        code:
-          type: string
-          title: Authorization code acquired by user login
-        state_token:
-          type: string
-          title: Anti-CSRF nonce
-      type: object
-      required:
-      - code
-      - state_token
-      title: Body_postV1Exchange oauth code for tokens
-    DeviceAuthPollResponse:
-      properties:
-        status:
-          type: string
-          enum:
-          - pending
-          - slow_down
-          - approved
-          - denied
-          - expired
-          title: Status
-        credentials:
+          title: Access Token
+          description: OAuth access token suitable for the picker SDK call.
+        access_token_expires_at:
           anyOf:
-          - $ref: '#/components/schemas/CredentialsMetaResponse'
+          - type: integer
           - type: 'null'
+          title: Access Token Expires At
+          description: Unix timestamp at which the access token expires, if known.
       type: object
       required:
-      - status
-      title: DeviceAuthPollResponse
+      - access_token
+      title: PickerTokenResponse
+      description: 'Short-lived OAuth access token shipped to the browser for rendering a
+
+        provider-hosted picker UI (e.g. Google Drive Picker). Deliberately narrow:
+
+        only the fields the client needs to initialize the picker widget. Issued
+
+        from the user''s own stored credential so ownership and scope gating are
+
+        enforced by the credential lookup.'
+    AyrshareSSOResponse:
+      properties:
+        sso_url:
+          type: string
+          title: Sso Url
+          description: The SSO URL for Ayrshare integration
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+          description: ISO timestamp when the URL expires
+      type: object
+      required:
+      - sso_url
+      - expires_at
+      title: AyrshareSSOResponse
     UserPasswordCredentials:
       properties:
         id:
@@ -1078,73 +1061,104 @@ components:
       - username
       - password
       title: UserPasswordCredentials
-    ProviderConstants:
+    APIKeyCredentials:
       properties:
-        PROVIDER_NAMES:
-          additionalProperties:
-            type: string
+        id:
+          type: string
+          title: Id
+        provider:
+          type: string
+          title: Provider
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        is_managed:
+          type: boolean
+          title: Is Managed
+          default: false
+        metadata:
+          additionalProperties: true
           type: object
-          title: Provider Names
-          description: All available provider names as a constant mapping
-          examples:
-          - ANTHROPIC: anthropic
-            EXA: exa
-            EXAMPLE_SERVICE: example-service
-            GEM: gem
-            OPENAI: openai
+          title: Metadata
+        type:
+          type: string
+          const: api_key
+          title: Type
+          default: api_key
+        api_key:
+          type: string
+          format: password
+          title: Api Key
+          writeOnly: true
+        expires_at:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Expires At
+          description: Unix timestamp (seconds) indicating when the API key expires (if at all)
       type: object
-      title: ProviderConstants
-      description: 'Model that exposes all provider names as a constant in the OpenAPI schema.
-
-        This is designed to be converted by Orval into a TypeScript constant.'
-    CodexRateLimitsSnapshot:
+      required:
+      - provider
+      - api_key
+      title: APIKeyCredentials
+    CredentialsDeletionNeedsConfirmationResponse:
       properties:
-        plan_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Plan Type
-        limit_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Limit Id
-        limit_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Limit Name
-        rate_limit_reached_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Rate Limit Reached Type
-        primary:
-          anyOf:
-          - $ref: '#/components/schemas/CodexRateLimitWindow'
-          - type: 'null'
-        secondary:
-          anyOf:
-          - $ref: '#/components/schemas/CodexRateLimitWindow'
-          - type: 'null'
-        has_credits:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Has Credits
-        unlimited_credits:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Unlimited Credits
-        bucket_ids:
-          items:
-            type: string
-          type: array
-          title: Bucket Ids
-      additionalProperties: false
+        deleted:
+          type: boolean
+          const: false
+          title: Deleted
+          default: false
+        need_confirmation:
+          type: boolean
+          const: true
+          title: Need Confirmation
+          default: true
+        message:
+          type: string
+          title: Message
       type: object
-      title: CodexRateLimitsSnapshot
+      required:
+      - message
+      title: CredentialsDeletionNeedsConfirmationResponse
+    ProviderEnumResponse:
+      properties:
+        provider:
+          type: string
+          title: Provider
+          description: A provider name from the complete list of providers
+      type: object
+      required:
+      - provider
+      title: ProviderEnumResponse
+      description: Response containing a provider from the enum.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     OAuth2Credentials:
       properties:
         id:
@@ -1228,75 +1242,6 @@ components:
       - access_token
       - scopes
       title: OAuth2Credentials
-    CredentialsDeletionResponse:
-      properties:
-        deleted:
-          type: boolean
-          const: true
-          title: Deleted
-          default: true
-        revoked:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Revoked
-          description: Indicates whether the credentials were also revoked by their provider. `None`/`null` if not applicable, e.g. when deleting non-revocable credentials such as API keys.
-      type: object
-      required:
-      - revoked
-      title: CredentialsDeletionResponse
-    LoginResponse:
-      properties:
-        login_url:
-          type: string
-          title: Login Url
-        state_token:
-          type: string
-          title: State Token
-        cancel_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cancel Url
-      type: object
-      required:
-      - login_url
-      - state_token
-      title: LoginResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    PickerTokenResponse:
-      properties:
-        access_token:
-          type: string
-          title: Access Token
-          description: OAuth access token suitable for the picker SDK call.
-        access_token_expires_at:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Access Token Expires At
-          description: Unix timestamp at which the access token expires, if known.
-      type: object
-      required:
-      - access_token
-      title: PickerTokenResponse
-      description: 'Short-lived OAuth access token shipped to the browser for rendering a
-
-        provider-hosted picker UI (e.g. Google Drive Picker). Deliberately narrow:
-
-        only the fields the client needs to initialize the picker widget. Issued
-
-        from the user''s own stored credential so ownership and scope gating are
-
-        enforced by the credential lookup.'
     ProviderMetadata:
       properties:
         name:
@@ -1326,15 +1271,107 @@ components:
       - name
       title: ProviderMetadata
       description: Display metadata for a provider, shown in the settings integrations UI.
-    DeviceAuthPollRequest:
+    Body_postV1Exchange_oauth_code_for_tokens:
       properties:
+        code:
+          type: string
+          title: Authorization code acquired by user login
         state_token:
           type: string
-          title: State Token
+          title: Anti-CSRF nonce
       type: object
       required:
+      - code
       - state_token
-      title: DeviceAuthPollRequest
+      title: Body_postV1Exchange oauth code for tokens
+    HostScopedCredentials:
+      properties:
+        id:
+          type: string
+          title: Id
+        provider:
+          type: string
+          title: Provider
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        is_managed:
+          type: boolean
+          title: Is Managed
+          default: false
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        type:
+          type: string
+          const: host_scoped
+          title: Type
+          default: host_scoped
+        host:
+          type: string
+          title: Host
+          description: The host/URI pattern to match against request URLs
+        headers:
+          additionalProperties:
+            type: string
+            format: password
+            writeOnly: true
+          type: object
+          title: Headers
+          description: Key-value header map to add to matching requests
+      type: object
+      required:
+      - provider
+      - host
+      title: HostScopedCredentials
+    CredentialsDeletionResponse:
+      properties:
+        deleted:
+          type: boolean
+          const: true
+          title: Deleted
+          default: true
+        revoked:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Revoked
+          description: Indicates whether the credentials were also revoked by their provider. `None`/`null` if not applicable, e.g. when deleting non-revocable credentials such as API keys.
+      type: object
+      required:
+      - revoked
+      title: CredentialsDeletionResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DeviceAuthPollResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - pending
+          - slow_down
+          - approved
+          - denied
+          - expired
+          title: Status
+        credentials:
+          anyOf:
+          - $ref: '#/components/schemas/CredentialsMetaResponse'
+          - type: 'null'
+      type: object
+      required:
+      - status
+      title: DeviceAuthPollResponse
     CodexAccountSnapshot:
       properties:
         connected:
@@ -1364,48 +1401,35 @@ components:
       - connected
       - requires_openai_auth
       title: CodexAccountSnapshot
-    APIKeyCredentials:
+    DeviceAuthPollRequest:
       properties:
-        id:
+        state_token:
           type: string
-          title: Id
-        provider:
-          type: string
-          title: Provider
-        title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Title
-        is_managed:
-          type: boolean
-          title: Is Managed
-          default: false
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-        type:
-          type: string
-          const: api_key
-          title: Type
-          default: api_key
-        api_key:
-          type: string
-          format: password
-          title: Api Key
-          writeOnly: true
-        expires_at:
+          title: State Token
+      type: object
+      required:
+      - state_token
+      title: DeviceAuthPollRequest
+    CodexRateLimitWindow:
+      properties:
+        used_percent:
+          type: integer
+          title: Used Percent
+        window_duration_mins:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Expires At
-          description: Unix timestamp (seconds) indicating when the API key expires (if at all)
+          title: Window Duration Mins
+        resets_at:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resets At
+      additionalProperties: false
       type: object
       required:
-      - provider
-      - api_key
-      title: APIKeyCredentials
+      - used_percent
+      title: CodexRateLimitWindow
     DeviceAuthInitiateResponse:
       properties:
         state_token:
@@ -1436,6 +1460,84 @@ components:
       - expires_in
       - interval
       title: DeviceAuthInitiateResponse
+    CodexRateLimitsSnapshot:
+      properties:
+        plan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+        limit_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Limit Id
+        limit_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Limit Name
+        rate_limit_reached_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rate Limit Reached Type
+        primary:
+          anyOf:
+          - $ref: '#/components/schemas/CodexRateLimitWindow'
+          - type: 'null'
+        secondary:
+          anyOf:
+          - $ref: '#/components/schemas/CodexRateLimitWindow'
+          - type: 'null'
+        has_credits:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Credits
+        unlimited_credits:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Unlimited Credits
+        bucket_ids:
+          items:
+            type: string
+          type: array
+          title: Bucket Ids
+      additionalProperties: false
+      type: object
+      title: CodexRateLimitsSnapshot
+    ProviderNamesResponse:
+      properties:
+        providers:
+          items:
+            type: string
+          type: array
+          title: Providers
+          description: List of all available provider names
+      type: object
+      title: ProviderNamesResponse
+      description: Response containing list of all provider names.
+    ProviderConstants:
+      properties:
+        PROVIDER_NAMES:
+          additionalProperties:
+            type: string
+          type: object
+          title: Provider Names
+          description: All available provider names as a constant mapping
+          examples:
+          - ANTHROPIC: anthropic
+            EXA: exa
+            EXAMPLE_SERVICE: example-service
+            GEM: gem
+            OPENAI: openai
+      type: object
+      title: ProviderConstants
+      description: 'Model that exposes all provider names as a constant in the OpenAPI schema.
+
+        This is designed to be converted by Orval into a TypeScript constant.'
     CredentialsMetaResponse:
       properties:
         id:
@@ -1489,126 +1591,24 @@ components:
       - scopes
       - username
       title: CredentialsMetaResponse
-    ProviderEnumResponse:
+    LoginResponse:
       properties:
-        provider:
+        login_url:
           type: string
-          title: Provider
-          description: A provider name from the complete list of providers
-      type: object
-      required:
-      - provider
-      title: ProviderEnumResponse
-      description: Response containing a provider from the enum.
-    CodexRateLimitWindow:
-      properties:
-        used_percent:
-          type: integer
-          title: Used Percent
-        window_duration_mins:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Window Duration Mins
-        resets_at:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resets At
-      additionalProperties: false
-      type: object
-      required:
-      - used_percent
-      title: CodexRateLimitWindow
-    ProviderNamesResponse:
-      properties:
-        providers:
-          items:
-            type: string
-          type: array
-          title: Providers
-          description: List of all available provider names
-      type: object
-      title: ProviderNamesResponse
-      description: Response containing list of all provider names.
-    CredentialsDeletionNeedsConfirmationResponse:
-      properties:
-        deleted:
-          type: boolean
-          const: false
-          title: Deleted
-          default: false
-        need_confirmation:
-          type: boolean
-          const: true
-          title: Need Confirmation
-          default: true
-        message:
+          title: Login Url
+        state_token:
           type: string
-          title: Message
-      type: object
-      required:
-      - message
-      title: CredentialsDeletionNeedsConfirmationResponse
-    AyrshareSSOResponse:
-      properties:
-        sso_url:
-          type: string
-          title: Sso Url
-          description: The SSO URL for Ayrshare integration
-        expires_at:
-          type: string
-          format: date-time
-          title: Expires At
-          description: ISO timestamp when the URL expires
-      type: object
-      required:
-      - sso_url
-      - expires_at
-      title: AyrshareSSOResponse
-    HostScopedCredentials:
-      properties:
-        id:
-          type: string
-          title: Id
-        provider:
-          type: string
-          title: Provider
-        title:
+          title: State Token
+        cancel_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Title
-        is_managed:
-          type: boolean
-          title: Is Managed
-          default: false
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-        type:
-          type: string
-          const: host_scoped
-          title: Type
-          default: host_scoped
-        host:
-          type: string
-          title: Host
-          description: The host/URI pattern to match against request URLs
-        headers:
-          additionalProperties:
-            type: string
-            format: password
-            writeOnly: true
-          type: object
-          title: Headers
-          description: Key-value header map to add to matching requests
+          title: Cancel Url
       type: object
       required:
-      - provider
-      - host
-      title: HostScopedCredentials
+      - login_url
+      - state_token
+      title: LoginResponse
     CreateCredentialResponse:
       properties:
         id:
@@ -1638,6 +1638,43 @@ components:
       - type
       title: CreateCredentialResponse
       description: Response model for credential creation.
+    OAuthInitiateResponse:
+      properties:
+        login_url:
+          type: string
+          title: Login Url
+          description: URL to redirect user for OAuth consent
+        state_token:
+          type: string
+          title: State Token
+          description: State token for CSRF protection
+        expires_at:
+          type: integer
+          title: Expires At
+          description: Unix timestamp when the state token expires
+      type: object
+      required:
+      - login_url
+      - state_token
+      - expires_at
+      title: OAuthInitiateResponse
+      description: Response model for OAuth initiation.
+    DeleteCredentialResponse:
+      properties:
+        deleted:
+          type: boolean
+          title: Deleted
+          description: Whether the credential was deleted
+        credentials_id:
+          type: string
+          title: Credentials Id
+          description: ID of the deleted credential
+      type: object
+      required:
+      - deleted
+      - credentials_id
+      title: DeleteCredentialResponse
+      description: Response model for deleting a credential.
     OAuthInitiateRequest:
       properties:
         callback_url:
@@ -1660,27 +1697,33 @@ components:
       - callback_url
       title: OAuthInitiateRequest
       description: Request model for initiating an OAuth flow.
-    OAuthInitiateResponse:
+    CreateAPIKeyCredentialRequest:
       properties:
-        login_url:
+        type:
           type: string
-          title: Login Url
-          description: URL to redirect user for OAuth consent
-        state_token:
+          const: api_key
+          title: Type
+          default: api_key
+        api_key:
           type: string
-          title: State Token
-          description: State token for CSRF protection
+          title: Api Key
+          description: The API key
+        title:
+          type: string
+          title: Title
+          description: A name for this credential
         expires_at:
-          type: integer
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: Expires At
-          description: Unix timestamp when the state token expires
+          description: Unix timestamp when the API key expires
       type: object
       required:
-      - login_url
-      - state_token
-      - expires_at
-      title: OAuthInitiateResponse
-      description: Response model for OAuth initiation.
+      - api_key
+      - title
+      title: CreateAPIKeyCredentialRequest
+      description: Request model for creating API key credentials.
     CreateHostScopedCredentialRequest:
       properties:
         type:
@@ -1709,96 +1752,6 @@ components:
       - title
       title: CreateHostScopedCredentialRequest
       description: Request model for creating host-scoped credentials.
-    DeleteCredentialResponse:
-      properties:
-        deleted:
-          type: boolean
-          title: Deleted
-          description: Whether the credential was deleted
-        credentials_id:
-          type: string
-          title: Credentials Id
-          description: ID of the deleted credential
-      type: object
-      required:
-      - deleted
-      - credentials_id
-      title: DeleteCredentialResponse
-      description: Response model for deleting a credential.
-    OAuthCompleteRequest:
-      properties:
-        code:
-          type: string
-          title: Code
-          description: Authorization code from OAuth provider
-        state_token:
-          type: string
-          title: State Token
-          description: State token from initiate request
-      type: object
-      required:
-      - code
-      - state_token
-      title: OAuthCompleteRequest
-      description: Request model for completing an OAuth flow.
-    CreateAPIKeyCredentialRequest:
-      properties:
-        type:
-          type: string
-          const: api_key
-          title: Type
-          default: api_key
-        api_key:
-          type: string
-          title: Api Key
-          description: The API key
-        title:
-          type: string
-          title: Title
-          description: A name for this credential
-        expires_at:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Expires At
-          description: Unix timestamp when the API key expires
-      type: object
-      required:
-      - api_key
-      - title
-      title: CreateAPIKeyCredentialRequest
-      description: Request model for creating API key credentials.
-    ProviderInfo:
-      properties:
-        name:
-          type: string
-          title: Name
-        supports_oauth:
-          type: boolean
-          title: Supports Oauth
-          default: false
-        supports_api_key:
-          type: boolean
-          title: Supports Api Key
-          default: false
-        supports_user_password:
-          type: boolean
-          title: Supports User Password
-          default: false
-        supports_host_scoped:
-          type: boolean
-          title: Supports Host Scoped
-          default: false
-        default_scopes:
-          items:
-            type: string
-          type: array
-          title: Default Scopes
-      type: object
-      required:
-      - name
-      title: ProviderInfo
-      description: Information about an integration provider.
     OAuthCompleteResponse:
       properties:
         credentials_id:
@@ -1869,6 +1822,53 @@ components:
       - title
       title: CreateUserPasswordCredentialRequest
       description: Request model for creating username/password credentials.
+    ProviderInfo:
+      properties:
+        name:
+          type: string
+          title: Name
+        supports_oauth:
+          type: boolean
+          title: Supports Oauth
+          default: false
+        supports_api_key:
+          type: boolean
+          title: Supports Api Key
+          default: false
+        supports_user_password:
+          type: boolean
+          title: Supports User Password
+          default: false
+        supports_host_scoped:
+          type: boolean
+          title: Supports Host Scoped
+          default: false
+        default_scopes:
+          items:
+            type: string
+          type: array
+          title: Default Scopes
+      type: object
+      required:
+      - name
+      title: ProviderInfo
+      description: Information about an integration provider.
+    OAuthCompleteRequest:
+      properties:
+        code:
+          type: string
+          title: Code
+          description: Authorization code from OAuth provider
+        state_token:
+          type: string
+          title: State Token
+          description: State token from initiate request
+      type: object
+      required:
+      - code
+      - state_token
+      title: OAuthCompleteRequest
+      description: Request model for completing an OAuth flow.
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

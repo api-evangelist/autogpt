@@ -984,46 +984,46 @@ paths:
       x-operation-id-original: patchV2Update workspace member role
 components:
   schemas:
-    OrgMemberResponse:
+    AddTeamMemberRequest:
       properties:
-        id:
-          type: string
-          title: Id
         user_id:
           type: string
           title: User Id
-        email:
-          type: string
-          title: Email
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        is_owner:
-          type: boolean
-          title: Is Owner
         is_admin:
           type: boolean
           title: Is Admin
+          default: false
         is_billing_manager:
           type: boolean
           title: Is Billing Manager
-        joined_at:
-          type: string
-          format: date-time
-          title: Joined At
+          default: false
       type: object
       required:
-      - id
       - user_id
-      - email
+      title: AddTeamMemberRequest
+    CreateOrgRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        slug:
+          type: string
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]*$
+          title: Slug
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
       - name
-      - is_owner
-      - is_admin
-      - is_billing_manager
-      - joined_at
-      title: OrgMemberResponse
+      - slug
+      title: CreateOrgRequest
     ValidationError:
       properties:
         loc:
@@ -1072,51 +1072,15 @@ components:
       - alias_type
       - created_at
       title: OrgAliasResponse
-    CreateOrgRequest:
+    HTTPValidationError:
       properties:
-        name:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Name
-        slug:
-          type: string
-          maxLength: 100
-          minLength: 1
-          pattern: ^[a-z0-9][a-z0-9-]*$
-          title: Slug
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-      type: object
-      required:
-      - name
-      - slug
-      title: CreateOrgRequest
-    CreateInvitationRequest:
-      properties:
-        email:
-          type: string
-          title: Email
-        is_admin:
-          type: boolean
-          title: Is Admin
-          default: false
-        is_billing_manager:
-          type: boolean
-          title: Is Billing Manager
-          default: false
-        team_ids:
+        detail:
           items:
-            type: string
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Team Ids
+          title: Detail
       type: object
-      required:
-      - email
-      title: CreateInvitationRequest
+      title: HTTPValidationError
     CreateTeamRequest:
       properties:
         name:
@@ -1137,6 +1101,23 @@ components:
       required:
       - name
       title: CreateTeamRequest
+    AddMemberRequest:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        is_admin:
+          type: boolean
+          title: Is Admin
+          default: false
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+          default: false
+      type: object
+      required:
+      - user_id
+      title: AddMemberRequest
     InvitationResponse:
       properties:
         id:
@@ -1174,156 +1155,6 @@ components:
       - created_at
       - team_ids
       title: InvitationResponse
-    UpdateMemberRequest:
-      properties:
-        is_admin:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Admin
-        is_billing_manager:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Billing Manager
-      type: object
-      title: UpdateMemberRequest
-    CreateAliasRequest:
-      properties:
-        alias_slug:
-          type: string
-          maxLength: 100
-          minLength: 1
-          pattern: ^[a-z0-9][a-z0-9-]*$
-          title: Alias Slug
-      type: object
-      required:
-      - alias_slug
-      title: CreateAliasRequest
-    UpdateTeamMemberRequest:
-      properties:
-        is_admin:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Admin
-        is_billing_manager:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Billing Manager
-      type: object
-      title: UpdateTeamMemberRequest
-    AddMemberRequest:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        is_admin:
-          type: boolean
-          title: Is Admin
-          default: false
-        is_billing_manager:
-          type: boolean
-          title: Is Billing Manager
-          default: false
-      type: object
-      required:
-      - user_id
-      title: AddMemberRequest
-    UpdateOrgRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        slug:
-          anyOf:
-          - type: string
-            pattern: ^[a-z0-9][a-z0-9-]*$
-          - type: 'null'
-          title: Slug
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        avatar_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Avatar Url
-      type: object
-      title: UpdateOrgRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AddTeamMemberRequest:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        is_admin:
-          type: boolean
-          title: Is Admin
-          default: false
-        is_billing_manager:
-          type: boolean
-          title: Is Billing Manager
-          default: false
-      type: object
-      required:
-      - user_id
-      title: AddTeamMemberRequest
-    InvitationCreateResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        email:
-          type: string
-          title: Email
-        is_admin:
-          type: boolean
-          title: Is Admin
-        is_billing_manager:
-          type: boolean
-          title: Is Billing Manager
-        expires_at:
-          type: string
-          format: date-time
-          title: Expires At
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        team_ids:
-          items:
-            type: string
-          type: array
-          title: Team Ids
-        token:
-          type: string
-          title: Token
-      type: object
-      required:
-      - id
-      - email
-      - is_admin
-      - is_billing_manager
-      - expires_at
-      - created_at
-      - team_ids
-      - token
-      title: InvitationCreateResponse
-      description: Extended response returned only from POST /invitations -- includes the token.
     TeamResponse:
       properties:
         id:
@@ -1370,7 +1201,7 @@ components:
       - member_count
       - created_at
       title: TeamResponse
-    TeamMemberResponse:
+    OrgMemberResponse:
       properties:
         id:
           type: string
@@ -1386,6 +1217,9 @@ components:
           - type: string
           - type: 'null'
           title: Name
+        is_owner:
+          type: boolean
+          title: Is Owner
         is_admin:
           type: boolean
           title: Is Admin
@@ -1402,19 +1236,44 @@ components:
       - user_id
       - email
       - name
+      - is_owner
       - is_admin
       - is_billing_manager
       - joined_at
-      title: TeamMemberResponse
-    TransferOwnershipRequest:
+      title: OrgMemberResponse
+    UpdateTeamRequest:
       properties:
-        new_owner_id:
-          type: string
-          title: New Owner Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        join_policy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Join Policy
       type: object
-      required:
-      - new_owner_id
-      title: TransferOwnershipRequest
+      title: UpdateTeamRequest
+    UpdateTeamMemberRequest:
+      properties:
+        is_admin:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Admin
+        is_billing_manager:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Billing Manager
+      type: object
+      title: UpdateTeamMemberRequest
     OrgResponse:
       properties:
         id:
@@ -1457,25 +1316,166 @@ components:
       - member_count
       - created_at
       title: OrgResponse
-    UpdateTeamRequest:
+    TransferOwnershipRequest:
+      properties:
+        new_owner_id:
+          type: string
+          title: New Owner Id
+      type: object
+      required:
+      - new_owner_id
+      title: TransferOwnershipRequest
+    TeamMemberResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        email:
+          type: string
+          title: Email
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_admin:
+          type: boolean
+          title: Is Admin
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+        joined_at:
+          type: string
+          format: date-time
+          title: Joined At
+      type: object
+      required:
+      - id
+      - user_id
+      - email
+      - name
+      - is_admin
+      - is_billing_manager
+      - joined_at
+      title: TeamMemberResponse
+    CreateInvitationRequest:
+      properties:
+        email:
+          type: string
+          title: Email
+        is_admin:
+          type: boolean
+          title: Is Admin
+          default: false
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+          default: false
+        team_ids:
+          items:
+            type: string
+          type: array
+          title: Team Ids
+      type: object
+      required:
+      - email
+      title: CreateInvitationRequest
+    UpdateOrgRequest:
       properties:
         name:
           anyOf:
           - type: string
           - type: 'null'
           title: Name
+        slug:
+          anyOf:
+          - type: string
+            pattern: ^[a-z0-9][a-z0-9-]*$
+          - type: 'null'
+          title: Slug
         description:
           anyOf:
           - type: string
           - type: 'null'
           title: Description
-        join_policy:
+        avatar_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Join Policy
+          title: Avatar Url
       type: object
-      title: UpdateTeamRequest
+      title: UpdateOrgRequest
+    InvitationCreateResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        email:
+          type: string
+          title: Email
+        is_admin:
+          type: boolean
+          title: Is Admin
+        is_billing_manager:
+          type: boolean
+          title: Is Billing Manager
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        team_ids:
+          items:
+            type: string
+          type: array
+          title: Team Ids
+        token:
+          type: string
+          title: Token
+      type: object
+      required:
+      - id
+      - email
+      - is_admin
+      - is_billing_manager
+      - expires_at
+      - created_at
+      - team_ids
+      - token
+      title: InvitationCreateResponse
+      description: Extended response returned only from POST /invitations -- includes the token.
+    UpdateMemberRequest:
+      properties:
+        is_admin:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Admin
+        is_billing_manager:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Billing Manager
+      type: object
+      title: UpdateMemberRequest
+    CreateAliasRequest:
+      properties:
+        alias_slug:
+          type: string
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]*$
+          title: Alias Slug
+      type: object
+      required:
+      - alias_slug
+      title: CreateAliasRequest
   responses:
     HTTP401NotAuthenticatedError:
       description: Authentication required

@@ -168,64 +168,26 @@ paths:
       x-operation-id-source: normalized
       x-operation-id-original: deleteV1Delete execution schedule
 components:
+  responses:
+    HTTP401NotAuthenticatedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
   schemas:
-    ValidationError:
+    HTTPValidationError:
       properties:
-        loc:
+        detail:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Detail
       type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    CredentialsMetaInput:
-      properties:
-        id:
-          type: string
-          title: Id
-        title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Title
-        provider:
-          type: string
-          title: Provider
-          description: Provider name for integrations. Can be any string value, including custom provider names.
-        type:
-          type: string
-          enum:
-          - api_key
-          - oauth2
-          - user_password
-          - host_scoped
-          - device_code
-          title: Type
-      type: object
-      required:
-      - id
-      - provider
-      - type
-      title: CredentialsMetaInput
-      credentials_provider: []
-      credentials_types: []
+      title: HTTPValidationError
     CopilotTurnJobInfo:
       properties:
         kind:
@@ -310,15 +272,6 @@ components:
       - name
       - next_run_time
       title: CopilotTurnJobInfo
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ScheduleCreationRequest:
       properties:
         graph_version:
@@ -359,6 +312,63 @@ components:
       - cron
       - inputs
       title: ScheduleCreationRequest
+    CredentialsMetaInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        provider:
+          type: string
+          title: Provider
+          description: Provider name for integrations. Can be any string value, including custom provider names.
+        type:
+          type: string
+          enum:
+          - api_key
+          - oauth2
+          - user_password
+          - host_scoped
+          - device_code
+          title: Type
+      type: object
+      required:
+      - id
+      - provider
+      - type
+      title: CredentialsMetaInput
+      credentials_provider: []
+      credentials_types: []
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     GraphExecutionJobInfo:
       properties:
         kind:
@@ -436,16 +446,6 @@ components:
       - name
       - next_run_time
       title: GraphExecutionJobInfo
-  responses:
-    HTTP401NotAuthenticatedError:
-      description: Authentication required
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              detail:
-                type: string
   securitySchemes:
     APIKeyAuthenticator-X-Postmark-Webhook-Token:
       type: apiKey
