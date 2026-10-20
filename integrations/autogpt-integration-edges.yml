@@ -1,0 +1,80 @@
+edges:
+- partner_name: Agent Skills (own GitHub org)
+  partner: null
+  partner_match: register
+  type: register
+  direction: provider-built
+  category: Agent Skills package
+  evidence: https://github.com/Significant-Gravitas/AutoGPT
+  channel: provider-built
+  relationship: compatible
+  shape: agent-skills
+  evidence_kind: own-repo
+  degree: skill-repo
+  report_only: true
+  agent_skills:
+    org: significant-gravitas
+    current: true
+    repos:
+    - repo: Significant-Gravitas/AutoGPT
+      archived: false
+      lapsed: false
+      pushed: '2026-10-20'
+  contract_reference:
+    register: 'provider''s own GitHub org (GitHub REST API: repo + git tree holds SKILL.md)'
+    spec_file: null
+    standard: Agent Skills (agentskills.io)
+    role: agent-skills-repo
+    matched_org: significant-gravitas
+    matched_by: org-profile-domain:agpt.co
+    detected_by: sweep-agent-skills.py
+    detected: '2026-10-20'
+  detected_by: sweep-agent-skills.py
+  first_seen: '2026-10-20'
+- partner_name: SkillsMP (skillsmp.com)
+  partner: null
+  partner_match: register
+  type: register
+  direction: partner-built
+  category: Agent Skills register
+  evidence: https://skillsmp.com/creators/significant-gravitas/autogpt
+  channel: standard-directory
+  relationship: compatible
+  shape: agent-skills
+  evidence_kind: register-listing
+  degree: listed
+  report_only: true
+  agent_skills_register:
+    repos:
+    - significant-gravitas
+    - significant-gravitas/autogpt
+    repo_verified: true
+    signal_note: the provider's own-org repos the register lists; skill / install counts never read
+  contract_reference:
+    register: SkillsMP (skillsmp.com) (public sitemap / list)
+    spec_file: null
+    standard: Agent Skills (agentskills.io)
+    role: agent-skills-listing
+    matched_org: significant-gravitas
+    matched_by: org-profile-domain:agpt.co
+    sample_skills:
+    - claude-skills-orchestrate
+    - claude-skills-pr-review
+    - claude-skills-vercel-react-best-practices
+    - claude-skills-worktree
+    - claude-skills-write-frontend-tests
+    detected_by: sweep-agent-skills.py
+    detected: '2026-10-20'
+  detected_by: sweep-agent-skills.py
+  first_seen: '2026-10-20'
+generated: '2026-10-20'
+method: searched
+source:
+- https://www.skills.sh/sitemap.xml
+checked:
+- https://api.github.com
+- https://claude-plugins.dev/sitemap.xml
+- https://github.com/VoltAgent/awesome-agent-skills
+- https://officialskills.sh/sitemap.xml
+- https://skillsmp.com/sitemap.xml
+- https://www.skills.sh/sitemap.xml
