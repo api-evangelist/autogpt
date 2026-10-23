@@ -9,6 +9,9 @@ artifacts:
   authentication/autogpt-authentication.yml:
     method: searched
     evidence: declared in the artifact
+  capabilities/autogpt-capability-edges.yml:
+    method: unknown
+    evidence: no authorship recorded
   changelog/autogpt-changelog.yml:
     method: searched
     evidence: declared in the artifact
@@ -33,127 +36,13 @@ artifacts:
   front-door-ai/2026-09-17.yml:
     method: unknown
     evidence: no authorship recorded
-  kin/checks-2026-09-24T161608.yml:
+  integrations/_index.yml:
     method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-25T125852.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-25T133943.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-25T143147.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-25T154045.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-26T215308.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T094438.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T103455.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T123021.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T132314.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-27T140727.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-28T221322.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-29T213958.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-29T230545.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-30T203505.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-30T220315.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-08-31T223420.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-01T063623.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-01T210448.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-01T222808.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-02T211804.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-02T224043.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-03T161828.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-03T174231.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-04T062714.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-04T212454.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-04T224856.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T055819.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T072335.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T144739.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T195450.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-05T211839.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-06T011047.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-06T211804.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-06T224210.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-07T200636.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-07T213054.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-08T214843.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-08T232836.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-10T204815.yml:
-    method: generated
-    evidence: Kin Score snapshot written by score.rb
-  kin/score-2026-09-10T222408.yml:
+    evidence: carries an API Evangelist house phrase
+  integrations/autogpt-integration-edges.yml:
+    method: searched
+    evidence: declared in the artifact
+  kin/checks-2026-10-11T110117.yml:
     method: generated
     evidence: Kin Score snapshot written by score.rb
   kin/score-2026-09-12T062655.yml:
@@ -237,6 +126,21 @@ artifacts:
   kin/score-2026-09-24T161608.yml:
     method: generated
     evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-09-25T210408.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-09-25T232841.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-10-03T000835.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-10-03T024842.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
+  kin/score-2026-10-11T110117.yml:
+    method: generated
+    evidence: Kin Score snapshot written by score.rb
   lifecycle/autogpt-lifecycle.yml:
     method: searched
     evidence: declared in the artifact
@@ -254,15 +158,20 @@ artifacts:
     method: harvested
     evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
       to the provider's source is unverified
-  openapi/_original/autogpt-agent-server-openapi_2.json.archived.txt:
-    method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
   openapi/_original/autogpt-external-api-openapi.json:
     method: harvested
-    evidence: found in openapi/_original/; the fetch URL and bytes were not recorded, so byte-identity
-      to the provider's source is unverified
+    evidence: the same operations as https://backend.agpt.co/external-api/openapi.json (sha256 a9987b6b5b02,
+      fetched 2026-10-04)
+  openapi/autogpt-admin-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-analytics-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-api-keys-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-auth-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-auth-email-api-openapi.yml:
@@ -274,7 +183,28 @@ artifacts:
   openapi/autogpt-briefings-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-builder-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-chat-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-copilot-webhooks-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-credits-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-email-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-executions-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-experts-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-files-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-graphs-api-openapi.yml:
@@ -289,6 +219,18 @@ artifacts:
   openapi/autogpt-integrations-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-invitations-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-library-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-mcp-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-memory-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-meta-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
@@ -298,13 +240,34 @@ artifacts:
   openapi/autogpt-oauth-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-onboarding-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-orgs-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-otto-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-platform-linking-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-presets-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-public-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-push-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-schedules-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-search-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-skills-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-store-api-openapi.yml:
@@ -313,21 +276,18 @@ artifacts:
   openapi/autogpt-tools-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
+  openapi/autogpt-transfers-api-openapi.yml:
+    method: derived
+    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-user-api-openapi.yml:
-    method: derived
-    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
-  openapi/autogpt-v1-api-openapi.yml:
-    method: derived
-    evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
-  openapi/autogpt-v2-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   openapi/autogpt-workspace-api-openapi.yml:
     method: derived
     evidence: paths are a subset of openapi/_original/ (split from the harvested spec)
   overlays/autogpt-external-api-overlay.yaml:
-    method: generated
-    evidence: declared in the artifact
+    method: derived
+    evidence: an API Evangelist overlay (title) over the provider's contract
   packages/autogpt-packages.yml:
     method: searched
     evidence: declared in the artifact

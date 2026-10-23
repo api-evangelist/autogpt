@@ -218,3 +218,9 @@ components:
     HTTPBearer:
       type: http
       scheme: bearer
+x-provenance:
+  method: harvested
+  publisher: AutoGPT
+  source: https://backend.agpt.co/external-api/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
