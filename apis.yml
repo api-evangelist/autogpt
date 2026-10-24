@@ -135,6 +135,8 @@ apis:
   humanURL: https://agpt.co/docs/platform/api-and-integrations/api-guide
   baseURL: https://backend.agpt.co/external-api
   tags:
+  - Briefings
+  tags_raw:
   - briefings
   properties:
   - type: OpenAPI
