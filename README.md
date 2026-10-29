@@ -1,4 +1,4 @@
-# AutoGPT (autogpt)
+# AutoGPT
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,47 +64,179 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-AutoGPT is an autonomous AI agent framework that chains LLM calls to accomplish complex tasks independently.
+AutoGPT, from Significant Gravitas, is an open-source platform for building, deploying and running autonomous AI agents that automate digital work — research, outreach, content, support — without writing code. Agents are composed as graphs of reusable blocks in a visual builder, or described in plain language to AutoPilot, then run continuously on schedules and triggers across 45+ connected services. The platform is free to self-host from GitHub and also sold as a managed cloud at agpt.co, where work is metered in automation credits. Developers reach it through the AutoGPT External API at backend.agpt.co/external-api, a 20-operation REST surface authenticated with an X-API-Key header or an OAuth 2.0 token, which can find and run agents, execute individual blocks, create agent graphs, read execution results and manage the third-party credentials agents act on. AutoGPT is also a fluent MCP client: its MCP Tool block connects an agent to any Model Context Protocol server over Streamable HTTP with OAuth and PKCE.
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/autogpt/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/autogpt/refs/heads/main/apis.yml)
+**Areas:** AI Agents · AI Automation · Agent Platform · Workflow Automation · MCP · Open Source · No-Code · LLM Orchestration · Agent Marketplace
 
-## Scope
+## AutoGPT on APIs.io
 
-- **Type:** Index
+Everything profiled for AutoGPT is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/autogpt/](https://apis.io/providers/autogpt/)** — or go straight to one of the APIs or properties below.
 
-## Tags
+### APIs (41)
 
-- AI Agents
-- AI Automation
+- [AutoGPT Analytics API](https://apis.io/apis/autogpt/autogpt-analytics-api/) — The analytics API from AutoGPT — 2 operation(s) for analytics.
+- [AutoGPT Auth Email API](https://apis.io/apis/autogpt/autogpt-auth-email-api/) — The auth-email API from AutoGPT — 1 operation(s) for auth-email.
+- [AutoGPT Blocks API](https://apis.io/apis/autogpt/autogpt-blocks-api/) — The blocks API from AutoGPT — 2 operation(s) for blocks.
+- [AutoGPT Briefings API](https://apis.io/apis/autogpt/autogpt-briefings-api/) — The briefings API from AutoGPT — 1 operation(s) for briefings.
+- [AutoGPT Copilot Webhooks API](https://apis.io/apis/autogpt/autogpt-copilot-webhooks-api/) — The Copilot Webhooks API from AutoGPT — 6 operation(s) for copilot webhooks.
+- [AutoGPT Graphs API](https://apis.io/apis/autogpt/autogpt-graphs-api/) — The graphs API from AutoGPT — 3 operation(s) for graphs.
+- [AutoGPT Health API](https://apis.io/apis/autogpt/autogpt-health-api/) — The health API from AutoGPT — 1 operation(s) for health.
+- [AutoGPT Home API](https://apis.io/apis/autogpt/autogpt-home-api/) — The home API from AutoGPT — 1 operation(s) for home.
+- [AutoGPT Integrations API](https://apis.io/apis/autogpt/autogpt-integrations-api/) — The integrations API from AutoGPT — 6 operation(s) for integrations.
+- [AutoGPT Meta API](https://apis.io/apis/autogpt/autogpt-meta-api/) — The meta API from AutoGPT — 1 operation(s) for meta.
+- [AutoGPT Monitoring API](https://apis.io/apis/autogpt/autogpt-monitoring-api/) — The monitoring API from AutoGPT — 1 operation(s) for monitoring.
+- [AutoGPT Platform Linking API](https://apis.io/apis/autogpt/autogpt-platform-linking-api/) — The platform-linking API from AutoGPT — 8 operation(s) for platform-linking.
+- [AutoGPT Push API](https://apis.io/apis/autogpt/autogpt-push-api/) — The push API from AutoGPT — 3 operation(s) for push.
+- [AutoGPT Search API](https://apis.io/apis/autogpt/autogpt-search-api/) — The search API from AutoGPT — 1 operation(s) for search.
+- [AutoGPT Store API](https://apis.io/apis/autogpt/autogpt-store-api/) — The store API from AutoGPT — 4 operation(s) for store.
+- [AutoGPT Tools API](https://apis.io/apis/autogpt/autogpt-tools-api/) — The tools API from AutoGPT — 2 operation(s) for tools.
+- [AutoGPT User API](https://apis.io/apis/autogpt/autogpt-user-api/) — The user API from AutoGPT — 1 operation(s) for user.
+- [AutoGPT Workspace API](https://apis.io/apis/autogpt/autogpt-workspace-api/) — The workspace API from AutoGPT — 9 operation(s) for workspace.
+- [AutoGPT OAUTH API](https://apis.io/apis/autogpt/autogpt-oauth-api/) — The oauth API from AutoGPT — 9 operation(s) for oauth.
+- [AutoGPT Admin API](https://apis.io/apis/autogpt/autogpt-admin-api/) — The admin API from AutoGPT — 64 operation(s) for admin.
+- [AutoGPT API Keys API](https://apis.io/apis/autogpt/autogpt-api-keys-api/) — The api-keys API from AutoGPT — 4 operation(s) for api-keys.
+- [AutoGPT Auth API](https://apis.io/apis/autogpt/autogpt-auth-api/) — The auth API from AutoGPT — 5 operation(s) for auth.
+- [AutoGPT Builder API](https://apis.io/apis/autogpt/autogpt-builder-api/) — The Builder API from AutoGPT — 6 operation(s) for builder.
+- [AutoGPT Chat API](https://apis.io/apis/autogpt/autogpt-chat-api/) — The chat API from AutoGPT — 20 operation(s) for chat.
+- [AutoGPT Credits API](https://apis.io/apis/autogpt/autogpt-credits-api/) — The credits API from AutoGPT — 9 operation(s) for credits.
+- [AutoGPT Email API](https://apis.io/apis/autogpt/autogpt-email-api/) — The email API from AutoGPT — 2 operation(s) for email.
+- [AutoGPT Executions API](https://apis.io/apis/autogpt/autogpt-executions-api/) — The executions API from AutoGPT — 3 operation(s) for executions.
+- [AutoGPT Experts API](https://apis.io/apis/autogpt/autogpt-experts-api/) — The experts API from AutoGPT — 12 operation(s) for experts.
+- [AutoGPT Files API](https://apis.io/apis/autogpt/autogpt-files-api/) — The files API from AutoGPT — 1 operation(s) for files.
+- [AutoGPT Invitations API](https://apis.io/apis/autogpt/autogpt-invitations-api/) — The invitations API from AutoGPT — 3 operation(s) for invitations.
+- [AutoGPT Library API](https://apis.io/apis/autogpt/autogpt-library-api/) — The library API from AutoGPT — 12 operation(s) for library.
+- [AutoGPT MCP API](https://apis.io/apis/autogpt/autogpt-mcp-api/) — The mcp API from AutoGPT — 4 operation(s) for mcp.
+- [AutoGPT Memory API](https://apis.io/apis/autogpt/autogpt-memory-api/) — The memory API from AutoGPT — 8 operation(s) for memory.
+- [AutoGPT Onboarding API](https://apis.io/apis/autogpt/autogpt-onboarding-api/) — The onboarding API from AutoGPT — 14 operation(s) for onboarding.
+- [AutoGPT Orgs API](https://apis.io/apis/autogpt/autogpt-orgs-api/) — The orgs API from AutoGPT — 15 operation(s) for orgs.
+- [AutoGPT Otto API](https://apis.io/apis/autogpt/autogpt-otto-api/) — The otto API from AutoGPT — 1 operation(s) for otto.
+- [AutoGPT Presets API](https://apis.io/apis/autogpt/autogpt-presets-api/) — The presets API from AutoGPT — 4 operation(s) for presets.
+- [AutoGPT Public API](https://apis.io/apis/autogpt/autogpt-public-api/) — The Public API from AutoGPT — 1 operation(s) for public.
+- [AutoGPT Schedules API](https://apis.io/apis/autogpt/autogpt-schedules-api/) — The schedules API from AutoGPT — 4 operation(s) for schedules.
+- [AutoGPT Skills API](https://apis.io/apis/autogpt/autogpt-skills-api/) — The skills API from AutoGPT — 2 operation(s) for skills.
+- [AutoGPT Transfers API](https://apis.io/apis/autogpt/autogpt-transfers-api/) — The transfers API from AutoGPT — 4 operation(s) for transfers.
 
-## Timestamps
+### Published properties
 
-- **Created:** 2026-03-27
-- **Modified:** 2026-03-27
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-## APIs
+#### AsyncAPI (1)
 
-### AutoGPT
+Event-driven and webhook contracts.
 
-AutoGPT is an autonomous AI agent framework that chains LLM calls to accomplish complex tasks independently.
+- [Autogpt Webhooks](https://apis.io/asyncapis/autogpt/autogpt-webhooks/)
 
-- **Human URL:** [https://agpt.co](https://agpt.co)
+#### MCP servers (1)
 
-#### Tags
+Model Context Protocol servers that expose the API to agents.
 
-- AI Automation
+- [autogpt-mcp.yml](https://apis.io/servers/autogpt/autogpt-mcp-yml/)
 
-#### Properties
+#### Overlays (1)
 
-- [Documentation](https://docs.agpt.co)
+OpenAPI overlays, including conversational phrasing for each operation.
 
-## Common Properties
+- [Autogpt External Api Overlay](https://apis.io/overlays/autogpt/autogpt-external-api-overlay/)
 
-- [GitHub Organization](https://github.com/significant-gravitas)
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Autogpt Authentication](https://apis.io/security/autogpt/autogpt-authentication/)
+- [Autogpt Domain Security](https://apis.io/security/autogpt/autogpt-domain-security/)
+- [Autogpt Vulnerability Disclosure](https://apis.io/security/autogpt/autogpt-vulnerability-disclosure/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Autogpt Scopes](https://apis.io/scopes/autogpt/autogpt-scopes/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Autogpt Plans Pricing](https://apis.io/plans/autogpt/autogpt-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Autogpt Rate Limits](https://apis.io/rate-limits/autogpt/autogpt-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Autogpt Finops](https://apis.io/finops/autogpt/autogpt-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
 - [Website](https://agpt.co)
-- [Documentation](https://docs.agpt.co)
+- [Documentation](https://agpt.co/docs)
+- [Getting started](https://agpt.co/docs/platform/using-the-platform/getting-started-cloud)
+- [API reference](https://backend.agpt.co/external-api/docs)
+- [Pricing](https://agpt.co/pricing)
+- [Sign up](https://platform.agpt.co/login)
+- [Support](https://discord.gg/autogpt)
+- [Blog](https://agpt.co/blog)
+- [Terms of service](https://agpt.co/legal/platform-terms-of-use)
+- [Privacy policy](https://agpt.co/legal/platform-privacy-policy)
+- [GitHub](https://github.com/Significant-Gravitas)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 59.2** — strong · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 73.2 |
+| Contract quality | 52.7 |
+| Contract governance | 4.5 |
+| Operational transparency | 42.1 |
+| Developer ergonomics | 66.1 |
+| Access clarity | 76.3 |
+
+**Agent readiness 27.0** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | mostly |
+
+**Regulatory alignment 40.2** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/autogpt/](https://apis.io/providers/autogpt/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for AutoGPT: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/autogpt/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
