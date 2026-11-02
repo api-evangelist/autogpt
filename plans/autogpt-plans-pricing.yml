@@ -1,0 +1,85 @@
+# Pricing transcribed from the provider's own page — see provenance. Numbers are quoted, not derived.
+generated: '2026-10-28'
+method: searched
+source: https://agpt.co/pricing/
+sources:
+- https://agpt.co/pricing/
+- https://agpt.co/pricing
+provenance:
+  tool: engine/economics/harvest_pricing.py
+  run: 20261028T141238
+  grounding: every price_text was found verbatim in the fetched page text
+audience: business-product
+pricing_basis: tiered-subscription
+delivery:
+  delivery: open-core
+  method: page
+  read: '2026-10-28'
+  evidence: Self-Host Open source Read the docs
+  free_edition: Self-Host
+  managed_tier: Pro
+published: true
+note: Monthly/yearly toggle noted with 'Save 15%' on yearly; only monthly prices shown. Free self-hosted
+  open-source edition offered beside paid cloud tiers.
+plan_count: 4
+currency: USD
+plans:
+- name: Pro
+  price_text: $50.00 / month
+  price: 50
+  currency: USD
+  period: month
+  included_quota: 7-day free trial; Otto chat and Expert chat; scheduled workflow runs use credit wallet
+  overage: Pay-as-you-go automations billed from credit wallet
+- name: Max
+  price_text: $320.00 / month
+  price: 320
+  currency: USD
+  period: month
+  included_quota: Everything in Pro, 8.5x Pro usage, 5x file storage, priority support
+  overage: Pay-as-you-go automations billed from credit wallet
+- name: Team
+  price_text: Contact us
+  period: none
+  included_quota: Multi-user workspaces, admin controls, centralized billing
+- name: Self-Host
+  price_text: Open source
+  period: none
+  included_quota: BYO LLM keys and infrastructure; community/GitHub support
+rate_limit_statements:
+- Large File Uploads files up to 256 MB supported.
+x-canonical:
+  generated: '2026-11-01'
+  vocabulary: engine/economics/plans-canonical.yml
+  models:
+  - hybrid
+  units: []
+  plans:
+  - name: Pro
+    access: other
+    model: hybrid
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Max
+    access: other
+    model: hybrid
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Team
+    access: other
+    model: unstated
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: Self-Host
+    access: other
+    model: unstated
+    model_how: derived
+    units: []
+    periods:
+    - none
